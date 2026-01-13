@@ -793,6 +793,97 @@
                 box-shadow: 0 0 0 6px rgba(74, 222, 128, 0);
             }
         }
+
+        /* Scenic Route Toggle */
+        .route-toggle-section {
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.6s ease-out 0.55s both;
+        }
+
+        .route-toggle-section h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            color: var(--deep-brown);
+        }
+
+        .route-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.75rem;
+            background: linear-gradient(135deg, var(--sunshine-gold) 0%, var(--amber) 100%);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .route-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(234, 192, 84, 0.4);
+        }
+
+        .route-toggle input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--deep-brown);
+        }
+
+        .route-toggle label {
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--deep-brown);
+        }
+
+        .route-info {
+            font-size: 0.75rem;
+            color: #555;
+            margin-top: 0.5rem;
+            line-height: 1.4;
+        }
+
+        /* Route Legend */
+        .route-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: var(--light-gold);
+            border-radius: 6px;
+        }
+
+        .route-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .route-line {
+            width: 24px;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        .route-line.blue-ridge {
+            background: linear-gradient(90deg, #2E86AB, #4ECDC4);
+        }
+
+        .route-line.skyline {
+            background: linear-gradient(90deg, #7B68EE, #9370DB);
+        }
+
+        .route-line.route-100 {
+            background: linear-gradient(90deg, #228B22, #32CD32);
+        }
+
+        .route-line.connector {
+            background: #888;
+            border-style: dashed;
+        }
     </style>
 </head>
 <body>
@@ -878,6 +969,33 @@
                             Community Partners
                             <span class="count-badge" id="count-community">0</span>
                         </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="route-toggle-section">
+                <h3>Scenic Road Trip Route</h3>
+                <div class="route-toggle">
+                    <input type="checkbox" id="toggle-scenic-route">
+                    <label for="toggle-scenic-route">Show The Sunshine Trail Route</label>
+                </div>
+                <p class="route-info">The ultimate road trip from Asheville, NC to Waitsfield, VT via America's most scenic mountain roads.</p>
+                <div class="route-legend" id="route-legend" style="display: none;">
+                    <div class="route-legend-item">
+                        <span class="route-line blue-ridge"></span>
+                        <span>Blue Ridge Parkway (469 mi)</span>
+                    </div>
+                    <div class="route-legend-item">
+                        <span class="route-line skyline"></span>
+                        <span>Skyline Drive (105 mi)</span>
+                    </div>
+                    <div class="route-legend-item">
+                        <span class="route-line connector"></span>
+                        <span>I-81 / US-7 Connector</span>
+                    </div>
+                    <div class="route-legend-item">
+                        <span class="route-line route-100"></span>
+                        <span>VT Route 100 (217 mi)</span>
                     </div>
                 </div>
             </div>
@@ -1142,6 +1260,224 @@
                 location: "Asheville, NC",
                 description: "Great selection and one-stop shopping for beer and wine in Asheville.",
                 url: null
+            },
+            // Additional Vermont Retailers
+            {
+                name: "Cold Hollow Cider Mill",
+                category: "retailer",
+                lat: 44.3856,
+                lng: -72.7469,
+                location: "Waterbury, VT",
+                description: "Iconic Vermont destination with craft beer, fresh cider donuts, and local products. A Route 100 must-stop.",
+                url: "https://coldhollow.com"
+            },
+            {
+                name: "Stowe Public House",
+                category: "retailer",
+                lat: 44.4654,
+                lng: -72.6874,
+                location: "Stowe, VT",
+                description: "Classic Vermont tavern with an excellent rotating craft beer selection including Lawson's Finest.",
+                url: null
+            },
+            // Additional New Hampshire
+            {
+                name: "Bert's Better Beers",
+                category: "retailer",
+                lat: 42.9956,
+                lng: -71.4548,
+                location: "Hooksett, NH",
+                description: "New Hampshire's premier craft beer destination with 1,200+ craft beers. Consistently stocks Lawson's.",
+                url: "https://bertsbetterbeers.com"
+            },
+            // Additional Massachusetts
+            {
+                name: "Yankee Spirits",
+                category: "retailer",
+                lat: 42.0834,
+                lng: -71.0184,
+                location: "Attleboro, MA",
+                description: "Award-winning liquor store chain with extensive craft beer selection including Lawson's Finest.",
+                url: "https://yankeespirits.com"
+            },
+            {
+                name: "Stop & Shop - Boston",
+                category: "retailer",
+                lat: 42.3467,
+                lng: -71.0972,
+                location: "Boston, MA",
+                description: "Major grocery chain carrying Lawson's Sip of Sunshine in 4-packs. Cold stored for freshness.",
+                url: "https://stopandshop.com"
+            },
+            {
+                name: "Gordon's Fine Wines & Liquors",
+                category: "retailer",
+                lat: 42.4501,
+                lng: -71.2326,
+                location: "Waltham, MA",
+                description: "Family-owned since 1936. Excellent craft beer cave with rotating Lawson's selections.",
+                url: "https://gordonswine.com"
+            },
+            // Additional Connecticut
+            {
+                name: "Craft Beer Shop - New Haven",
+                category: "retailer",
+                lat: 41.3083,
+                lng: -72.9279,
+                location: "New Haven, CT",
+                description: "Dedicated craft beer bottle shop in the heart of New Haven. Fresh Lawson's regularly in stock.",
+                url: null
+            },
+            // Additional New York
+            {
+                name: "Half Time Beverage",
+                category: "retailer",
+                lat: 41.0255,
+                lng: -73.7618,
+                location: "Mamaroneck, NY",
+                description: "Legendary NY craft beer destination with 2,000+ beers. A bucket-list stop for beer lovers.",
+                url: "https://halftimebeverage.com"
+            },
+            {
+                name: "Whole Foods Market - Brooklyn",
+                category: "retailer",
+                lat: 40.6892,
+                lng: -73.9785,
+                location: "Brooklyn, NY",
+                description: "Fort Greene location with curated craft beer selection including Lawson's Sip of Sunshine.",
+                url: "https://wholefoodsmarket.com"
+            },
+            {
+                name: "Wegmans - Rochester",
+                category: "retailer",
+                lat: 43.1166,
+                lng: -77.6088,
+                location: "Rochester, NY",
+                description: "The original Wegmans location with an exceptional beer department. Lawson's regularly stocked.",
+                url: "https://wegmans.com"
+            },
+            // Additional New Jersey
+            {
+                name: "Wegmans - Princeton",
+                category: "retailer",
+                lat: 40.3176,
+                lng: -74.6532,
+                location: "Princeton, NJ",
+                description: "Premium grocery with outstanding craft beer selection and cold storage. Fresh Lawson's available.",
+                url: "https://wegmans.com"
+            },
+            {
+                name: "Buy Rite Liquors - Jersey City",
+                category: "retailer",
+                lat: 40.7282,
+                lng: -74.0776,
+                location: "Jersey City, NJ",
+                description: "Well-stocked craft beer selection with regular Lawson's Finest availability.",
+                url: null
+            },
+            // Additional Pennsylvania
+            {
+                name: "ACME Markets - Wayne",
+                category: "retailer",
+                lat: 40.0439,
+                lng: -75.3879,
+                location: "Wayne, PA",
+                description: "Full-service grocery with craft beer section featuring Lawson's Sip of Sunshine.",
+                url: "https://acmemarkets.com"
+            },
+            {
+                name: "Wegmans - King of Prussia",
+                category: "retailer",
+                lat: 40.0878,
+                lng: -75.3889,
+                location: "King of Prussia, PA",
+                description: "Expansive beer department with dedicated craft section. Lawson's kept cold for optimal freshness.",
+                url: "https://wegmans.com"
+            },
+            // Additional Virginia
+            {
+                name: "Corks & Kegs - Leesburg",
+                category: "retailer",
+                lat: 39.1157,
+                lng: -77.5636,
+                location: "Leesburg, VA",
+                description: "Northern Virginia craft beer destination with 500+ craft selections including Lawson's.",
+                url: null
+            },
+            {
+                name: "Whole Foods Market - Fairfax",
+                category: "retailer",
+                lat: 38.8462,
+                lng: -77.3064,
+                location: "Fairfax, VA",
+                description: "Fresh Lawson's on draft and in cans. Part of their curated Virginia craft beer program.",
+                url: "https://wholefoodsmarket.com"
+            },
+            {
+                name: "Beer Run - Charlottesville",
+                category: "retailer",
+                lat: 38.0293,
+                lng: -78.4767,
+                location: "Charlottesville, VA",
+                description: "Craft beer bar and bottle shop near UVA. Fresh Lawson's in cans with rotating draft selections.",
+                url: "https://beerrun.com"
+            },
+            {
+                name: "Staunton Grocery",
+                category: "retailer",
+                lat: 38.1496,
+                lng: -79.0717,
+                location: "Staunton, VA",
+                description: "Boutique grocery in the Shenandoah Valley with craft beer selection. Near Skyline Drive.",
+                url: null
+            },
+            // Additional North Carolina
+            {
+                name: "Tasty Beverage Co.",
+                category: "retailer",
+                lat: 35.7721,
+                lng: -78.6386,
+                location: "Raleigh, NC",
+                description: "Raleigh's premier craft beer bottle shop with 1,000+ selections. Fresh Lawson's available.",
+                url: "https://tastybeverageco.com"
+            },
+            {
+                name: "Good Bottle Co.",
+                category: "retailer",
+                lat: 35.2106,
+                lng: -80.8308,
+                location: "Charlotte, NC",
+                description: "South End Charlotte's neighborhood bottle shop with curated craft selections including Lawson's.",
+                url: "https://goodbottleco.com"
+            },
+            {
+                name: "Craft - Asheville",
+                category: "retailer",
+                lat: 35.5923,
+                lng: -82.5574,
+                location: "Asheville, NC",
+                description: "Grove Arcade location with rotating craft beer and fresh Lawson's from Artisan Beverage Group.",
+                url: null
+            },
+            // Rhode Island
+            {
+                name: "Nikki's Liquors",
+                category: "retailer",
+                lat: 41.8240,
+                lng: -71.4128,
+                location: "Providence, RI",
+                description: "Providence's go-to craft beer destination. Extensive selection with regular Lawson's stock.",
+                url: "https://nikkisliquors.com"
+            },
+            // Maine
+            {
+                name: "RSVP Discount Beverage",
+                category: "retailer",
+                lat: 43.6591,
+                lng: -70.2568,
+                location: "Portland, ME",
+                description: "Portland's largest beer selection with 1,500+ craft beers. Fresh Lawson's in the cooler.",
+                url: "https://rsvpdiscountbeverage.com"
             },
 
             // === TRAILS ===
@@ -1932,6 +2268,145 @@
 
             observer.observe(metricsSection);
         }
+
+        // ============================================
+        // SCENIC ROUTE OVERLAYS
+        // The Sunshine Trail: Asheville, NC to Waitsfield, VT
+        // ============================================
+
+        // Define scenic route coordinates
+        // Blue Ridge Parkway: Asheville, NC (Milepost 382) to Waynesboro, VA (Milepost 0)
+        const blueRidgeParkway = [
+            [35.5951, -82.5515],  // Asheville, NC
+            [35.6810, -82.4920],  // Craggy Gardens
+            [35.7972, -82.9569],  // Max Patch area
+            [35.9150, -82.2760],  // Mount Mitchell area
+            [36.1064, -82.1098],  // Roan Mountain
+            [36.2987, -81.6904],  // Blowing Rock
+            [36.3396, -81.4996],  // Boone area
+            [36.5569, -80.9897],  // Fancy Gap
+            [36.7180, -80.4070],  // Mabry Mill
+            [37.0889, -80.1869],  // Roanoke area
+            [37.2390, -80.0328],  // McAfee Knob area
+            [37.4530, -79.6190],  // Natural Bridge
+            [37.6600, -79.3400],  // Lexington area
+            [37.8600, -79.0800],  // Staunton area
+            [38.0330, -78.8690],  // Waynesboro (BRP northern terminus)
+        ];
+
+        // Skyline Drive: Waynesboro (Rockfish Gap) to Front Royal
+        const skylineDrive = [
+            [38.0330, -78.8690],  // Rockfish Gap (southern entrance)
+            [38.1900, -78.7500],  // Swift Run Gap
+            [38.3000, -78.6800],  // Big Meadows
+            [38.4500, -78.5500],  // Skyland
+            [38.5533, -78.3161],  // Old Rag nearby
+            [38.6300, -78.3800],  // Thornton Gap
+            [38.7500, -78.2800],  // Dickey Ridge
+            [38.9030, -78.1940],  // Front Royal (northern terminus)
+        ];
+
+        // Connector Route: Front Royal, VA to Bennington, VT via I-81 / I-87 / US-7
+        const connectorRoute = [
+            [38.9030, -78.1940],  // Front Royal, VA
+            [39.1850, -77.5100],  // Winchester, VA
+            [39.4580, -77.4000],  // Hagerstown, MD
+            [39.7600, -77.5700],  // Chambersburg, PA
+            [40.2700, -76.8800],  // Harrisburg, PA
+            [40.5800, -75.4900],  // Allentown area
+            [41.0400, -74.1300],  // Northern NJ
+            [41.7000, -73.9200],  // Poughkeepsie, NY
+            [42.2500, -73.7900],  // Hudson, NY
+            [42.6500, -73.7500],  // Albany area
+            [42.8800, -73.2000],  // Bennington, VT
+        ];
+
+        // Vermont Route 100: Wilmington to Waitsfield
+        const route100Vermont = [
+            [42.8800, -73.2000],  // Bennington (connector)
+            [42.8678, -72.8711],  // Wilmington
+            [43.1597, -72.7792],  // Jamaica
+            [43.2600, -72.7400],  // Londonderry
+            [43.3890, -72.7000],  // Weston
+            [43.4700, -72.7300],  // Ludlow
+            [43.5500, -72.7100],  // Plymouth
+            [43.6200, -72.8000],  // Killington
+            [43.7100, -72.8200],  // Pittsfield
+            [43.8800, -72.8400],  // Rochester / Hancock
+            [43.9700, -72.8400],  // Granville (Moss Glen Falls)
+            [44.0800, -72.8200],  // Warren
+            [44.1852, -72.8288],  // Waitsfield (Lawson's HQ!)
+            [44.3856, -72.7469],  // Waterbury (Cold Hollow)
+            [44.4654, -72.6874],  // Stowe
+        ];
+
+        // Create route layers
+        const routeLayers = L.layerGroup();
+
+        const blueRidgePolyline = L.polyline(blueRidgeParkway, {
+            color: '#2E86AB',
+            weight: 5,
+            opacity: 0.85,
+            smoothFactor: 1.5,
+            dashArray: null
+        }).bindPopup('<strong>Blue Ridge Parkway</strong><br>469 miles of America\'s most scenic mountain road, connecting Great Smoky Mountains to Shenandoah National Park.');
+
+        const skylinePolyline = L.polyline(skylineDrive, {
+            color: '#7B68EE',
+            weight: 5,
+            opacity: 0.85,
+            smoothFactor: 1.5,
+            dashArray: null
+        }).bindPopup('<strong>Skyline Drive</strong><br>105 miles through Shenandoah National Park with 75 scenic overlooks and stunning Blue Ridge views.');
+
+        const connectorPolyline = L.polyline(connectorRoute, {
+            color: '#888888',
+            weight: 3,
+            opacity: 0.6,
+            smoothFactor: 1.5,
+            dashArray: '10, 10'
+        }).bindPopup('<strong>Connector Route</strong><br>Interstate and highway connection from Shenandoah to southern Vermont via the Hudson Valley.');
+
+        const route100Polyline = L.polyline(route100Vermont, {
+            color: '#228B22',
+            weight: 5,
+            opacity: 0.85,
+            smoothFactor: 1.5,
+            dashArray: null
+        }).bindPopup('<strong>Vermont Route 100</strong><br>217 miles through the Green Mountains - Vermont\'s "Main Street" and the best fall foliage drive in New England.');
+
+        // Add all routes to the layer group
+        routeLayers.addLayer(blueRidgePolyline);
+        routeLayers.addLayer(skylinePolyline);
+        routeLayers.addLayer(connectorPolyline);
+        routeLayers.addLayer(route100Polyline);
+
+        // Toggle scenic route visibility
+        const routeToggle = document.getElementById('toggle-scenic-route');
+        const routeLegend = document.getElementById('route-legend');
+
+        routeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                map.addLayer(routeLayers);
+                routeLegend.style.display = 'flex';
+
+                // Animate to show full route
+                const fullRoute = [
+                    ...blueRidgeParkway,
+                    ...skylineDrive,
+                    ...connectorRoute,
+                    ...route100Vermont
+                ];
+                map.fitBounds(fullRoute, {
+                    padding: [50, 50],
+                    animate: true,
+                    duration: 1.0
+                });
+            } else {
+                map.removeLayer(routeLayers);
+                routeLegend.style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>
