@@ -104,6 +104,7 @@
         main {
             display: flex;
             flex-direction: row;
+            height: calc(100vh - 80px);
         }
 
         .sidebar {
@@ -111,7 +112,7 @@
             flex-shrink: 0;
             background: white;
             padding: 1.5rem;
-            overflow-y: visible;
+            overflow-y: auto;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
         }
 
@@ -219,10 +220,8 @@
 
         #map {
             flex: 1;
-            height: calc(100vh - 80px);
-            min-height: 500px;
+            height: 100%;
             position: relative;
-            align-self: flex-start;
         }
 
         /* Smooth Leaflet transitions */
@@ -458,6 +457,8 @@
         @media (max-width: 768px) {
             main {
                 flex-direction: column;
+                height: auto;
+                min-height: auto;
             }
 
             .sidebar {
@@ -465,6 +466,7 @@
                 padding: 1.5rem;
                 order: 2;
                 box-shadow: none;
+                overflow-y: visible;
             }
 
             #map {
@@ -568,35 +570,49 @@
         }
 
         .bottom-brand-link {
-            display: inline-block;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1.5rem 2.5rem;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
         }
 
         .bottom-brand-link:hover {
-            transform: scale(1.05);
-            opacity: 0.9;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+
+        .bottom-brand-link:hover .bottom-brand-cta {
+            color: var(--sunshine-gold);
         }
 
         .bottom-brand-logo {
-            height: 60px;
+            height: 50px;
             width: auto;
         }
 
-        .bottom-brand-text {
-            margin-top: 0.75rem;
-            font-size: 0.85rem;
-            color: var(--deep-brown);
-            opacity: 0.8;
-        }
-
-        .bottom-brand-text a {
-            color: var(--deep-brown);
-            text-decoration: none;
+        .bottom-brand-cta {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
             font-weight: 600;
+            color: var(--deep-brown);
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
         }
 
-        .bottom-brand-text a:hover {
-            text-decoration: underline;
+        .bottom-brand-cta svg {
+            width: 14px;
+            height: 14px;
         }
         /* Page Load Animations */
         @keyframes fadeInDown {
@@ -1267,10 +1283,13 @@
     <footer class="bottom-brand">
         <a href="https://www.lawsonsfinest.com" target="_blank" rel="noopener noreferrer" class="bottom-brand-link">
             <img src="assets/images/lawsons-logo.svg" alt="Lawson's Finest Liquids" class="bottom-brand-logo">
+            <span class="bottom-brand-cta">
+                Visit Website
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+            </span>
         </a>
-        <p class="bottom-brand-text">
-            Visit <a href="https://www.lawsonsfinest.com" target="_blank" rel="noopener noreferrer">lawsonsfinest.com</a>
-        </p>
     </footer>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
