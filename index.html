@@ -426,6 +426,78 @@
             .header-brand-logo {
                 height: 30px;
             }
+
+            .metrics-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .bcorp-badge {
+                align-self: flex-start;
+            }
+
+            .metrics-grid,
+            .metrics-grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .metric-item {
+                border-left: none;
+                border-top: 2px solid rgba(45, 42, 38, 0.2);
+                padding-top: 0.75rem;
+            }
+
+            .metric-item:first-child,
+            .metric-item:nth-child(2) {
+                border-top: none;
+            }
+
+            .metric-item:nth-child(odd) {
+                border-right: 2px solid rgba(45, 42, 38, 0.2);
+            }
+
+            .metric-value {
+                font-size: 1.1rem;
+            }
+
+            .metric-suffix {
+                font-size: 0.7rem;
+            }
+        }
+
+        /* Larger desktop screens */
+        @media (min-width: 1400px) {
+            .sidebar {
+                width: 380px;
+            }
+
+            .metric-value {
+                font-size: 1.6rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Tablet screens - metrics grid 2 columns */
+        @media (min-width: 769px) and (max-width: 900px) {
+            .sidebar {
+                width: 280px;
+            }
+
+            .metrics-grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .metric-item:nth-child(odd) {
+                border-right: 2px solid rgba(45, 42, 38, 0.2);
+            }
+
+            .metric-item:nth-child(3),
+            .metric-item:nth-child(4) {
+                border-top: 2px solid rgba(45, 42, 38, 0.2);
+            }
         }
 
         .footer-bar {
@@ -687,42 +759,85 @@
             color: var(--deep-brown);
         }
 
-        /* Live Metrics Section */
+        /* Live Metrics Section - Styled like Lawson's website */
         .metrics-section {
-            background: linear-gradient(135deg, var(--deep-brown) 0%, #1a1816 100%);
+            background: var(--sunshine-gold);
             padding: 1.25rem;
             border-radius: 12px;
             margin-bottom: 1.5rem;
             animation: fadeInUp 0.6s ease-out 0.65s both;
         }
 
-        .metrics-section h3 {
+        .metrics-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .metrics-header h3 {
             font-family: 'Montserrat', sans-serif;
             font-weight: 700;
             font-size: 0.85rem;
-            color: var(--sunshine-gold);
-            margin-bottom: 1rem;
+            color: var(--deep-brown);
             text-transform: uppercase;
             letter-spacing: 1px;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            margin: 0;
+        }
+
+        .bcorp-badge {
+            background: white;
+            border-radius: 8px;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .bcorp-badge img {
+            height: 50px;
+            width: auto;
+        }
+
+        .metrics-tagline {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            font-style: italic;
+            color: var(--deep-brown);
+            margin-bottom: 1rem;
+            line-height: 1.4;
         }
 
         .metrics-grid {
             display: grid;
-            gap: 1rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        .metrics-grid-4 {
+            grid-template-columns: repeat(4, 1fr);
         }
 
         .metric-item {
             text-align: center;
+            padding: 0.5rem 0;
+            border-left: 2px solid rgba(45, 42, 38, 0.2);
+        }
+
+        .metric-item:first-child {
+            border-left: none;
         }
 
         .metric-value {
             font-family: 'Montserrat', sans-serif;
             font-weight: 800;
-            font-size: 1.5rem;
-            color: var(--sunshine-gold);
+            font-size: 1.4rem;
+            color: var(--deep-brown);
             margin-bottom: 0.25rem;
             display: flex;
             justify-content: center;
@@ -735,16 +850,16 @@
         }
 
         .metric-suffix {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
         }
 
         .metric-label {
-            font-size: 0.7rem;
-            color: var(--cream);
+            font-size: 0.65rem;
+            color: var(--deep-brown);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            opacity: 0.9;
+            opacity: 0.8;
         }
 
         .metric-number {
@@ -771,7 +886,7 @@
         .live-dot {
             width: 8px;
             height: 8px;
-            background: #4ade80;
+            background: var(--deep-brown);
             border-radius: 50%;
             animation: livePulse 2s ease-in-out infinite;
         }
@@ -779,11 +894,11 @@
         @keyframes livePulse {
             0%, 100% {
                 opacity: 1;
-                box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+                box-shadow: 0 0 0 0 rgba(45, 42, 38, 0.7);
             }
             50% {
-                opacity: 0.8;
-                box-shadow: 0 0 0 6px rgba(74, 222, 128, 0);
+                opacity: 0.6;
+                box-shadow: 0 0 0 6px rgba(45, 42, 38, 0);
             }
         }
 
@@ -900,28 +1015,41 @@
             </p>
 
             <div class="metrics-section">
-                <h3><span class="live-dot"></span> Our Impact</h3>
-                <div class="metrics-grid">
+                <div class="metrics-header">
+                    <div>
+                        <h3><span class="live-dot"></span> Our Impact</h3>
+                        <p class="metrics-tagline">We pour a little good back into every community we call home.</p>
+                    </div>
+                    <a href="https://www.bcorporation.net/en-us/find-a-b-corp/company/lawsons-finest-liquids-llc/" target="_blank" rel="noopener noreferrer" class="bcorp-badge" title="Certified B Corporation">
+                        <img src="assets/images/b-corp-logo.png" alt="Certified B Corporation">
+                    </a>
+                </div>
+                <div class="metrics-grid metrics-grid-4">
                     <div class="metric-item">
                         <div class="metric-value" id="metric-donated">
                             <span class="metric-prefix">$</span>
                             <span class="metric-number" id="donations-counter">0</span>
                         </div>
-                        <div class="metric-label">Donated to 496+ Nonprofits Since 2018</div>
+                        <div class="metric-label">Dollars Raised</div>
                     </div>
                     <div class="metric-item">
                         <div class="metric-value" id="metric-solar">
                             <span class="metric-number" id="solar-counter">0</span>
-                            <span class="metric-suffix"> kWh</span>
+                            <span class="metric-suffix">kWh</span>
                         </div>
-                        <div class="metric-label">Solar Energy Generated Since 2019</div>
+                        <div class="metric-label">Solar Generated</div>
                     </div>
                     <div class="metric-item">
-                        <div class="metric-value" id="metric-waste">
-                            <span class="metric-number" id="waste-counter">0</span>
-                            <span class="metric-suffix">%</span>
+                        <div class="metric-value" id="metric-bcorp">
+                            <span class="metric-number">83.6</span>
                         </div>
-                        <div class="metric-label">Waste Diverted from Landfill</div>
+                        <div class="metric-label">B Impact Score</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value" id="metric-nonprofits">
+                            <span class="metric-number">496</span>
+                        </div>
+                        <div class="metric-label">Nonprofits</div>
                     </div>
                 </div>
             </div>
@@ -964,7 +1092,7 @@
                     <div class="filter-item">
                         <input type="checkbox" id="filter-trails" checked>
                         <label for="filter-trails">
-                            <img src="assets/images/marker-trail.png" alt="" class="filter-icon">
+                            <img src="assets/images/marker-trail.svg" alt="" class="filter-icon">
                             Trails
                             <span class="count-badge" id="count-trails">0</span>
                         </label>
@@ -972,7 +1100,7 @@
                     <div class="filter-item">
                         <input type="checkbox" id="filter-rivers" checked>
                         <label for="filter-rivers">
-                            <img src="assets/images/marker-river.png" alt="" class="filter-icon">
+                            <img src="assets/images/marker-river.svg" alt="" class="filter-icon">
                             River Put-ins
                             <span class="count-badge" id="count-rivers">0</span>
                         </label>
@@ -1126,14 +1254,14 @@
                 className: 'marker-icon'
             }),
             trail: L.icon({
-                iconUrl: 'assets/images/marker-trail.png',
+                iconUrl: 'assets/images/marker-trail.svg',
                 iconSize: [40, 40],
                 iconAnchor: [20, 40],
                 popupAnchor: [0, -40],
                 className: 'marker-icon'
             }),
             river: L.icon({
-                iconUrl: 'assets/images/marker-river.png',
+                iconUrl: 'assets/images/marker-river.svg',
                 iconSize: [40, 40],
                 iconAnchor: [20, 40],
                 popupAnchor: [0, -40],
@@ -2747,29 +2875,25 @@
 
             const donationsEl = document.getElementById('donations-counter');
             const solarEl = document.getElementById('solar-counter');
-            const wasteEl = document.getElementById('waste-counter');
 
             // Initial animation from 0 to current values
             const currentDonations = calculateCurrentDonations();
             const currentSolar = calculateCurrentSolar();
-            const currentWaste = calculateCurrentWaste();
 
             animateToValue(donationsEl, currentDonations, 2500, formatDollars);
             animateToValue(solarEl, currentSolar, 2500, formatKwh);
-            animateToValue(wasteEl, currentWaste, 2500, formatPercent);
 
             // After initial animation, start live updates every 100ms
+            // This makes the counters tick up in real-time showing ongoing impact
             setTimeout(() => {
                 tickerInterval = setInterval(() => {
-                    donationsEl.textContent = formatDollars(calculateCurrentDonations());
-                    solarEl.textContent = formatKwh(calculateCurrentSolar());
-                    // Waste updates less frequently (it's a slow-changing metric)
+                    if (donationsEl) {
+                        donationsEl.textContent = formatDollars(calculateCurrentDonations());
+                    }
+                    if (solarEl) {
+                        solarEl.textContent = formatKwh(calculateCurrentSolar());
+                    }
                 }, 100);
-
-                // Update waste every 10 seconds
-                setInterval(() => {
-                    wasteEl.textContent = formatPercent(calculateCurrentWaste());
-                }, 10000);
             }, 2600);
         }
 
