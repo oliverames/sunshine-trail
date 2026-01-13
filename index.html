@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Sunshine Trail | Lawson's Finest Liquids</title>
     <meta name="description" content="Explore Sunshine Spots from Waitsfield, VT to Asheville, NC. Interactive map of retailers, hiking trails, river put-ins, and community partners along the Appalachian corridor.">
-    <meta name="theme-color" content="#2d2a26">
+    <meta name="theme-color" content="#EAC054">
+    <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" crossorigin="anonymous">
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" crossorigin="anonymous">
@@ -104,6 +105,7 @@
         main {
             display: flex;
             flex-direction: row;
+            height: calc(100vh - 80px);
         }
 
         .sidebar {
@@ -111,7 +113,7 @@
             flex-shrink: 0;
             background: white;
             padding: 1.5rem;
-            overflow-y: visible;
+            overflow-y: auto;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
         }
 
@@ -219,10 +221,8 @@
 
         #map {
             flex: 1;
-            height: calc(100vh - 80px);
-            min-height: 500px;
+            height: 100%;
             position: relative;
-            align-self: flex-start;
         }
 
         /* Smooth Leaflet transitions */
@@ -293,30 +293,29 @@
 
         /* Multi-category cluster */
         .cluster-multi {
-            width: auto;
-            min-width: 44px;
-            height: 44px;
-            border-radius: 22px;
-            padding: 0 8px;
-            background: white;
             display: flex;
             align-items: center;
-            gap: 2px;
+            gap: 4px;
+            padding: 6px 10px;
+            background: white;
+            border-radius: 24px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.25);
             border: 2px solid var(--sunshine-gold);
+            white-space: nowrap;
         }
 
         .cluster-multi .cluster-count {
             font-family: 'Montserrat', sans-serif;
             font-weight: 700;
-            font-size: 11px;
+            font-size: 12px;
             color: var(--deep-brown);
-            margin-left: 4px;
+            margin-left: 2px;
         }
 
         .cluster-multi .cluster-icon {
-            width: 22px;
-            height: 22px;
+            width: 26px;
+            height: 26px;
+            flex-shrink: 0;
             object-fit: contain;
         }
 
@@ -424,13 +423,15 @@
 
         .popup-btn {
             display: inline-block;
-            padding: 0.4rem 0.75rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            padding: 0.6rem 1rem;
+            border-radius: 25px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
             text-decoration: none;
             text-align: center;
             flex: 1;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .popup-btn-primary {
@@ -439,12 +440,14 @@
         }
 
         .popup-btn-secondary {
-            background: var(--deep-brown);
-            color: var(--cream);
+            background: white;
+            color: var(--deep-brown);
+            border: 2px solid var(--deep-brown);
         }
 
         .popup-btn:hover {
-            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
         }
 
         /* Custom marker styles */
@@ -458,6 +461,8 @@
         @media (max-width: 768px) {
             main {
                 flex-direction: column;
+                height: auto;
+                min-height: auto;
             }
 
             .sidebar {
@@ -465,6 +470,7 @@
                 padding: 1.5rem;
                 order: 2;
                 box-shadow: none;
+                overflow-y: visible;
             }
 
             #map {
@@ -568,36 +574,104 @@
         }
 
         .bottom-brand-link {
-            display: inline-block;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
         }
 
         .bottom-brand-link:hover {
-            transform: scale(1.05);
-            opacity: 0.9;
-        }
-
-        .bottom-brand-logo {
-            height: 60px;
-            width: auto;
-        }
-
-        .bottom-brand-text {
-            margin-top: 0.75rem;
-            font-size: 0.85rem;
-            color: var(--deep-brown);
             opacity: 0.8;
         }
 
-        .bottom-brand-text a {
-            color: var(--deep-brown);
-            text-decoration: none;
-            font-weight: 600;
+        .bottom-brand-logo {
+            height: 70px;
+            width: auto;
         }
 
-        .bottom-brand-text a:hover {
-            text-decoration: underline;
+        .bottom-brand-cta {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 1rem;
+            color: var(--deep-brown);
+            opacity: 0.7;
         }
+
+        /* Have a Sip Section */
+        .beer-section {
+            background: var(--cream);
+            padding: 2rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            animation: fadeInUp 0.6s ease-out 0.8s both;
+        }
+
+        .beer-section-image {
+            flex: 0 0 200px;
+        }
+
+        .beer-section-image img {
+            max-width: 100%;
+            height: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .beer-section:hover .beer-section-image img {
+            transform: scale(1.05);
+        }
+
+        .beer-section-content {
+            flex: 1;
+        }
+
+        .beer-section-content h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--deep-brown);
+            margin-bottom: 0.5rem;
+        }
+
+        .beer-section-content p {
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .beer-section-btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: var(--sunshine-gold);
+            color: var(--deep-brown);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .beer-section-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(234, 192, 84, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .beer-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .beer-section-image {
+                flex: 0 0 auto;
+            }
+        }
+
         /* Page Load Animations */
         @keyframes fadeInDown {
             from {
@@ -1126,7 +1200,7 @@
                     </div>
                 </div>
                 <div class="bcorp-section">
-                    <a href="https://www.bcorporation.net/en-us/find-a-b-corp/company/lawsons-finest-liquids-llc/" target="_blank" rel="noopener noreferrer" class="bcorp-badge" title="Certified B Corporation">
+                    <a href="https://www.bcorporation.net/en-us/find-a-b-corp/company/lawsons-finest-liquids/" target="_blank" rel="noopener noreferrer" class="bcorp-badge" title="Certified B Corporation">
                         <img src="assets/images/b-corp-logo.png" alt="Certified B Corporation">
                     </a>
                 </div>
@@ -1247,6 +1321,17 @@
                 </div>
             </div>
 
+            <div class="beer-section">
+                <div class="beer-section-image">
+                    <img src="https://www.lawsonsfinest.com/wp-content/uploads/2024/01/3-cans-1.png" alt="Lawson's Finest Liquids beers - Hop Wired, Sip of Sunshine, Little Sip">
+                </div>
+                <div class="beer-section-content">
+                    <h3>Have a Sip!</h3>
+                    <p>Learn more about our finest and freshest signature liquids, limited releases, and taproom regulars.</p>
+                    <a href="https://www.lawsonsfinest.com/beers/" target="_blank" rel="noopener noreferrer" class="beer-section-btn">Our Beers</a>
+                </div>
+            </div>
+
             <div class="legend">
                 <h4>About This Trail</h4>
                 <p>
@@ -1267,10 +1352,8 @@
     <footer class="bottom-brand">
         <a href="https://www.lawsonsfinest.com" target="_blank" rel="noopener noreferrer" class="bottom-brand-link">
             <img src="assets/images/lawsons-logo.svg" alt="Lawson's Finest Liquids" class="bottom-brand-logo">
+            <span class="bottom-brand-cta">Visit lawsonsfinest.com</span>
         </a>
-        <p class="bottom-brand-text">
-            Visit <a href="https://www.lawsonsfinest.com" target="_blank" rel="noopener noreferrer">lawsonsfinest.com</a>
-        </p>
     </footer>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
@@ -1380,6 +1463,7 @@
             {
                 name: "Lawson's Finest Liquids Brewery",
                 category: "brewery",
+                image: "https://www.lawsonsfinest.com/wp-content/uploads/2023/08/taproom-exterior.jpg",
                 lat: 44.1852,
                 lng: -72.8288,
                 location: "155 Carroll Road, Waitsfield, VT",
@@ -1409,6 +1493,7 @@
             {
                 name: "Lawson's Finest Taproom",
                 category: "tastingroom",
+                image: "https://www.lawsonsfinest.com/wp-content/uploads/2023/08/taproom-interior.jpg",
                 lat: 44.1854,
                 lng: -72.8285,
                 location: "155 Carroll Road, Waitsfield, VT",
@@ -1425,7 +1510,7 @@
                 lng: -82.5673,
                 location: "507 Haywood Rd, West Asheville, NC",
                 description: "Tastemaker craft beer bar chosen as a primary launch partner for Lawson's NC distribution in 2024. Known for curated draft selection.",
-                url: null
+                url: "https://thewhalecollective.com/west-asheville-nc/"
             },
             // Pennsylvania
             {
@@ -1444,7 +1529,7 @@
                 lng: -75.1656,
                 location: "1500 JFK Blvd, Philadelphia, PA",
                 description: "Massive outdoor beer garden highlighted as a 'SIPS of Sunshine' destination during Philadelphia's summer happy hour program.",
-                url: null
+                url: "https://www.uptownbeer.com/"
             },
             // New York
             {
@@ -1483,7 +1568,7 @@
                 lng: -71.4222,
                 location: "49 Peck St, Providence, RI",
                 description: "Upscale cocktail bar featuring Lawson's on a curated beer list. Emphasizes culinary and cocktail pairing.",
-                url: null
+                url: "https://reddoorpvd.com/"
             },
             // Massachusetts
             {
@@ -1532,7 +1617,6 @@
                 lng: -70.2521,
                 location: "37 Exchange St, Portland, ME",
                 description: "Staple of Portland's Old Port district specializing in house-made sausages and craft beer.",
-                image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=200&fit=crop",
                 url: "https://www.thethirstypig.com/"
             },
             {
@@ -1542,7 +1626,6 @@
                 lng: -70.2577,
                 location: "24 Preble St, Portland, ME",
                 description: "High-volume venue with Bacon Happier Hour featuring Lawson's in their 20-tap lineup.",
-                image: "https://images.unsplash.com/photo-1575037614876-c38a4c44d4d8?w=400&h=200&fit=crop",
                 url: "https://www.bonfirecountrybar.com/"
             },
             // Rhode Island - Additional
@@ -1553,7 +1636,6 @@
                 lng: -71.4150,
                 location: "293 Atwells Ave, Providence, RI",
                 description: "Nashville-themed venue on Federal Hill serving Lawson's alongside Southern comfort food.",
-                image: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=400&h=200&fit=crop",
                 url: "https://www.moonshinealley.com/"
             },
             {
@@ -1563,8 +1645,7 @@
                 lng: -71.4380,
                 location: "1718 Westminster St, Providence, RI",
                 description: "Self-described punk rock pub. Explicitly lists Sip of Sunshine cans. Validates street credibility.",
-                image: "https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=400&h=200&fit=crop",
-                url: null
+                url: "https://www.scurvydogbar.com/"
             },
             {
                 name: "McBride's Irish Pub",
@@ -1573,8 +1654,7 @@
                 lng: -71.3978,
                 location: "161 Wayland Ave, Providence, RI",
                 description: "Historic venue and community hub for Wayland Square neighborhood. Lawson's as a premium option.",
-                image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=200&fit=crop",
-                url: null
+                url: "https://mcbrides-pub.com/"
             },
             // Massachusetts - Additional
             {
@@ -1584,7 +1664,6 @@
                 lng: -71.0549,
                 location: "131 State St, Boston, MA",
                 description: "Financial district venue serving 16oz Sip of Sunshine, targeting corporate after-work crowd.",
-                image: "https://images.unsplash.com/photo-1525610553991-2bede1a236e2?w=400&h=200&fit=crop",
                 url: "https://bostoniapublichouse.com/"
             },
             // New York - Additional
@@ -1595,7 +1674,6 @@
                 lng: -73.9934,
                 location: "Penn Station Area, New York, NY",
                 description: "Major transit hub location (Amtrak/LIRR/NJT) with high-volume draft account.",
-                image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=200&fit=crop",
                 url: "https://stoutnyc.com/"
             },
             // New Hampshire
@@ -1606,7 +1684,6 @@
                 lng: -70.7626,
                 location: "195 Fleet St, Portsmouth, NH",
                 description: "Hosted Summer Solstice event with Double Sunshine on draft. Key NH market account.",
-                image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=200&fit=crop",
                 url: "https://www.dwyerspub.com/"
             },
             // Pennsylvania - Additional SIPS Venues
@@ -1617,7 +1694,6 @@
                 lng: -75.1610,
                 location: "1310 Drury St, Philadelphia, PA",
                 description: "Philadelphia's oldest continuously operating tavern (est. 1860). Center City SIPS participant.",
-                image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=200&fit=crop",
                 url: "https://mcgillins.com/"
             },
             {
@@ -1627,7 +1703,6 @@
                 lng: -75.1502,
                 location: "100 S Independence Mall W, Philadelphia, PA",
                 description: "Large outdoor beer garden near Independence Hall. Major SIPS venue with hundreds of seats.",
-                image: "https://images.unsplash.com/photo-1575037614876-c38a4c44d4d8?w=400&h=200&fit=crop",
                 url: "https://phlbeergarden.com/"
             },
             {
@@ -1637,7 +1712,6 @@
                 lng: -75.1595,
                 location: "1326 Chestnut St, Philadelphia, PA",
                 description: "Arcade bar combining classic games with craft beer. SIPS participant featuring Lawson's drafts.",
-                image: "https://images.unsplash.com/photo-1511882150382-421056c89033?w=400&h=200&fit=crop",
                 url: "https://barcadephiladelphia.com/"
             },
             {
@@ -1647,7 +1721,6 @@
                 lng: -75.1603,
                 location: "1318 Chestnut St, Philadelphia, PA",
                 description: "German-style beer hall and SIPS venue. Perfect pairing for Lawson's IPAs.",
-                image: "https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=400&h=200&fit=crop",
                 url: "https://brucraftwurst.com/"
             },
             {
@@ -1657,7 +1730,6 @@
                 lng: -75.1651,
                 location: "1500 Locust St, Philadelphia, PA",
                 description: "Authentic Irish pub on Rittenhouse Row. SIPS participant with extensive craft selection.",
-                image: "https://images.unsplash.com/photo-1555658636-6e4a36218be7?w=400&h=200&fit=crop",
                 url: "https://fadoirishpub.com/philadelphia/"
             },
 
@@ -1688,7 +1760,7 @@
                 lng: -72.8271,
                 location: "Waitsfield, VT",
                 description: "Local grocery with an excellent Vermont craft beer selection including Lawson's Finest.",
-                url: null
+                url: "https://www.mehurons.com/"
             },
             {
                 name: "JD's Quick Stop",
@@ -1697,7 +1769,7 @@
                 lng: -72.8411,
                 location: "Hancock, VT",
                 description: "Famous beer cave with a curated selection of Vermont's finest including Lawson's, Heady Topper, and more.",
-                url: null
+                url: "https://www.google.com/search?q=JDs+Quick+Stop+Beer+Cave+Hancock+VT"
             },
             // Massachusetts
             {
@@ -1716,7 +1788,7 @@
                 lng: -71.0589,
                 location: "Boston, MA",
                 description: "Boston's destination for craft beer with regular Lawson's Finest availability.",
-                url: null
+                url: "https://blanchards.net/"
             },
             // Connecticut
             {
@@ -1736,7 +1808,7 @@
                 lng: -73.9911,
                 location: "New York, NY",
                 description: "Quality craft beer selection in Manhattan including Lawson's Finest offerings.",
-                url: null
+                url: "https://www.wholefoodsmarket.com/stores/unionsquare"
             },
             // Pennsylvania
             {
@@ -1802,7 +1874,7 @@
                 lng: -82.5540,
                 location: "Asheville, NC",
                 description: "Exceptional craft beer selection - one of the best bottle shops on the East Coast.",
-                url: null
+                url: "https://thewhalecollective.com/"
             },
             {
                 name: "Appalachian Vintner",
@@ -1811,7 +1883,7 @@
                 lng: -82.5568,
                 location: "Asheville, NC",
                 description: "Great selection and one-stop shopping for beer and wine in Asheville.",
-                url: null
+                url: "http://www.appalachianvintner.com/"
             },
             // Additional Vermont Retailers
             {
@@ -1830,7 +1902,7 @@
                 lng: -72.6874,
                 location: "Stowe, VT",
                 description: "Classic Vermont tavern with an excellent rotating craft beer selection including Lawson's Finest.",
-                url: null
+                url: "https://www.stowepublichouse.com/"
             },
             // Additional New Hampshire
             {
@@ -1878,7 +1950,7 @@
                 lng: -72.9279,
                 location: "New Haven, CT",
                 description: "Dedicated craft beer bottle shop in the heart of New Haven. Fresh Lawson's regularly in stock.",
-                url: null
+                url: "https://www.google.com/search?q=Craft+Beer+Shop+New+Haven+CT"
             },
             // Additional New York
             {
@@ -2295,7 +2367,6 @@
                 location: "Barre, VT",
                 description: "Vermont's largest hunger-relief organization, serving all 14 counties through a network of food shelves, meal sites, and community programs.",
                 impact: "Thanks to support from Lawson's Cosmic Shift IPA, families like the Martins in rural Vermont can count on fresh produce and protein each week. 'After my husband's job loss, the food shelf kept our kids fed while we got back on our feet.'",
-                image: "https://images.unsplash.com/photo-1593113598332-cd288d649433?w=400&h=200&fit=crop",
                 url: "https://vtfoodbank.org",
                 donateUrl: "https://vtfoodbank.org/give"
             },
@@ -2308,7 +2379,6 @@
                 location: "White River Junction, VT",
                 description: "Providing food, shelter, education, and service coordination for families and individuals in need in the Upper Valley.",
                 impact: "2024 Sunshine Fund recipient. The Haven helped Sarah, a single mom, transition from their shelter to stable housing. 'They didn't just give me a roof - they helped me build a future for my daughter.'",
-                image: "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=400&h=200&fit=crop",
                 url: "https://uppervalleyhaven.org",
                 donateUrl: "https://uppervalleyhaven.org/donate"
             },
@@ -2321,7 +2391,6 @@
                 location: "Burlington, VT",
                 description: "Working to end homelessness in Vermont through shelter, housing, and prevention services since 1982.",
                 impact: "2024 Sunshine Fund recipient. Last winter, COTS helped 47 people find permanent housing. James, a veteran, says: 'COTS gave me more than shelter. They gave me back my dignity and a place to call home.'",
-                image: "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=400&h=200&fit=crop",
                 url: "https://cotsonline.org",
                 donateUrl: "https://cotsonline.org/donate"
             },
@@ -2334,7 +2403,6 @@
                 location: "Newport, VT",
                 description: "Connecting Vermont farms with schools to provide fresh, local food while teaching kids about nutrition and agriculture.",
                 impact: "2024 Sunshine Fund recipient. Thanks to their programs, students in Orleans County now grow vegetables in school gardens. Teacher Amy shares: 'Kids who never touched a vegetable are now excited to eat what they planted.'",
-                image: "https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=400&h=200&fit=crop",
                 url: "https://greenmountainfarmtoschool.org",
                 donateUrl: "https://greenmountainfarmtoschool.org/donate"
             },
@@ -2347,7 +2415,6 @@
                 location: "Montpelier, VT",
                 description: "Protecting and restoring the Winooski River watershed through education, advocacy, and community engagement.",
                 impact: "2024 Sunshine Fund recipient. Their river cleanup events have removed tons of debris while educating hundreds of volunteers. 'Every paddle on the Winooski is cleaner because of their work,' says kayaker Tom.",
-                image: "https://images.unsplash.com/photo-1504893524553-b855bce32c67?w=400&h=200&fit=crop",
                 url: "https://winooskiriver.org",
                 donateUrl: "https://winooskiriver.org/donate"
             },
@@ -2360,7 +2427,6 @@
                 location: "Middlebury, VT",
                 description: "Partner for the inaugural SIPosium, supporting Vermont's flood recovery and building community resilience across the state.",
                 impact: "After devastating floods, the Foundation mobilized rapid response grants. Homeowner Maria recalls: 'Within days of losing everything, we had help rebuilding. The Vermont spirit is real.'",
-                image: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=400&h=200&fit=crop",
                 url: "https://vermontcf.org",
                 donateUrl: "https://vermontcf.org/give"
             },
@@ -2373,7 +2439,6 @@
                 location: "St. Johnsbury, VT",
                 description: "Fighting poverty and building community in Vermont's Northeast Kingdom through comprehensive support services.",
                 impact: "2024 Sunshine Fund recipient. NEKCA's heating assistance kept 200+ families warm last winter. 'Choosing between heat and food shouldn't happen in Vermont,' says director Lisa. 'We make sure it doesn't.'",
-                image: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400&h=200&fit=crop",
                 url: "https://nekcavt.org",
                 donateUrl: "https://nekcavt.org/donate"
             },
@@ -2388,7 +2453,6 @@
                 location: "Concord, NH",
                 description: "Building a thriving, fair, and sustainable food system in New Hampshire by connecting farmers, food banks, and communities.",
                 impact: "Cosmic Shift IPA beneficiary. The Alliance helped launch 12 new farm-to-food-bank partnerships. Farmer Jake says: 'Now my extra harvest feeds families instead of going to waste. It's farming with purpose.'",
-                image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=400&h=200&fit=crop",
                 url: "https://nhfoodalliance.org",
                 donateUrl: "https://nhfoodalliance.org/donate"
             },
@@ -2403,7 +2467,6 @@
                 location: "Portland, ME",
                 description: "Growing food, farmers, and community through urban agriculture programs that serve immigrant and refugee communities.",
                 impact: "Cosmic Shift IPA beneficiary. Their refugee farming program has helped 50+ families grow food from their homelands. Amara, from Somalia, shares: 'This garden connects me to home while feeding my children here.'",
-                image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=200&fit=crop",
                 url: "https://cultivatingcommunity.org",
                 donateUrl: "https://cultivatingcommunity.org/donate"
             },
@@ -2418,7 +2481,6 @@
                 location: "Newton, MA",
                 description: "New England's largest food rescue operation, preventing 5M+ pounds of fresh food from going to waste each year.",
                 impact: "Cosmic Shift IPA beneficiary. Their trucks rescue food daily from grocery stores and restaurants. Shelter director Mike says: 'Spoonfuls brings us restaurant-quality food. Our guests eat with dignity.'",
-                image: "https://images.unsplash.com/photo-1593113616828-6f22bca04804?w=400&h=200&fit=crop",
                 url: "https://spoonfuls.org",
                 donateUrl: "https://spoonfuls.org/donate"
             },
@@ -2433,7 +2495,6 @@
                 location: "Providence, RI",
                 description: "Fighting hunger and improving lives by providing nutritious food to Rhode Islanders facing food insecurity.",
                 impact: "Cosmic Shift IPA beneficiary. They distributed 18 million pounds of food last year. Grandmother Rosa shares: 'When times get hard, the food bank is there. My grandkids never go to bed hungry.'",
-                image: "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=200&fit=crop",
                 url: "https://rifoodbank.org",
                 donateUrl: "https://rifoodbank.org/donate"
             },
@@ -2448,7 +2509,6 @@
                 location: "New Haven, CT",
                 description: "Leading the way in Alzheimer's care, support, and research - providing resources for patients and their families.",
                 impact: "Cosmic Shift IPA beneficiary. Their support groups help caregivers cope. David, caring for his wife, says: 'I thought I was alone until I found this community. Now I have strength to keep going.'",
-                image: "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=400&h=200&fit=crop",
                 url: "https://alz.org/ct",
                 donateUrl: "https://act.alz.org/donate"
             },
@@ -2463,7 +2523,6 @@
                 location: "New York, NY",
                 description: "NYC's largest food rescue organization, collecting excess food and delivering it to soup kitchens, food pantries, and community programs.",
                 impact: "Cosmic Shift IPA beneficiary. Their trucks rescue 70 million pounds of food annually. Chef Marcus volunteers weekly: 'Food that would be thrown away instead feeds thousands. That's the magic of City Harvest.'",
-                image: "https://images.unsplash.com/photo-1593113630400-ea4288922497?w=400&h=200&fit=crop",
                 url: "https://cityharvest.org",
                 donateUrl: "https://cityharvest.org/donate"
             },
@@ -2476,7 +2535,6 @@
                 location: "Rochester, NY",
                 description: "Building stronger communities through education, financial stability, and health initiatives across the Finger Lakes region.",
                 impact: "Cosmic Shift IPA beneficiary. Their early literacy programs have helped 3,000+ kids start school ready to learn. Teacher Patricia notes: 'The difference is clear on day one. These kids are confident and curious.'",
-                image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400&h=200&fit=crop",
                 url: "https://unitedwayrocflx.org",
                 donateUrl: "https://unitedwayrocflx.org/donate"
             },
@@ -2491,7 +2549,6 @@
                 location: "Hillside, NJ",
                 description: "Fighting hunger and poverty in New Jersey, distributing food to over 800 partner agencies across the state.",
                 impact: "Cosmic Shift IPA beneficiary. They provide 90 million meals annually. Single dad Robert shares: 'The food bank doesn't just fill our fridge - it lets me be a better father because I'm not worried about dinner.'",
-                image: "https://images.unsplash.com/photo-1578357078586-491adf1aa5ba?w=400&h=200&fit=crop",
                 url: "https://cfbnj.org",
                 donateUrl: "https://cfbnj.org/donate"
             },
@@ -2506,7 +2563,6 @@
                 location: "Philadelphia, PA",
                 description: "The Delaware Valley's largest hunger relief organization, serving 135,000+ people weekly through 350 agency partners.",
                 impact: "Cosmic Shift IPA beneficiary. Their Community Kitchen also trains formerly incarcerated individuals for culinary careers. Graduate Jerome says: 'They gave me skills and a second chance. Now I'm a sous chef.'",
-                image: "https://images.unsplash.com/photo-1541014741259-de529411b96a?w=400&h=200&fit=crop",
                 url: "https://philabundance.org",
                 donateUrl: "https://philabundance.org/donate"
             },
@@ -2521,7 +2577,6 @@
                 location: "Richmond, VA",
                 description: "Protecting and restoring Virginia's historic James River watershed from the mountains to the Chesapeake Bay since 1976.",
                 impact: "Their paddle trips connect thousands with the river each year. Kayaker Christine says: 'I never knew Richmond had such an amazing river until JRA showed me. Now I'm a volunteer river cleaner.'",
-                image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=200&fit=crop",
                 url: "https://thejamesriver.org",
                 donateUrl: "https://thejamesriver.org/donate"
             },
@@ -2536,7 +2591,6 @@
                 location: "Asheville, NC",
                 description: "Preserving America's Favorite Drive by supporting trails, overlooks, and visitor experiences along 469 miles of scenic mountain road.",
                 impact: "Their trail crews maintain hundreds of miles of hiking paths. Volunteer Sam shares: 'Every weekend, we're out there clearing trails so families can enjoy these views for generations to come.'",
-                image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&h=200&fit=crop",
                 url: "https://brpfoundation.org",
                 donateUrl: "https://brpfoundation.org/donate"
             },
@@ -2549,7 +2603,6 @@
                 location: "Asheville, NC",
                 description: "Protecting the waters of the French Broad River watershed through monitoring, advocacy, and community engagement.",
                 impact: "Their water quality testing and advocacy has made the French Broad swimmable again. Paddler Jen says: 'I remember when no one would touch this water. Now my kids swim here every summer.'",
-                image: "https://images.unsplash.com/photo-1468413253725-0d5181091126?w=400&h=200&fit=crop",
                 url: "https://mountaintrue.org",
                 donateUrl: "https://mountaintrue.org/donate"
             },
@@ -2562,7 +2615,6 @@
                 location: "Asheville, NC",
                 description: "Ending hunger in Western North Carolina by distributing 50,000+ pounds of food daily through 200+ partner organizations.",
                 impact: "After Hurricane Helene, MANNA mobilized emergency food distribution to hard-hit communities. Recipient Angela says: 'We lost everything, but MANNA made sure we didn't lose hope. Hot meals meant the world.'",
-                image: "https://images.unsplash.com/photo-1594708767771-a7502f8a2e7c?w=400&h=200&fit=crop",
                 url: "https://mannafoodbank.org",
                 donateUrl: "https://mannafoodbank.org/donate"
             },
@@ -2799,11 +2851,12 @@
                     '<img src="' + categoryIconPaths[cat] + '" class="cluster-icon" alt="">'
                 ).join('');
 
-                const width = Math.min(uniqueCategories.length, 4) * 24 + 36;
+                const numIcons = Math.min(uniqueCategories.length, 4);
+                const width = numIcons * 30 + 50;
                 return L.divIcon({
                     html: '<div class="cluster-multi">' + iconsHtml + '<span class="cluster-count">' + count + '</span></div>',
                     className: 'marker-cluster',
-                    iconSize: L.point(width, 44)
+                    iconSize: L.point(width, 42)
                 });
             }
         }
