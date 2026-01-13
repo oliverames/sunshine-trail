@@ -453,6 +453,346 @@
             filter: brightness(0) invert(1);
             opacity: 0.85;
         }
+        /* Page Load Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        /* Apply animations */
+        header {
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .sidebar {
+            animation: fadeInLeft 0.6s ease-out 0.2s both;
+        }
+
+        .intro-text {
+            animation: fadeIn 0.8s ease-out 0.4s both;
+        }
+
+        .filter-section {
+            animation: fadeInUp 0.6s ease-out 0.5s both;
+        }
+
+        .filter-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .filter-item:hover {
+            transform: translateX(5px);
+            background-color: var(--light-gold);
+        }
+
+        .filter-item:active {
+            transform: translateX(2px) scale(0.98);
+        }
+
+        .legend {
+            animation: fadeInUp 0.6s ease-out 0.7s both;
+        }
+
+        #map {
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        footer {
+            animation: fadeInUp 0.5s ease-out 0.8s both;
+        }
+
+        /* Marker bounce animation */
+        .leaflet-marker-icon {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .leaflet-marker-icon:hover {
+            transform: scale(1.2) translateY(-5px) !important;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+
+        /* Filter checkbox animation */
+        .filter-item input[type="checkbox"] {
+            transition: transform 0.2s ease;
+        }
+
+        .filter-item input[type="checkbox"]:checked {
+            animation: pulse 0.3s ease;
+        }
+
+        /* Count badge animation */
+        .count-badge {
+            transition: all 0.3s ease;
+        }
+
+        .filter-item:hover .count-badge {
+            background: var(--sunshine-gold);
+            transform: scale(1.1);
+        }
+
+        /* Button hover effects */
+        .popup-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .popup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .popup-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Logo hover effect */
+        .header-trail-logo {
+            transition: transform 0.3s ease;
+        }
+
+        .header-trail-logo:hover {
+            transform: scale(1.05);
+        }
+
+        /* Shimmer effect for loading state */
+        .loading {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        /* State Filter Buttons */
+        .state-filter-section {
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.6s ease-out 0.6s both;
+        }
+
+        .state-filter-section h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            color: var(--deep-brown);
+        }
+
+        .state-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .state-btn {
+            padding: 0.4rem 0.75rem;
+            border: 2px solid var(--community-purple);
+            background: white;
+            color: var(--community-purple);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .state-btn:hover {
+            background: var(--community-purple);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(123, 91, 154, 0.3);
+        }
+
+        .state-btn.active {
+            background: var(--community-purple);
+            color: white;
+        }
+
+        .state-btn.all-states {
+            border-color: var(--sunshine-gold);
+            color: var(--deep-brown);
+        }
+
+        .state-btn.all-states:hover,
+        .state-btn.all-states.active {
+            background: var(--sunshine-gold);
+            color: var(--deep-brown);
+        }
+
+        /* Live Metrics Section */
+        .metrics-section {
+            background: linear-gradient(135deg, var(--deep-brown) 0%, #1a1816 100%);
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.6s ease-out 0.65s both;
+        }
+
+        .metrics-section h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--sunshine-gold);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .metrics-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .metric-item {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--sunshine-gold);
+            margin-bottom: 0.25rem;
+            display: flex;
+            justify-content: center;
+            align-items: baseline;
+            gap: 2px;
+        }
+
+        .metric-prefix {
+            font-size: 1rem;
+        }
+
+        .metric-suffix {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .metric-label {
+            font-size: 0.7rem;
+            color: var(--cream);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.9;
+        }
+
+        .metric-number {
+            display: inline-block;
+            min-width: 1ch;
+        }
+
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .metric-value.counting .metric-number {
+            animation: countUp 0.1s ease-out;
+        }
+
+        /* Pulse dot for "live" indicator */
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: livePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes livePulse {
+            0%, 100% {
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+            }
+            50% {
+                opacity: 0.8;
+                box-shadow: 0 0 0 6px rgba(74, 222, 128, 0);
+            }
+        }
     </style>
 </head>
 <body>
@@ -474,8 +814,35 @@
             <p class="intro-text">
                 Explore the <strong>Sunshine Spots</strong> from Waitsfield, Vermont to Asheville, North Carolina.
                 Discover retailers, hiking trails, river put-ins, and the community organizations we support along the way.
-                These mountain communities share a love of hiking, respect for nature, and appreciation for a cold beer after a long day outside.
             </p>
+
+            <div class="metrics-section">
+                <h3><span class="live-dot"></span> Our Impact</h3>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-value" id="metric-donated">
+                            <span class="metric-prefix">$</span>
+                            <span class="metric-number" data-target="3000000">0</span>
+                            <span class="metric-suffix">+</span>
+                        </div>
+                        <div class="metric-label">Donated to 400+ Nonprofits</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value" id="metric-solar">
+                            <span class="metric-number" data-target="570000">0</span>
+                            <span class="metric-suffix"> kWh</span>
+                        </div>
+                        <div class="metric-label">Solar Energy Annually</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value" id="metric-waste">
+                            <span class="metric-number" data-target="97.2" data-decimal="true">0</span>
+                            <span class="metric-suffix">%</span>
+                        </div>
+                        <div class="metric-label">Waste Diverted from Landfill</div>
+                    </div>
+                </div>
+            </div>
 
             <div class="filter-section">
                 <h3>Filter by Category</h3>
@@ -512,6 +879,24 @@
                             <span class="count-badge" id="count-community">0</span>
                         </label>
                     </div>
+                </div>
+            </div>
+
+            <div class="state-filter-section">
+                <h3>Community Partners by State</h3>
+                <div class="state-buttons">
+                    <button class="state-btn all-states active" data-state="all">All States</button>
+                    <button class="state-btn" data-state="VT">VT</button>
+                    <button class="state-btn" data-state="NH">NH</button>
+                    <button class="state-btn" data-state="ME">ME</button>
+                    <button class="state-btn" data-state="MA">MA</button>
+                    <button class="state-btn" data-state="RI">RI</button>
+                    <button class="state-btn" data-state="CT">CT</button>
+                    <button class="state-btn" data-state="NY">NY</button>
+                    <button class="state-btn" data-state="NJ">NJ</button>
+                    <button class="state-btn" data-state="PA">PA</button>
+                    <button class="state-btn" data-state="VA">VA</button>
+                    <button class="state-btn" data-state="NC">NC</button>
                 </div>
             </div>
 
@@ -768,7 +1153,7 @@
                 lng: -72.8862,
                 location: "Duxbury, VT",
                 description: "Vermont's most iconic mountain with 360-degree views. 6.8 miles round trip. One of only four peaks in Vermont with alpine tundra.",
-                url: "https://www.greenmountainclub.org"
+                url: "https://www.alltrails.com/trail/us/vermont/camels-hump-via-long-trail-and-burrows-trail"
             },
             {
                 name: "Stratton Mountain",
@@ -777,7 +1162,7 @@
                 lng: -72.9089,
                 location: "Stratton, VT",
                 description: "Where Benton MacKaye conceived the Appalachian Trail. Features peaceful streams, meadows, and pristine Stratton Pond.",
-                url: null
+                url: "https://www.alltrails.com/trail/us/vermont/stratton-mountain-and-stratton-pond-via-long-trail"
             },
             {
                 name: "Mount Mansfield - Long Trail",
@@ -786,7 +1171,7 @@
                 lng: -72.8143,
                 location: "Stowe, VT",
                 description: "Vermont's highest peak at 4,393 ft. Stunning ridge walk along 'The Chin' with alpine scenery.",
-                url: null
+                url: "https://www.alltrails.com/trail/us/vermont/mount-mansfield-via-sunset-ridge-and-long-trail"
             },
             // New Hampshire
             {
@@ -796,7 +1181,7 @@
                 lng: -71.6447,
                 location: "Franconia, NH",
                 description: "One of the premier day hikes in the entire country. Above-treeline ridge walk with 360-degree views. 8.9 miles.",
-                url: "https://www.outdoors.org"
+                url: "https://www.alltrails.com/trail/us/new-hampshire/franconia-ridge-trail-loop"
             },
             {
                 name: "Mount Washington via Tuckerman Ravine",
@@ -805,7 +1190,7 @@
                 lng: -71.3033,
                 location: "Pinkham Notch, NH",
                 description: "The Northeast's highest peak at 6,288 ft. Historic and challenging. Once held the world wind speed record.",
-                url: null
+                url: "https://www.alltrails.com/trail/us/new-hampshire/mount-washington-via-tuckerman-ravine-trail"
             },
             // Massachusetts
             {
@@ -815,7 +1200,7 @@
                 lng: -73.1662,
                 location: "Adams, MA",
                 description: "Massachusetts' highest point at 3,491 ft. The AT passes over the summit with panoramic views of five states.",
-                url: null
+                url: "https://www.alltrails.com/trail/us/massachusetts/mount-greylock-via-hopper-trail"
             },
             {
                 name: "Taconic Highlands - Mount Everett",
@@ -824,7 +1209,7 @@
                 lng: -73.4374,
                 location: "Mount Washington, MA",
                 description: "A 17-mile AT section with old-growth forest, waterfalls, and open summits without crossing a single road.",
-                url: null
+                url: "https://www.alltrails.com/trail/us/massachusetts/mount-everett-via-appalachian-trail"
             },
             // Pennsylvania
             {
@@ -834,7 +1219,7 @@
                 lng: -75.9871,
                 location: "Kempton, PA",
                 description: "World-renowned raptor migration site. Over 20,000 hawks fly over each fall. Multiple scenic overlooks.",
-                url: "https://hawkmountain.org"
+                url: "https://www.hawkmountain.org/visit/plan-your-visit"
             },
             {
                 name: "The Pinnacle",
@@ -843,7 +1228,7 @@
                 lng: -75.9143,
                 location: "Hamburg, PA",
                 description: "Considered by many to be the AT's best view in Pennsylvania. 9-mile loop with stunning rock formations.",
-                url: null
+                url: "https://www.alltrails.com/trail/us/pennsylvania/pinnacle-and-pulpit-rock-loop-via-appalachian-trail"
             },
             // Virginia
             {
@@ -853,7 +1238,7 @@
                 lng: -80.0328,
                 location: "Salem, VA",
                 description: "The most photographed spot on the entire Appalachian Trail. Iconic rock outcrop with widescreen mountain views. 8.8 miles.",
-                url: null
+                url: "https://www.alltrails.com/trail/us/virginia/mcafee-knob-via-appalachian-trail"
             },
             {
                 name: "Three Ridges Wilderness",
@@ -862,7 +1247,7 @@
                 lng: -79.0168,
                 location: "Waynesboro, VA",
                 description: "Scenic views, 40-foot waterfalls, and swimming holes. A challenging but rewarding AT section.",
-                url: null
+                url: "https://www.alltrails.com/trail/us/virginia/three-ridges-via-appalachian-trail"
             },
             {
                 name: "Old Rag Mountain",
@@ -871,7 +1256,7 @@
                 lng: -78.3161,
                 location: "Shenandoah NP, VA",
                 description: "Virginia's most popular hike. Iconic rock scramble with 360-degree views from the summit.",
-                url: "https://www.nps.gov/shen"
+                url: "https://www.alltrails.com/trail/us/virginia/old-rag-mountain-loop-trail"
             },
             // North Carolina
             {
@@ -881,7 +1266,7 @@
                 lng: -82.9569,
                 location: "Hot Springs, NC",
                 description: "A rolling, grassy mountaintop bald with endless wildflowers and stunning 360-degree panoramas. One of our favorites on the AT.",
-                url: null
+                url: "https://www.alltrails.com/trail/us/north-carolina/max-patch-loop-trail"
             },
             {
                 name: "Roan Highlands - Carvers Gap",
@@ -890,7 +1275,7 @@
                 lng: -82.1098,
                 location: "Roan Mountain, NC/TN",
                 description: "Rolling balds with fields of wildflowers. Hike to Round Bald, Jane Bald, and Grassy Ridge for incredible views.",
-                url: null
+                url: "https://www.alltrails.com/trail/us/north-carolina/grassy-ridge-bald-via-appalachian-trail"
             },
             {
                 name: "Craggy Gardens",
@@ -899,7 +1284,7 @@
                 lng: -82.3790,
                 location: "Blue Ridge Parkway, NC",
                 description: "Famous for rhododendron blooms. Easy to moderate trails with panoramic Blue Ridge views.",
-                url: "https://www.nps.gov/blri"
+                url: "https://www.alltrails.com/trail/us/north-carolina/craggy-gardens-trail"
             },
             {
                 name: "Looking Glass Rock",
@@ -908,7 +1293,7 @@
                 lng: -82.7877,
                 location: "Pisgah NF, NC",
                 description: "Iconic granite dome near Brevard. Challenging 6.5-mile hike rewarded with spectacular views.",
-                url: null
+                url: "https://www.alltrails.com/trail/us/north-carolina/looking-glass-rock-trail"
             },
 
             // === RIVER PUT-INS ===
@@ -920,7 +1305,7 @@
                 lng: -72.8301,
                 location: "Waitsfield, VT",
                 description: "Local favorite for kayaking and swimming. Class I-II rapids through the heart of the Mad River Valley.",
-                url: null
+                url: "https://www.clearwatervt.com/trips"
             },
             {
                 name: "White River - Chelsea Park",
@@ -929,7 +1314,7 @@
                 lng: -72.4689,
                 location: "Sharon, VT",
                 description: "Vermont's longest undammed river. Popular put-in for scenic day paddles with few portages required.",
-                url: "https://vermontriverconservancy.org"
+                url: "https://www.vermontpaddlers.club/white-river"
             },
             {
                 name: "Connecticut River - Wilgus State Park",
@@ -938,7 +1323,7 @@
                 lng: -72.4128,
                 location: "Ascutney, VT",
                 description: "Canoe and kayak rentals available. Part of the 400-mile Connecticut River Paddlers' Trail.",
-                url: null
+                url: "https://www.connecticutriverpaddlerstrail.org"
             },
             // New Hampshire
             {
@@ -948,7 +1333,7 @@
                 lng: -72.2896,
                 location: "Hanover, NH",
                 description: "Easy access point on New England's longest river. Beautiful paddling through scenic Upper Valley.",
-                url: null
+                url: "https://www.ledyardcanoeclub.org"
             },
             // Virginia
             {
@@ -958,7 +1343,7 @@
                 lng: -79.6787,
                 location: "Buchanan, VA",
                 description: "Upper James River Water Trail access. 64 miles of paddling through the Allegheny and Blue Ridge Mountains.",
-                url: "https://upperjamesriverwatertrail.com"
+                url: "https://www.upperjamesriverwatertrail.com"
             },
             {
                 name: "Roanoke River Blueway - Wasena Park",
@@ -967,7 +1352,7 @@
                 lng: -79.9571,
                 location: "Roanoke, VA",
                 description: "Voted one of the best urban kayaking spots in the US. Easy float through Virginia's Blue Ridge.",
-                url: "https://visitroanokeva.com"
+                url: "https://www.roanokecountyparks.com/283/Roanoke-River-Blueway"
             },
             {
                 name: "New River - McCoy Access",
@@ -976,7 +1361,7 @@
                 lng: -80.6009,
                 location: "Giles County, VA",
                 description: "Start of the 37-mile New River Water Trail. Class I to III rapids through stunning mountain scenery.",
-                url: null
+                url: "https://www.newriverwatertrail.com"
             },
             // North Carolina
             {
@@ -986,7 +1371,7 @@
                 lng: -82.5779,
                 location: "Asheville, NC",
                 description: "The heart of Asheville's outdoor scene. Multiple access points for tubing, kayaking, and paddleboarding.",
-                url: "https://frenchbroadpaddle.com"
+                url: "https://www.ashevilleoutdoorcenter.com"
             },
             {
                 name: "French Broad River - Headwaters",
@@ -995,7 +1380,7 @@
                 lng: -82.8256,
                 location: "Rosman, NC",
                 description: "Headwaters Outfitters offers 3-7 hour self-guided trips. Pristine paddling southwest of Asheville.",
-                url: null
+                url: "https://www.headwatersoutfitters.com"
             },
             {
                 name: "Yadkin River - Surry County",
@@ -1004,7 +1389,7 @@
                 lng: -80.6776,
                 location: "Elkin, NC",
                 description: "Over 100 miles of canoe/kayak waters. Surry County has more river access points than any other NC county.",
-                url: "https://yadkinvalleync.com"
+                url: "https://www.yadkinriverbluetrail.com"
             },
 
             // === COMMUNITY PARTNERS ===
@@ -1016,6 +1401,7 @@
             {
                 name: "Vermont Foodbank",
                 category: "community",
+                state: "VT",
                 lat: 44.2004,
                 lng: -72.5073,
                 location: "Barre, VT",
@@ -1028,6 +1414,7 @@
             {
                 name: "Upper Valley Haven",
                 category: "community",
+                state: "VT",
                 lat: 43.6489,
                 lng: -72.3212,
                 location: "White River Junction, VT",
@@ -1040,6 +1427,7 @@
             {
                 name: "Committee on Temporary Shelter (COTS)",
                 category: "community",
+                state: "VT",
                 lat: 44.4759,
                 lng: -73.2121,
                 location: "Burlington, VT",
@@ -1052,6 +1440,7 @@
             {
                 name: "Green Mountain Farm-to-School",
                 category: "community",
+                state: "VT",
                 lat: 44.0354,
                 lng: -73.1795,
                 location: "Newport, VT",
@@ -1064,6 +1453,7 @@
             {
                 name: "Friends of the Winooski River",
                 category: "community",
+                state: "VT",
                 lat: 44.4875,
                 lng: -72.8899,
                 location: "Montpelier, VT",
@@ -1076,6 +1466,7 @@
             {
                 name: "Vermont Community Foundation",
                 category: "community",
+                state: "VT",
                 lat: 44.2598,
                 lng: -72.5754,
                 location: "Middlebury, VT",
@@ -1088,6 +1479,7 @@
             {
                 name: "Northeast Kingdom Community Action (NEKCA)",
                 category: "community",
+                state: "VT",
                 lat: 44.5342,
                 lng: -72.0196,
                 location: "St. Johnsbury, VT",
@@ -1102,6 +1494,7 @@
             {
                 name: "NH Food Alliance",
                 category: "community",
+                state: "NH",
                 lat: 43.2081,
                 lng: -71.5376,
                 location: "Concord, NH",
@@ -1116,6 +1509,7 @@
             {
                 name: "Cultivating Community",
                 category: "community",
+                state: "ME",
                 lat: 43.6591,
                 lng: -70.2568,
                 location: "Portland, ME",
@@ -1130,6 +1524,7 @@
             {
                 name: "Spoonfuls (Lovin' Spoonfuls)",
                 category: "community",
+                state: "MA",
                 lat: 42.3376,
                 lng: -71.2087,
                 location: "Newton, MA",
@@ -1144,6 +1539,7 @@
             {
                 name: "Rhode Island Community Food Bank",
                 category: "community",
+                state: "RI",
                 lat: 41.8176,
                 lng: -71.3743,
                 location: "Providence, RI",
@@ -1158,6 +1554,7 @@
             {
                 name: "Alzheimer's Association - CT Chapter",
                 category: "community",
+                state: "CT",
                 lat: 41.3651,
                 lng: -72.9275,
                 location: "New Haven, CT",
@@ -1172,6 +1569,7 @@
             {
                 name: "City Harvest",
                 category: "community",
+                state: "NY",
                 lat: 40.7549,
                 lng: -73.9840,
                 location: "New York, NY",
@@ -1184,6 +1582,7 @@
             {
                 name: "United Way of Greater Rochester",
                 category: "community",
+                state: "NY",
                 lat: 43.1566,
                 lng: -77.6088,
                 location: "Rochester, NY",
@@ -1198,6 +1597,7 @@
             {
                 name: "Community FoodBank of New Jersey",
                 category: "community",
+                state: "NJ",
                 lat: 40.7101,
                 lng: -74.2097,
                 location: "Hillside, NJ",
@@ -1212,6 +1612,7 @@
             {
                 name: "Philabundance",
                 category: "community",
+                state: "PA",
                 lat: 39.9153,
                 lng: -75.1566,
                 location: "Philadelphia, PA",
@@ -1226,6 +1627,7 @@
             {
                 name: "James River Association",
                 category: "community",
+                state: "VA",
                 lat: 37.5328,
                 lng: -77.4360,
                 location: "Richmond, VA",
@@ -1240,6 +1642,7 @@
             {
                 name: "Blue Ridge Parkway Foundation",
                 category: "community",
+                state: "NC",
                 lat: 35.5682,
                 lng: -82.5315,
                 location: "Asheville, NC",
@@ -1252,6 +1655,7 @@
             {
                 name: "French Broad Riverkeeper (MountainTrue)",
                 category: "community",
+                state: "NC",
                 lat: 35.5946,
                 lng: -82.5516,
                 location: "Asheville, NC",
@@ -1264,6 +1668,7 @@
             {
                 name: "MANNA FoodBank",
                 category: "community",
+                state: "NC",
                 lat: 35.5781,
                 lng: -82.5024,
                 location: "Asheville, NC",
@@ -1382,6 +1787,151 @@
             animate: true,
             duration: 1.0
         });
+
+        // State filtering for community partners
+        let currentStateFilter = 'all';
+        const stateButtons = document.querySelectorAll('.state-btn');
+
+        // Store original community markers for filtering
+        const communityMarkers = [];
+        sunshineSpots.filter(s => s.category === 'community').forEach(spot => {
+            const icon = createMarkerIcon('community');
+            let popupContent = '';
+            if (spot.image) {
+                popupContent += `<img src="${spot.image}" alt="${spot.name}" class="popup-image" loading="lazy">`;
+            }
+            popupContent += `
+                <div class="popup-category community">Community Partner</div>
+                <div class="popup-title">${spot.name}</div>
+                <div class="popup-description">${spot.description}</div>
+                <div class="popup-location">${spot.location}</div>
+            `;
+            if (spot.impact) {
+                popupContent += `
+                    <div class="popup-impact">
+                        <div class="popup-impact-label">Impact Story</div>
+                        ${spot.impact}
+                    </div>
+                `;
+            }
+            if (spot.url || spot.donateUrl) {
+                popupContent += '<div class="popup-buttons">';
+                if (spot.url) {
+                    popupContent += `<a href="${spot.url}" target="_blank" rel="noopener noreferrer" class="popup-btn popup-btn-primary">Learn More</a>`;
+                }
+                if (spot.donateUrl) {
+                    popupContent += `<a href="${spot.donateUrl}" target="_blank" rel="noopener noreferrer" class="popup-btn popup-btn-secondary">Donate</a>`;
+                }
+                popupContent += '</div>';
+            }
+
+            const marker = L.marker([spot.lat, spot.lng], { icon: icon })
+                .bindPopup(popupContent, { maxWidth: 320 });
+
+            communityMarkers.push({ marker, state: spot.state, spot });
+        });
+
+        function filterByState(state) {
+            currentStateFilter = state;
+
+            // Update button states
+            stateButtons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.state === state) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Clear community layer and rebuild with filtered markers
+            layers.community.clearLayers();
+
+            communityMarkers.forEach(({ marker, state: markerState }) => {
+                if (state === 'all' || markerState === state) {
+                    layers.community.addLayer(marker);
+                }
+            });
+
+            // Update community count badge
+            const filteredCount = state === 'all'
+                ? communityMarkers.length
+                : communityMarkers.filter(m => m.state === state).length;
+            document.getElementById('count-community').textContent = filteredCount;
+
+            // If filtering to a specific state, zoom to show those markers
+            if (state !== 'all') {
+                const filteredSpots = communityMarkers.filter(m => m.state === state);
+                if (filteredSpots.length > 0) {
+                    const bounds = filteredSpots.map(m => [m.spot.lat, m.spot.lng]);
+                    map.fitBounds(bounds, {
+                        padding: [80, 80],
+                        animate: true,
+                        duration: 0.5,
+                        maxZoom: 10
+                    });
+                }
+            }
+        }
+
+        // Add click handlers to state buttons
+        stateButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterByState(btn.dataset.state);
+            });
+        });
+
+        // Animated counter for metrics
+        function animateCounter(element, target, duration = 2000, isDecimal = false) {
+            const start = 0;
+            const startTime = performance.now();
+            const parent = element.parentElement;
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // Easing function for smooth animation
+                const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+                const current = start + (target - start) * easeOutQuart;
+
+                if (isDecimal) {
+                    element.textContent = current.toFixed(1);
+                } else {
+                    element.textContent = Math.floor(current).toLocaleString();
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        // Start counter animation when metrics section comes into view
+        function startMetricsAnimation() {
+            const metricNumbers = document.querySelectorAll('.metric-number');
+
+            metricNumbers.forEach(el => {
+                const target = parseFloat(el.dataset.target);
+                const isDecimal = el.dataset.decimal === 'true';
+                animateCounter(el, target, 2500, isDecimal);
+            });
+        }
+
+        // Use Intersection Observer to trigger animation when visible
+        const metricsSection = document.querySelector('.metrics-section');
+        if (metricsSection) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        startMetricsAnimation();
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            observer.observe(metricsSection);
+        }
     </script>
 </body>
 </html>
