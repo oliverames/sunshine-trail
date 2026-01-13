@@ -238,19 +238,22 @@
             transition: opacity 0.2s ease-in-out;
         }
 
-        .leaflet-marker-icon {
-            transition: transform 0.15s ease-out, filter 0.15s ease-out;
-            transform-origin: center bottom;
-        }
-
-        .leaflet-marker-icon:hover {
-            transform: scale(1.1) translateY(-2px);
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
-        }
-
         /* Prevent marker icon distortion */
         .marker-icon {
             background: transparent !important;
+        }
+
+        /* Only apply hover effects on devices that support hover (not touch) */
+        @media (hover: hover) and (pointer: fine) {
+            .leaflet-marker-icon {
+                transition: transform 0.15s ease-out, filter 0.15s ease-out;
+                transform-origin: center bottom;
+            }
+
+            .leaflet-marker-icon:hover {
+                transform: scale(1.1) translateY(-2px);
+                filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+            }
         }
 
         /* Custom Leaflet popup styles */
@@ -423,43 +426,32 @@
         }
 
         .footer-bar {
-            background: var(--deep-brown);
+            background: rgba(44, 31, 22, 0.95);
             color: var(--cream);
-            padding: 0.5rem 1.5rem;
-            font-size: 0.8rem;
+            padding: 0.4rem 1rem;
+            font-size: 0.75rem;
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             z-index: 1000;
+            backdrop-filter: blur(8px);
         }
 
         .footer-content {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 1.5rem;
+            gap: 0.5rem;
         }
 
-        .footer-tagline {
-            opacity: 0.9;
-        }
-
-        .footer-link {
+        .footer-content a {
             color: var(--sunshine-gold);
             text-decoration: none;
-            font-weight: 600;
         }
 
-        .footer-link:hover {
+        .footer-content a:hover {
             text-decoration: underline;
-        }
-
-        .footer-bcorp {
-            height: 45px;
-            width: auto;
-            filter: brightness(0) invert(1);
-            opacity: 0.9;
         }
         /* Page Load Animations */
         @keyframes fadeInDown {
@@ -586,16 +578,6 @@
 
         footer {
             animation: fadeInUp 0.5s ease-out 0.8s both;
-        }
-
-        /* Marker bounce animation */
-        .leaflet-marker-icon {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .leaflet-marker-icon:hover {
-            transform: scale(1.2) translateY(-5px) !important;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
         }
 
         /* Filter checkbox animation */
@@ -1047,9 +1029,7 @@
 
     <footer class="footer-bar">
         <div class="footer-content">
-            <span class="footer-tagline">Finest. Freshest. Always Kept Cold.&trade;</span>
-            <a href="https://www.lawsonsfinest.com" target="_blank" rel="noopener noreferrer" class="footer-link">lawsonsfinest.com</a>
-            <img src="assets/images/b-corp-logo.png" alt="Certified B Corporation" class="footer-bcorp">
+            <a href="https://www.lawsonsfinest.com" target="_blank" rel="noopener noreferrer">lawsonsfinest.com</a>
         </div>
     </footer>
 
