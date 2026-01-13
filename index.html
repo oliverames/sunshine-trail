@@ -53,21 +53,26 @@
             gap: 1rem;
         }
 
-        .sun-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--sunshine-gold) 0%, var(--sunshine-orange) 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 20px rgba(234, 192, 84, 0.6);
+        .header-trail-logo {
+            height: 55px;
+            width: auto;
         }
 
-        .sun-icon svg {
-            width: 30px;
-            height: 30px;
-            fill: var(--deep-brown);
+        .brand-logo-link {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-brand-logo {
+            height: 40px;
+            width: auto;
+            filter: brightness(0) invert(1);
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+
+        .header-brand-logo:hover {
+            opacity: 1;
         }
 
         h1 {
@@ -87,15 +92,10 @@
             font-weight: 400;
         }
 
-        .brand-credit {
-            font-size: 0.75rem;
-            opacity: 0.7;
-            text-align: right;
-        }
-
-        .brand-credit a {
-            color: var(--sunshine-gold);
-            text-decoration: none;
+        .filter-icon {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
         }
 
         main {
@@ -175,17 +175,6 @@
             gap: 0.5rem;
         }
 
-        .marker-icon {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        .marker-retailer { background-color: var(--sunshine-gold); }
-        .marker-trail { background-color: var(--forest-green); }
-        .marker-river { background-color: var(--river-blue); }
-        .marker-community { background-color: var(--community-purple); }
 
         .count-badge {
             background: var(--light-gold);
@@ -380,19 +369,10 @@
         }
 
         /* Custom marker styles */
-        .custom-marker {
-            border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-
-        .marker-cluster {
-            background: var(--sunshine-gold);
-            border-radius: 50%;
-            color: var(--deep-brown);
-            font-weight: 700;
-            text-align: center;
-            line-height: 40px;
+        .leaflet-marker-icon {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
         }
 
         /* Mobile responsive */
@@ -427,9 +407,8 @@
         .footer-bar {
             background: var(--deep-brown);
             color: var(--cream);
-            padding: 0.5rem 1rem;
-            font-size: 0.75rem;
-            text-align: center;
+            padding: 0.5rem 1.5rem;
+            font-size: 0.8rem;
             position: fixed;
             bottom: 0;
             left: 0;
@@ -437,31 +416,47 @@
             z-index: 1000;
         }
 
-        .footer-bar a {
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .footer-tagline {
+            opacity: 0.9;
+        }
+
+        .footer-link {
             color: var(--sunshine-gold);
             text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        .footer-bcorp {
+            height: 32px;
+            width: auto;
+            filter: brightness(0) invert(1);
+            opacity: 0.85;
         }
     </style>
 </head>
 <body>
     <header>
         <div class="logo-section">
-            <div class="sun-icon">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="5"/>
-                    <path d="M12 1v3M12 20v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M1 12h3M20 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/>
-                    <style>path{stroke:currentColor;stroke-width:2;stroke-linecap:round}</style>
-                </svg>
-            </div>
+            <img src="assets/images/sunshine-trail-logo.svg" alt="The Sunshine Trail" class="header-trail-logo">
             <div>
                 <h1>The <span>Sunshine</span> Trail</h1>
                 <p class="tagline">Mountain communities. Outdoor adventures. Cold beer.</p>
             </div>
         </div>
-        <div class="brand-credit">
-            A campaign by<br>
-            <a href="https://www.lawsonsfinest.com" target="_blank" rel="noopener noreferrer">Lawson's Finest Liquids</a>
-        </div>
+        <a href="https://www.lawsonsfinest.com" target="_blank" rel="noopener noreferrer" class="brand-logo-link">
+            <img src="assets/images/lawsons-logo.svg" alt="Lawson's Finest Liquids" class="header-brand-logo">
+        </a>
     </header>
 
     <main>
@@ -478,7 +473,7 @@
                     <div class="filter-item">
                         <input type="checkbox" id="filter-retailers" checked>
                         <label for="filter-retailers">
-                            <span class="marker-icon marker-retailer"></span>
+                            <img src="assets/images/marker-retailer.png" alt="" class="filter-icon">
                             Retailers
                             <span class="count-badge" id="count-retailers">0</span>
                         </label>
@@ -486,7 +481,7 @@
                     <div class="filter-item">
                         <input type="checkbox" id="filter-trails" checked>
                         <label for="filter-trails">
-                            <span class="marker-icon marker-trail"></span>
+                            <img src="assets/images/marker-trail.png" alt="" class="filter-icon">
                             Trails
                             <span class="count-badge" id="count-trails">0</span>
                         </label>
@@ -494,7 +489,7 @@
                     <div class="filter-item">
                         <input type="checkbox" id="filter-rivers" checked>
                         <label for="filter-rivers">
-                            <span class="marker-icon marker-river"></span>
+                            <img src="assets/images/marker-river.png" alt="" class="filter-icon">
                             River Put-ins
                             <span class="count-badge" id="count-rivers">0</span>
                         </label>
@@ -502,7 +497,7 @@
                     <div class="filter-item">
                         <input type="checkbox" id="filter-community" checked>
                         <label for="filter-community">
-                            <span class="marker-icon marker-community"></span>
+                            <img src="assets/images/marker-community.png" alt="" class="filter-icon">
                             Community Partners
                             <span class="count-badge" id="count-community">0</span>
                         </label>
@@ -524,9 +519,11 @@
     </main>
 
     <footer class="footer-bar">
-        Finest. Freshest. Always Kept Cold.&trade; |
-        <a href="https://www.lawsonsfinest.com" target="_blank" rel="noopener noreferrer">lawsonsfinest.com</a> |
-        B Corp Certified
+        <div class="footer-content">
+            <span class="footer-tagline">Finest. Freshest. Always Kept Cold.&trade;</span>
+            <a href="https://www.lawsonsfinest.com" target="_blank" rel="noopener noreferrer" class="footer-link">lawsonsfinest.com</a>
+            <img src="assets/images/b-corp-logo.png" alt="Certified B Corporation" class="footer-bcorp">
+        </div>
     </footer>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
@@ -564,23 +561,37 @@
             keepBuffer: 4
         }).addTo(map);
 
-        // Define marker colors - matching Lawson's brand palette
-        const markerColors = {
-            retailer: '#EAC054',   // Sunshine gold
-            trail: '#3A5F3A',     // Forest green
-            river: '#4A90A4',     // Mountain stream blue
-            community: '#7B5B9A'  // Community purple
+        // Define marker icons - using custom images
+        const markerIcons = {
+            retailer: L.icon({
+                iconUrl: 'assets/images/marker-retailer.png',
+                iconSize: [40, 40],
+                iconAnchor: [20, 40],
+                popupAnchor: [0, -40]
+            }),
+            trail: L.icon({
+                iconUrl: 'assets/images/marker-trail.png',
+                iconSize: [40, 48],
+                iconAnchor: [20, 48],
+                popupAnchor: [0, -48]
+            }),
+            river: L.icon({
+                iconUrl: 'assets/images/marker-river.png',
+                iconSize: [44, 40],
+                iconAnchor: [22, 40],
+                popupAnchor: [0, -40]
+            }),
+            community: L.icon({
+                iconUrl: 'assets/images/marker-community.png',
+                iconSize: [36, 44],
+                iconAnchor: [18, 44],
+                popupAnchor: [0, -44]
+            })
         };
 
-        // Create custom icon function
+        // Get marker icon for category
         function createMarkerIcon(category) {
-            return L.divIcon({
-                className: 'custom-marker-wrapper',
-                html: `<div class="custom-marker" style="background-color: ${markerColors[category]}; width: 24px; height: 24px;"></div>`,
-                iconSize: [24, 24],
-                iconAnchor: [12, 12],
-                popupAnchor: [0, -12]
-            });
+            return markerIcons[category];
         }
 
         // Sunshine Trail Data
