@@ -239,11 +239,18 @@
         }
 
         .leaflet-marker-icon {
-            transition: transform 0.15s ease-out;
+            transition: transform 0.15s ease-out, filter 0.15s ease-out;
+            transform-origin: center bottom;
         }
 
         .leaflet-marker-icon:hover {
-            transform: scale(1.15);
+            transform: scale(1.1) translateY(-2px);
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        }
+
+        /* Prevent marker icon distortion */
+        .marker-icon {
+            background: transparent !important;
         }
 
         /* Custom Leaflet popup styles */
@@ -280,6 +287,7 @@
         .popup-category.trail { background: var(--forest-green); color: white; }
         .popup-category.river { background: var(--river-blue); color: white; }
         .popup-category.community { background: var(--community-purple); color: white; }
+        .popup-category.charger { background: #22c55e; color: white; }
 
         .popup-content-wrapper {
             max-height: 400px;
@@ -448,10 +456,10 @@
         }
 
         .footer-bcorp {
-            height: 32px;
+            height: 45px;
             width: auto;
             filter: brightness(0) invert(1);
-            opacity: 0.85;
+            opacity: 0.9;
         }
         /* Page Load Animations */
         @keyframes fadeInDown {
@@ -970,6 +978,14 @@
                             <span class="count-badge" id="count-community">0</span>
                         </label>
                     </div>
+                    <div class="filter-item">
+                        <input type="checkbox" id="filter-chargers" checked>
+                        <label for="filter-chargers">
+                            <img src="assets/images/marker-charger.svg" alt="" class="filter-icon">
+                            DC Fast Chargers
+                            <span class="count-badge" id="count-chargers">0</span>
+                        </label>
+                    </div>
                 </div>
             </div>
 
@@ -1074,31 +1090,42 @@
             keepBuffer: 4
         }).addTo(map);
 
-        // Define marker icons - using custom images
+        // Define marker icons - using custom images with correct dimensions
         const markerIcons = {
             retailer: L.icon({
                 iconUrl: 'assets/images/marker-retailer.png',
-                iconSize: [40, 40],
-                iconAnchor: [20, 40],
-                popupAnchor: [0, -40]
+                iconSize: [40, 37],
+                iconAnchor: [20, 37],
+                popupAnchor: [0, -37],
+                className: 'marker-icon'
             }),
             trail: L.icon({
                 iconUrl: 'assets/images/marker-trail.png',
-                iconSize: [40, 48],
-                iconAnchor: [20, 48],
-                popupAnchor: [0, -48]
+                iconSize: [32, 48],
+                iconAnchor: [16, 48],
+                popupAnchor: [0, -48],
+                className: 'marker-icon'
             }),
             river: L.icon({
                 iconUrl: 'assets/images/marker-river.png',
-                iconSize: [44, 40],
-                iconAnchor: [22, 40],
-                popupAnchor: [0, -40]
+                iconSize: [32, 48],
+                iconAnchor: [16, 48],
+                popupAnchor: [0, -48],
+                className: 'marker-icon'
             }),
             community: L.icon({
                 iconUrl: 'assets/images/marker-community.png',
-                iconSize: [36, 44],
-                iconAnchor: [18, 44],
-                popupAnchor: [0, -44]
+                iconSize: [40, 40],
+                iconAnchor: [20, 40],
+                popupAnchor: [0, -40],
+                className: 'marker-icon'
+            }),
+            charger: L.icon({
+                iconUrl: 'assets/images/marker-charger.svg',
+                iconSize: [32, 40],
+                iconAnchor: [16, 40],
+                popupAnchor: [0, -40],
+                className: 'marker-icon'
             })
         };
 
@@ -2013,6 +2040,130 @@
                 image: "https://images.unsplash.com/photo-1594708767771-a7502f8a2e7c?w=400&h=200&fit=crop",
                 url: "https://mannafoodbank.org",
                 donateUrl: "https://mannafoodbank.org/donate"
+            },
+
+            // === DC FAST CHARGERS ===
+            // North Carolina
+            {
+                name: "Tesla Supercharger - Asheville",
+                category: "charger",
+                lat: 35.5732,
+                lng: -82.5413,
+                location: "264 Thetford St, Asheville, NC",
+                description: "Tesla Supercharger with 8 stalls, up to 250kW. Located near downtown Asheville.",
+                url: "https://www.tesla.com/findus"
+            },
+            {
+                name: "Tesla Supercharger - Mt Airy",
+                category: "charger",
+                lat: 36.5082,
+                lng: -80.6193,
+                location: "2905 Rockford St, Mt Airy, NC",
+                description: "Tesla Supercharger with 8 stalls, up to 250kW. Great stop on Blue Ridge Parkway northern section.",
+                url: "https://www.tesla.com/findus"
+            },
+            {
+                name: "Electrify America - Boone",
+                category: "charger",
+                lat: 36.2038,
+                lng: -81.6580,
+                location: "1180 Blowing Rock Rd, Boone, NC",
+                description: "Electrify America DC fast chargers at Walmart, up to 350kW. Near Blowing Rock and Blue Ridge Parkway.",
+                url: "https://www.electrifyamerica.com/locate-charger/"
+            },
+            // Virginia
+            {
+                name: "Electrify America - Staunton",
+                category: "charger",
+                lat: 38.1408,
+                lng: -79.0556,
+                location: "255 Lucy Ln, Staunton, VA",
+                description: "Electrify America DC fast chargers at Walmart, up to 350kW. Perfect stop at the north end of Skyline Drive.",
+                url: "https://www.electrifyamerica.com/locate-charger/"
+            },
+            {
+                name: "Tesla Supercharger - Waynesboro",
+                category: "charger",
+                lat: 38.0686,
+                lng: -78.9036,
+                location: "109 Lucy Ln, Waynesboro, VA",
+                description: "Tesla Supercharger with 12 stalls, up to 250kW. Near Skyline Drive and Blue Ridge Parkway junction.",
+                url: "https://www.tesla.com/findus"
+            },
+            {
+                name: "Tesla Supercharger - Charlottesville",
+                category: "charger",
+                lat: 38.0543,
+                lng: -78.4975,
+                location: "1954 Rio Hill Center, Charlottesville, VA",
+                description: "Tesla Supercharger with 12 stalls, up to 250kW. Great stop when heading north from Skyline Drive.",
+                url: "https://www.tesla.com/findus"
+            },
+            // Massachusetts
+            {
+                name: "Electrify America - Springfield",
+                category: "charger",
+                lat: 42.1186,
+                lng: -72.5428,
+                location: "1655 Boston Rd, Springfield, MA",
+                description: "Electrify America DC fast chargers at Walmart, up to 350kW. Gateway to New England.",
+                url: "https://www.electrifyamerica.com/locate-charger/"
+            },
+            // New Hampshire
+            {
+                name: "Electrify America - Hooksett",
+                category: "charger",
+                lat: 43.0697,
+                lng: -71.4378,
+                location: "1328 Hooksett Rd, Hooksett, NH",
+                description: "Electrify America DC fast chargers, up to 350kW. Key I-93 corridor stop en route to Vermont.",
+                url: "https://www.electrifyamerica.com/locate-charger/"
+            },
+            // Vermont
+            {
+                name: "ChargePoint DC Fast - Waitsfield",
+                category: "charger",
+                lat: 44.1861,
+                lng: -72.8277,
+                location: "5134 Main St, Waitsfield, VT",
+                description: "ChargePoint DC fast charger at Mobil station, 180kW. Right in the heart of Mad River Valley near Lawson's Taproom.",
+                url: "https://www.chargepoint.com/en-us/drivers/find-charger"
+            },
+            {
+                name: "ChargePoint DC Fast - Mad River Green",
+                category: "charger",
+                lat: 44.1875,
+                lng: -72.8261,
+                location: "Village Square, Waitsfield, VT",
+                description: "ChargePoint DC fast charger at Mad River Green shopping center, 62kW. Walking distance to local shops and Lawson's.",
+                url: "https://www.chargepoint.com/en-us/drivers/find-charger"
+            },
+            {
+                name: "Tesla Supercharger - Waterbury",
+                category: "charger",
+                lat: 44.3396,
+                lng: -72.7530,
+                location: "1899 Waterbury-Stowe Rd, Waterbury, VT",
+                description: "Tesla Supercharger with 8 stalls near Ben & Jerry's Factory. Popular tourist stop.",
+                url: "https://www.tesla.com/findus"
+            },
+            {
+                name: "Electrify America - White River Junction",
+                category: "charger",
+                lat: 43.6489,
+                lng: -72.3195,
+                location: "270 N Hartland Rd, White River Junction, VT",
+                description: "Electrify America DC fast chargers at Walmart, up to 350kW. Key I-91/I-89 interchange stop.",
+                url: "https://www.electrifyamerica.com/locate-charger/"
+            },
+            {
+                name: "NEVI Fast Charger - Bradford",
+                category: "charger",
+                lat: 43.9931,
+                lng: -72.1292,
+                location: "172 Waits River Rd, Bradford, VT",
+                description: "Vermont NEVI program DC fast charger at Denny Park, up to 150kW. Scenic I-91 corridor charging.",
+                url: "https://www.driveelectricvt.com/"
             }
         ];
 
@@ -2021,7 +2172,8 @@
             retailer: L.layerGroup(),
             trail: L.layerGroup(),
             river: L.layerGroup(),
-            community: L.layerGroup()
+            community: L.layerGroup(),
+            charger: L.layerGroup()
         };
 
         // Add markers to respective layers
@@ -2036,8 +2188,10 @@
                 popupContent += `<img src="${spot.image}" alt="${spot.name}" class="popup-image" loading="lazy">`;
             }
 
+            const categoryLabel = spot.category === 'community' ? 'Community Partner' :
+                                   spot.category === 'charger' ? 'DC Fast Charger' : spot.category;
             popupContent += `
-                <div class="popup-category ${spot.category}">${spot.category === 'community' ? 'Community Partner' : spot.category}</div>
+                <div class="popup-category ${spot.category}">${categoryLabel}</div>
                 <div class="popup-title">${spot.name}</div>
                 <div class="popup-description">${spot.description}</div>
                 <div class="popup-location">${spot.location}</div>
@@ -2080,6 +2234,7 @@
             document.getElementById('count-trails').textContent = sunshineSpots.filter(s => s.category === 'trail').length;
             document.getElementById('count-rivers').textContent = sunshineSpots.filter(s => s.category === 'river').length;
             document.getElementById('count-community').textContent = sunshineSpots.filter(s => s.category === 'community').length;
+            document.getElementById('count-chargers').textContent = sunshineSpots.filter(s => s.category === 'charger').length;
         }
         updateCounts();
 
@@ -2113,6 +2268,14 @@
                 map.addLayer(layers.community);
             } else {
                 map.removeLayer(layers.community);
+            }
+        });
+
+        document.getElementById('filter-chargers').addEventListener('change', function() {
+            if (this.checked) {
+                map.addLayer(layers.charger);
+            } else {
+                map.removeLayer(layers.charger);
             }
         });
 
