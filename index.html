@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Sunshine Trail | Lawson's Finest Liquids</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sunshine-gold: #F5A623;
+            --sunshine-yellow: #FFD93D;
+            --deep-brown: #2d2a26;
+            --forest-green: #2E5A3A;
+            --river-blue: #3A7CA5;
+            --trail-orange: #D35400;
+            --community-purple: #8E44AD;
+            --cream: #FFF9E6;
+            --light-gold: #FFF3D6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--cream);
+            color: var(--deep-brown);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--deep-brown) 0%, #3d3832 100%);
+            color: var(--cream);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .sun-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--sunshine-gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(245, 166, 35, 0.5);
+        }
+
+        .sun-icon svg {
+            width: 30px;
+            height: 30px;
+            fill: var(--deep-brown);
+        }
+
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+        }
+
+        h1 span {
+            color: var(--sunshine-gold);
+        }
+
+        .tagline {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .brand-credit {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            text-align: right;
+        }
+
+        .brand-credit a {
+            color: var(--sunshine-gold);
+            text-decoration: none;
+        }
+
+        main {
+            display: flex;
+            height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            width: 320px;
+            background: white;
+            padding: 1.5rem;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--deep-brown);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .intro-text {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            color: #555;
+        }
+
+        .filter-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-section h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            color: var(--deep-brown);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .filter-item:hover {
+            background-color: var(--light-gold);
+        }
+
+        .filter-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--sunshine-gold);
+        }
+
+        .filter-item label {
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .marker-icon {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .marker-retailer { background-color: var(--sunshine-gold); }
+        .marker-trail { background-color: var(--forest-green); }
+        .marker-river { background-color: var(--river-blue); }
+        .marker-community { background-color: var(--community-purple); }
+
+        .count-badge {
+            background: var(--light-gold);
+            padding: 0.15rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--deep-brown);
+        }
+
+        .legend {
+            background: var(--light-gold);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .legend h4 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            margin-bottom: 0.4rem;
+        }
+
+        #map {
+            flex: 1;
+            height: 100%;
+        }
+
+        /* Custom Leaflet popup styles */
+        .leaflet-popup-content-wrapper {
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .leaflet-popup-content {
+            margin: 12px 16px;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .popup-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--deep-brown);
+            margin-bottom: 0.5rem;
+        }
+
+        .popup-category {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .popup-category.retailer { background: var(--sunshine-gold); color: var(--deep-brown); }
+        .popup-category.trail { background: var(--forest-green); color: white; }
+        .popup-category.river { background: var(--river-blue); color: white; }
+        .popup-category.community { background: var(--community-purple); color: white; }
+
+        .popup-description {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #555;
+            margin-bottom: 0.5rem;
+        }
+
+        .popup-location {
+            font-size: 0.8rem;
+            color: #777;
+        }
+
+        .popup-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            color: var(--river-blue);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .popup-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Custom marker styles */
+        .custom-marker {
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .marker-cluster {
+            background: var(--sunshine-gold);
+            border-radius: 50%;
+            color: var(--deep-brown);
+            font-weight: 700;
+            text-align: center;
+            line-height: 40px;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 40vh;
+                order: 2;
+            }
+
+            #map {
+                height: 60vh;
+                order: 1;
+            }
+
+            header {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.5rem;
+            }
+
+            h1 {
+                font-size: 1.4rem;
+            }
+        }
+
+        .footer-bar {
+            background: var(--deep-brown);
+            color: var(--cream);
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .footer-bar a {
+            color: var(--sunshine-gold);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-section">
+            <div class="sun-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="5"/>
+                    <path d="M12 1v3M12 20v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M1 12h3M20 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/>
+                    <style>path{stroke:currentColor;stroke-width:2;stroke-linecap:round}</style>
+                </svg>
+            </div>
+            <div>
+                <h1>The <span>Sunshine</span> Trail</h1>
+                <p class="tagline">Mountain communities. Outdoor adventures. Cold beer.</p>
+            </div>
+        </div>
+        <div class="brand-credit">
+            A campaign by<br>
+            <a href="https://www.lawsonsfinest.com" target="_blank">Lawson's Finest Liquids</a>
+        </div>
+    </header>
+
+    <main>
+        <aside class="sidebar">
+            <p class="intro-text">
+                Explore the <strong>Sunshine Spots</strong> from Waitsfield, Vermont to Asheville, North Carolina.
+                Discover retailers, hiking trails, river put-ins, and the community organizations we support along the way.
+                These mountain communities share a love of hiking, respect for nature, and appreciation for a cold beer after a long day outside.
+            </p>
+
+            <div class="filter-section">
+                <h3>Filter by Category</h3>
+                <div class="filter-group">
+                    <div class="filter-item">
+                        <input type="checkbox" id="filter-retailers" checked>
+                        <label for="filter-retailers">
+                            <span class="marker-icon marker-retailer"></span>
+                            Retailers
+                            <span class="count-badge" id="count-retailers">0</span>
+                        </label>
+                    </div>
+                    <div class="filter-item">
+                        <input type="checkbox" id="filter-trails" checked>
+                        <label for="filter-trails">
+                            <span class="marker-icon marker-trail"></span>
+                            Trails
+                            <span class="count-badge" id="count-trails">0</span>
+                        </label>
+                    </div>
+                    <div class="filter-item">
+                        <input type="checkbox" id="filter-rivers" checked>
+                        <label for="filter-rivers">
+                            <span class="marker-icon marker-river"></span>
+                            River Put-ins
+                            <span class="count-badge" id="count-rivers">0</span>
+                        </label>
+                    </div>
+                    <div class="filter-item">
+                        <input type="checkbox" id="filter-community" checked>
+                        <label for="filter-community">
+                            <span class="marker-icon marker-community"></span>
+                            Community Partners
+                            <span class="count-badge" id="count-community">0</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="legend">
+                <h4>About This Trail</h4>
+                <p style="font-size: 0.8rem; line-height: 1.5; color: #555;">
+                    The Sunshine Trail celebrates the shared culture of mountain communities along the East Coast -
+                    from the Green Mountains of Vermont to the Blue Ridge of North Carolina.
+                    Every spot on this map represents our commitment to quality, community, and the great outdoors.
+                </p>
+            </div>
+        </aside>
+
+        <div id="map"></div>
+    </main>
+
+    <div class="footer-bar">
+        Finest. Freshest. Always Kept Cold.&trade; |
+        <a href="https://www.lawsonsfinest.com" target="_blank">lawsonsfinest.com</a> |
+        B Corp Certified
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map centered between Waitsfield, VT and Asheville, NC
+        const map = L.map('map').setView([39.5, -77.5], 6);
+
+        // Add a styled tile layer
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Define marker colors
+        const markerColors = {
+            retailer: '#F5A623',
+            trail: '#2E5A3A',
+            river: '#3A7CA5',
+            community: '#8E44AD'
+        };
+
+        // Create custom icon function
+        function createMarkerIcon(category) {
+            return L.divIcon({
+                className: 'custom-marker-wrapper',
+                html: `<div class="custom-marker" style="background-color: ${markerColors[category]}; width: 24px; height: 24px;"></div>`,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12],
+                popupAnchor: [0, -12]
+            });
+        }
+
+        // Sunshine Trail Data
+        const sunshineSpots = [
+            // === RETAILERS ===
+            // Vermont
+            {
+                name: "Lawson's Finest Liquids Taproom",
+                category: "retailer",
+                lat: 44.1852,
+                lng: -72.8288,
+                location: "Waitsfield, VT",
+                description: "The home of Sip of Sunshine. Visit our taproom for the freshest pours and exclusive releases.",
+                url: "https://www.lawsonsfinest.com"
+            },
+            {
+                name: "Mad River Taste Place",
+                category: "retailer",
+                lat: 44.1870,
+                lng: -72.8256,
+                location: "Waitsfield, VT",
+                description: "The Valley's go-to destination for Vermont craft beer, local cider, wine, and hyper-local spirits.",
+                url: "https://madrivervalley.com"
+            },
+            {
+                name: "Mehuron's Supermarket",
+                category: "retailer",
+                lat: 44.1858,
+                lng: -72.8271,
+                location: "Waitsfield, VT",
+                description: "Local grocery with an excellent Vermont craft beer selection including Lawson's Finest.",
+                url: null
+            },
+            {
+                name: "JD's Quick Stop",
+                category: "retailer",
+                lat: 43.9289,
+                lng: -72.8411,
+                location: "Hancock, VT",
+                description: "Famous beer cave with a curated selection of Vermont's finest including Lawson's, Heady Topper, and more.",
+                url: null
+            },
+            // Massachusetts
+            {
+                name: "Craft Beer Cellar - Belmont",
+                category: "retailer",
+                lat: 42.3962,
+                lng: -71.1784,
+                location: "Belmont, MA",
+                description: "Premier craft beer retailer featuring rotating selections from Lawson's Finest Liquids.",
+                url: "https://craftbeercellar.com"
+            },
+            {
+                name: "Blanchard's Liquors",
+                category: "retailer",
+                lat: 42.3151,
+                lng: -71.0589,
+                location: "Boston, MA",
+                description: "Boston's destination for craft beer with regular Lawson's Finest availability.",
+                url: null
+            },
+            // Connecticut
+            {
+                name: "Two Roads Brewing Company",
+                category: "retailer",
+                lat: 41.2226,
+                lng: -73.1353,
+                location: "Stratford, CT",
+                description: "Our brewing partner - Sip of Sunshine is brewed here. Visit the taproom for fresh pours.",
+                url: "https://tworoadsbrewing.com"
+            },
+            // New York
+            {
+                name: "Whole Foods Market - Union Square",
+                category: "retailer",
+                lat: 40.7359,
+                lng: -73.9911,
+                location: "New York, NY",
+                description: "Quality craft beer selection in Manhattan including Lawson's Finest offerings.",
+                url: null
+            },
+            // Pennsylvania
+            {
+                name: "Monk's Cafe",
+                category: "retailer",
+                lat: 39.9478,
+                lng: -75.1639,
+                location: "Philadelphia, PA",
+                description: "Legendary Philadelphia beer bar known for exceptional craft selections.",
+                url: "https://monkscafe.com"
+            },
+            {
+                name: "Tired Hands Brewing Company",
+                category: "retailer",
+                lat: 40.0054,
+                lng: -75.3099,
+                location: "Ardmore, PA",
+                description: "Award-winning brewery and fermentaria with rotating guest taps.",
+                url: "https://tiredhands.com"
+            },
+            // Virginia
+            {
+                name: "Total Wine & More - Richmond",
+                category: "retailer",
+                lat: 37.5955,
+                lng: -77.5201,
+                location: "Richmond, VA",
+                description: "Extensive craft beer selection with regular Lawson's Finest availability.",
+                url: "https://totalwine.com"
+            },
+            {
+                name: "The Veil Brewing Co.",
+                category: "retailer",
+                lat: 37.5541,
+                lng: -77.4599,
+                location: "Richmond, VA",
+                description: "Richmond's favorite brewery - check for Lawson's guest taps and events.",
+                url: "https://theveilbrewing.com"
+            },
+            // North Carolina
+            {
+                name: "Weinhaus",
+                category: "retailer",
+                lat: 35.5951,
+                lng: -82.5515,
+                location: "Asheville, NC",
+                description: "Downtown Asheville's oldest and largest bottle shop with 12 local NC beers on tap.",
+                url: "https://weinhaus.com"
+            },
+            {
+                name: "Local 604 Bottle Shop - West",
+                category: "retailer",
+                lat: 35.5847,
+                lng: -82.5760,
+                location: "Asheville, NC",
+                description: "West Asheville's best little bottle shop with over 20 local breweries represented.",
+                url: "https://local604avl.com"
+            },
+            {
+                name: "The Whale - A Craft Beer Collective",
+                category: "retailer",
+                lat: 35.5943,
+                lng: -82.5540,
+                location: "Asheville, NC",
+                description: "Exceptional craft beer selection - one of the best bottle shops on the East Coast.",
+                url: null
+            },
+            {
+                name: "Appalachian Vintner",
+                category: "retailer",
+                lat: 35.6012,
+                lng: -82.5568,
+                location: "Asheville, NC",
+                description: "Great selection and one-stop shopping for beer and wine in Asheville.",
+                url: null
+            },
+
+            // === TRAILS ===
+            // Vermont
+            {
+                name: "Camel's Hump via Long Trail",
+                category: "trail",
+                lat: 44.3198,
+                lng: -72.8862,
+                location: "Duxbury, VT",
+                description: "Vermont's most iconic mountain with 360-degree views. 6.8 miles round trip. One of only four peaks in Vermont with alpine tundra.",
+                url: "https://www.greenmountainclub.org"
+            },
+            {
+                name: "Stratton Mountain",
+                category: "trail",
+                lat: 43.0822,
+                lng: -72.9089,
+                location: "Stratton, VT",
+                description: "Where Benton MacKaye conceived the Appalachian Trail. Features peaceful streams, meadows, and pristine Stratton Pond.",
+                url: null
+            },
+            {
+                name: "Mount Mansfield - Long Trail",
+                category: "trail",
+                lat: 44.5437,
+                lng: -72.8143,
+                location: "Stowe, VT",
+                description: "Vermont's highest peak at 4,393 ft. Stunning ridge walk along 'The Chin' with alpine scenery.",
+                url: null
+            },
+            // New Hampshire
+            {
+                name: "Franconia Ridge Loop",
+                category: "trail",
+                lat: 44.1604,
+                lng: -71.6447,
+                location: "Franconia, NH",
+                description: "One of the premier day hikes in the entire country. Above-treeline ridge walk with 360-degree views. 8.9 miles.",
+                url: "https://www.outdoors.org"
+            },
+            {
+                name: "Mount Washington via Tuckerman Ravine",
+                category: "trail",
+                lat: 44.2706,
+                lng: -71.3033,
+                location: "Pinkham Notch, NH",
+                description: "The Northeast's highest peak at 6,288 ft. Historic and challenging. Once held the world wind speed record.",
+                url: null
+            },
+            // Massachusetts
+            {
+                name: "Mount Greylock - Appalachian Trail",
+                category: "trail",
+                lat: 42.6376,
+                lng: -73.1662,
+                location: "Adams, MA",
+                description: "Massachusetts' highest point at 3,491 ft. The AT passes over the summit with panoramic views of five states.",
+                url: null
+            },
+            {
+                name: "Taconic Highlands - Mount Everett",
+                category: "trail",
+                lat: 42.0977,
+                lng: -73.4374,
+                location: "Mount Washington, MA",
+                description: "A 17-mile AT section with old-growth forest, waterfalls, and open summits without crossing a single road.",
+                url: null
+            },
+            // Pennsylvania
+            {
+                name: "Hawk Mountain Sanctuary",
+                category: "trail",
+                lat: 40.6359,
+                lng: -75.9871,
+                location: "Kempton, PA",
+                description: "World-renowned raptor migration site. Over 20,000 hawks fly over each fall. Multiple scenic overlooks.",
+                url: "https://hawkmountain.org"
+            },
+            {
+                name: "The Pinnacle",
+                category: "trail",
+                lat: 40.5805,
+                lng: -75.9143,
+                location: "Hamburg, PA",
+                description: "Considered by many to be the AT's best view in Pennsylvania. 9-mile loop with stunning rock formations.",
+                url: null
+            },
+            // Virginia
+            {
+                name: "McAfee Knob",
+                category: "trail",
+                lat: 37.2390,
+                lng: -80.0328,
+                location: "Salem, VA",
+                description: "The most photographed spot on the entire Appalachian Trail. Iconic rock outcrop with widescreen mountain views. 8.8 miles.",
+                url: null
+            },
+            {
+                name: "Three Ridges Wilderness",
+                category: "trail",
+                lat: 37.9189,
+                lng: -79.0168,
+                location: "Waynesboro, VA",
+                description: "Scenic views, 40-foot waterfalls, and swimming holes. A challenging but rewarding AT section.",
+                url: null
+            },
+            {
+                name: "Old Rag Mountain",
+                category: "trail",
+                lat: 38.5533,
+                lng: -78.3161,
+                location: "Shenandoah NP, VA",
+                description: "Virginia's most popular hike. Iconic rock scramble with 360-degree views from the summit.",
+                url: "https://www.nps.gov/shen"
+            },
+            // North Carolina
+            {
+                name: "Max Patch",
+                category: "trail",
+                lat: 35.7972,
+                lng: -82.9569,
+                location: "Hot Springs, NC",
+                description: "A rolling, grassy mountaintop bald with endless wildflowers and stunning 360-degree panoramas. One of our favorites on the AT.",
+                url: null
+            },
+            {
+                name: "Roan Highlands - Carvers Gap",
+                category: "trail",
+                lat: 36.1064,
+                lng: -82.1098,
+                location: "Roan Mountain, NC/TN",
+                description: "Rolling balds with fields of wildflowers. Hike to Round Bald, Jane Bald, and Grassy Ridge for incredible views.",
+                url: null
+            },
+            {
+                name: "Craggy Gardens",
+                category: "trail",
+                lat: 35.7019,
+                lng: -82.3790,
+                location: "Blue Ridge Parkway, NC",
+                description: "Famous for rhododendron blooms. Easy to moderate trails with panoramic Blue Ridge views.",
+                url: "https://www.nps.gov/blri"
+            },
+            {
+                name: "Looking Glass Rock",
+                category: "trail",
+                lat: 35.2957,
+                lng: -82.7877,
+                location: "Pisgah NF, NC",
+                description: "Iconic granite dome near Brevard. Challenging 6.5-mile hike rewarded with spectacular views.",
+                url: null
+            },
+
+            // === RIVER PUT-INS ===
+            // Vermont
+            {
+                name: "Mad River - Waitsfield Access",
+                category: "river",
+                lat: 44.1892,
+                lng: -72.8301,
+                location: "Waitsfield, VT",
+                description: "Local favorite for kayaking and swimming. Class I-II rapids through the heart of the Mad River Valley.",
+                url: null
+            },
+            {
+                name: "White River - Chelsea Park",
+                category: "river",
+                lat: 43.7832,
+                lng: -72.4689,
+                location: "Sharon, VT",
+                description: "Vermont's longest undammed river. Popular put-in for scenic day paddles with few portages required.",
+                url: "https://vermontriverconservancy.org"
+            },
+            {
+                name: "Connecticut River - Wilgus State Park",
+                category: "river",
+                lat: 43.4397,
+                lng: -72.4128,
+                location: "Ascutney, VT",
+                description: "Canoe and kayak rentals available. Part of the 400-mile Connecticut River Paddlers' Trail.",
+                url: null
+            },
+            // New Hampshire
+            {
+                name: "Connecticut River - Hanover",
+                category: "river",
+                lat: 43.7022,
+                lng: -72.2896,
+                location: "Hanover, NH",
+                description: "Easy access point on New England's longest river. Beautiful paddling through scenic Upper Valley.",
+                url: null
+            },
+            // Virginia
+            {
+                name: "James River - Buchanan",
+                category: "river",
+                lat: 37.5275,
+                lng: -79.6787,
+                location: "Buchanan, VA",
+                description: "Upper James River Water Trail access. 64 miles of paddling through the Allegheny and Blue Ridge Mountains.",
+                url: "https://upperjamesriverwatertrail.com"
+            },
+            {
+                name: "Roanoke River Blueway - Wasena Park",
+                category: "river",
+                lat: 37.2620,
+                lng: -79.9571,
+                location: "Roanoke, VA",
+                description: "Voted one of the best urban kayaking spots in the US. Easy float through Virginia's Blue Ridge.",
+                url: "https://visitroanokeva.com"
+            },
+            {
+                name: "New River - McCoy Access",
+                category: "river",
+                lat: 37.2419,
+                lng: -80.6009,
+                location: "Giles County, VA",
+                description: "Start of the 37-mile New River Water Trail. Class I to III rapids through stunning mountain scenery.",
+                url: null
+            },
+            // North Carolina
+            {
+                name: "French Broad River - Asheville",
+                category: "river",
+                lat: 35.5707,
+                lng: -82.5779,
+                location: "Asheville, NC",
+                description: "The heart of Asheville's outdoor scene. Multiple access points for tubing, kayaking, and paddleboarding.",
+                url: "https://frenchbroadpaddle.com"
+            },
+            {
+                name: "French Broad River - Headwaters",
+                category: "river",
+                lat: 35.1430,
+                lng: -82.8256,
+                location: "Rosman, NC",
+                description: "Headwaters Outfitters offers 3-7 hour self-guided trips. Pristine paddling southwest of Asheville.",
+                url: null
+            },
+            {
+                name: "Yadkin River - Surry County",
+                category: "river",
+                lat: 36.4117,
+                lng: -80.6776,
+                location: "Elkin, NC",
+                description: "Over 100 miles of canoe/kayak waters. Surry County has more river access points than any other NC county.",
+                url: "https://yadkinvalleync.com"
+            },
+
+            // === COMMUNITY PARTNERS ===
+            {
+                name: "Vermont Foodbank",
+                category: "community",
+                lat: 44.2004,
+                lng: -72.5073,
+                location: "Barre, VT",
+                description: "Vermont's largest hunger-relief organization. We're proud to support their mission that no one in Vermont will go hungry.",
+                url: "https://vtfoodbank.org"
+            },
+            {
+                name: "Spoonfuls (Lovin' Spoonfuls)",
+                category: "community",
+                lat: 42.3376,
+                lng: -71.2087,
+                location: "Newton, MA",
+                description: "New England's largest food rescue operation. Rescuing fresh food that would otherwise be discarded and delivering it to those in need.",
+                url: "https://spoonfuls.org"
+            },
+            {
+                name: "Philabundance",
+                category: "community",
+                lat: 39.9153,
+                lng: -75.1566,
+                location: "Philadelphia, PA",
+                description: "The Delaware Valley's largest hunger relief organization, serving 9 counties in PA and NJ since 1984.",
+                url: "https://philabundance.org"
+            },
+            {
+                name: "James River Association",
+                category: "community",
+                lat: 37.5328,
+                lng: -77.4360,
+                location: "Richmond, VA",
+                description: "Protecting and restoring the James River watershed since 1976. Supporting clean water from the mountains to the Chesapeake Bay.",
+                url: "https://thejamesriver.org"
+            },
+            {
+                name: "Blue Ridge Parkway Foundation",
+                category: "community",
+                lat: 35.5682,
+                lng: -82.5315,
+                location: "Asheville, NC",
+                description: "Preserving America's Favorite Drive. Supporting the Blue Ridge Parkway's trails, overlooks, and visitor experiences.",
+                url: "https://brpfoundation.org"
+            },
+            {
+                name: "French Broad Riverkeeper (MountainTrue)",
+                category: "community",
+                lat: 35.5946,
+                lng: -82.5516,
+                location: "Asheville, NC",
+                description: "Protecting the waters of the French Broad River watershed. Part of MountainTrue's commitment to clean water in WNC.",
+                url: "https://mountaintrue.org"
+            },
+            {
+                name: "MANNA FoodBank",
+                category: "community",
+                lat: 35.5781,
+                lng: -82.5024,
+                location: "Asheville, NC",
+                description: "Ending hunger in Western North Carolina. Distributing over 50,000 pounds of food every day through 200+ partner organizations.",
+                url: "https://mannafoodbank.org"
+            }
+        ];
+
+        // Create layer groups for each category
+        const layers = {
+            retailer: L.layerGroup(),
+            trail: L.layerGroup(),
+            river: L.layerGroup(),
+            community: L.layerGroup()
+        };
+
+        // Add markers to respective layers
+        sunshineSpots.forEach(spot => {
+            const icon = createMarkerIcon(spot.category);
+
+            let popupContent = `
+                <div class="popup-category ${spot.category}">${spot.category === 'community' ? 'Community Partner' : spot.category}</div>
+                <div class="popup-title">${spot.name}</div>
+                <div class="popup-description">${spot.description}</div>
+                <div class="popup-location">${spot.location}</div>
+            `;
+
+            if (spot.url) {
+                popupContent += `<a href="${spot.url}" target="_blank" class="popup-link">Learn more &rarr;</a>`;
+            }
+
+            const marker = L.marker([spot.lat, spot.lng], { icon: icon })
+                .bindPopup(popupContent);
+
+            layers[spot.category].addLayer(marker);
+        });
+
+        // Add all layers to map
+        Object.values(layers).forEach(layer => layer.addTo(map));
+
+        // Update counts
+        function updateCounts() {
+            document.getElementById('count-retailers').textContent = sunshineSpots.filter(s => s.category === 'retailer').length;
+            document.getElementById('count-trails').textContent = sunshineSpots.filter(s => s.category === 'trail').length;
+            document.getElementById('count-rivers').textContent = sunshineSpots.filter(s => s.category === 'river').length;
+            document.getElementById('count-community').textContent = sunshineSpots.filter(s => s.category === 'community').length;
+        }
+        updateCounts();
+
+        // Filter functionality
+        document.getElementById('filter-retailers').addEventListener('change', function() {
+            if (this.checked) {
+                map.addLayer(layers.retailer);
+            } else {
+                map.removeLayer(layers.retailer);
+            }
+        });
+
+        document.getElementById('filter-trails').addEventListener('change', function() {
+            if (this.checked) {
+                map.addLayer(layers.trail);
+            } else {
+                map.removeLayer(layers.trail);
+            }
+        });
+
+        document.getElementById('filter-rivers').addEventListener('change', function() {
+            if (this.checked) {
+                map.addLayer(layers.river);
+            } else {
+                map.removeLayer(layers.river);
+            }
+        });
+
+        document.getElementById('filter-community').addEventListener('change', function() {
+            if (this.checked) {
+                map.addLayer(layers.community);
+            } else {
+                map.removeLayer(layers.community);
+            }
+        });
+
+        // Fit map to show all markers
+        const allMarkers = sunshineSpots.map(s => [s.lat, s.lng]);
+        map.fitBounds(allMarkers, { padding: [50, 50] });
+    </script>
+</body>
+</html>
