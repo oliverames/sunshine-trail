@@ -35,7 +35,7 @@
 
         body {
             font-family: 'Open Sans', sans-serif;
-            background-color: var(--cream);
+            background-color: var(--light-gold);
             color: var(--deep-brown);
         }
 
@@ -103,14 +103,15 @@
 
         main {
             display: flex;
-            height: calc(100vh - 110px); /* Account for header and footer */
+            flex-direction: row;
         }
 
         .sidebar {
-            width: 320px;
+            width: 360px;
+            flex-shrink: 0;
             background: white;
             padding: 1.5rem;
-            overflow-y: auto;
+            overflow-y: visible;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
         }
 
@@ -218,7 +219,10 @@
 
         #map {
             flex: 1;
-            height: 100%;
+            height: calc(100vh - 80px);
+            min-height: 500px;
+            position: relative;
+            align-self: flex-start;
         }
 
         /* Smooth Leaflet transitions */
@@ -286,6 +290,35 @@
         .cluster-river { background: var(--river-blue); }
         .cluster-community { background: var(--community-purple); }
         .cluster-charger { background: #22c55e; }
+
+        /* Multi-category cluster */
+        .cluster-multi {
+            width: auto;
+            min-width: 44px;
+            height: 44px;
+            border-radius: 22px;
+            padding: 0 8px;
+            background: white;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+            border: 2px solid var(--sunshine-gold);
+        }
+
+        .cluster-multi .cluster-count {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 11px;
+            color: var(--deep-brown);
+            margin-left: 4px;
+        }
+
+        .cluster-multi .cluster-icon {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+        }
 
         /* Custom Leaflet popup styles */
         .leaflet-popup-content-wrapper {
@@ -429,13 +462,14 @@
 
             .sidebar {
                 width: 100%;
-                height: auto;
-                max-height: 40vh;
+                padding: 1.5rem;
                 order: 2;
+                box-shadow: none;
             }
 
             #map {
-                height: 60vh;
+                height: 55vh;
+                min-height: 350px;
                 order: 1;
             }
 
@@ -454,56 +488,36 @@
                 height: 45px;
             }
 
-            .header-brand-logo {
-                height: 30px;
-            }
-
-            .metrics-header {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .bcorp-badge {
-                align-self: flex-start;
-            }
-
-            .metrics-grid,
-            .metrics-grid-4 {
+            .metrics-grid {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
             }
 
             .metric-item {
-                border-left: none;
-                border-top: 2px solid rgba(45, 42, 38, 0.2);
-                padding-top: 0.75rem;
-            }
-
-            .metric-item:first-child,
-            .metric-item:nth-child(2) {
-                border-top: none;
-            }
-
-            .metric-item:nth-child(odd) {
-                border-right: 2px solid rgba(45, 42, 38, 0.2);
+                margin: 0;
             }
 
             .metric-value {
-                font-size: 1.1rem;
+                font-size: 1.2rem;
             }
 
             .metric-suffix {
                 font-size: 0.7rem;
             }
+
+            .bcorp-badge img {
+                height: 60px;
+            }
+
+            .bottom-brand-logo {
+                height: 45px;
+            }
         }
 
         /* Larger desktop screens */
         @media (min-width: 1400px) {
-            .sidebar {
-                width: 380px;
-            }
-
             .metric-value {
-                font-size: 1.6rem;
+                font-size: 1.8rem;
             }
 
             h1 {
@@ -511,30 +525,22 @@
             }
         }
 
-        /* Tablet screens - metrics grid 2 columns */
-        @media (min-width: 769px) and (max-width: 900px) {
-            .sidebar {
-                width: 280px;
-            }
-
-            .metrics-grid-4 {
+        /* Tablet screens */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .metrics-grid {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
             }
 
-            .metric-item:nth-child(odd) {
-                border-right: 2px solid rgba(45, 42, 38, 0.2);
-            }
-
-            .metric-item:nth-child(3),
-            .metric-item:nth-child(4) {
-                border-top: 2px solid rgba(45, 42, 38, 0.2);
+            .metric-item {
+                margin: 0;
             }
         }
 
         /* Zoom hint overlay */
         .zoom-hint {
             position: absolute;
-            bottom: 60px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(45, 42, 38, 0.9);
@@ -554,32 +560,42 @@
             opacity: 0;
         }
 
-        .footer-bar {
-            background: rgba(44, 31, 22, 0.95);
-            color: var(--cream);
-            padding: 0.4rem 1rem;
-            font-size: 0.75rem;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            backdrop-filter: blur(8px);
+        /* Bottom brand section */
+        .bottom-brand {
+            padding: 3rem 2rem;
+            text-align: center;
+            background: transparent;
         }
 
-        .footer-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+        .bottom-brand-link {
+            display: inline-block;
+            transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
-        .footer-content a {
-            color: var(--sunshine-gold);
+        .bottom-brand-link:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        .bottom-brand-logo {
+            height: 60px;
+            width: auto;
+        }
+
+        .bottom-brand-text {
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--deep-brown);
+            opacity: 0.8;
+        }
+
+        .bottom-brand-text a {
+            color: var(--deep-brown);
             text-decoration: none;
+            font-weight: 600;
         }
 
-        .footer-content a:hover {
+        .bottom-brand-text a:hover {
             text-decoration: underline;
         }
         /* Page Load Animations */
@@ -816,95 +832,65 @@
         /* Live Metrics Section - Styled like Lawson's website */
         .metrics-section {
             background: var(--sunshine-gold);
-            padding: 1.25rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
             animation: fadeInUp 0.6s ease-out 0.65s both;
+            box-shadow: 0 4px 20px rgba(234, 192, 84, 0.3);
         }
 
-        .metrics-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
+        .metrics-section-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(45, 42, 38, 0.15);
         }
 
-        .metrics-header h3 {
+        .metrics-section-header h3 {
             font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            font-size: 0.85rem;
+            font-weight: 800;
+            font-size: 1.1rem;
             color: var(--deep-brown);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin: 0;
-        }
-
-        .bcorp-badge {
-            background: white;
-            border-radius: 8px;
-            padding: 0.5rem;
+            letter-spacing: 2px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .bcorp-badge img {
-            height: 50px;
-            width: auto;
+            gap: 0.75rem;
+            margin: 0 0 0.5rem 0;
         }
 
         .metrics-tagline {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            font-size: 0.95rem;
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 400;
+            font-size: 0.9rem;
             font-style: italic;
             color: var(--deep-brown);
-            margin-bottom: 1rem;
+            opacity: 0.85;
+            margin: 0;
             line-height: 1.4;
         }
 
         .metrics-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.75rem;
-        }
-
-        .metrics-grid-4 {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
         }
 
         .metric-item {
             text-align: center;
-            padding: 0.5rem 0.25rem;
-        }
-
-        .metrics-grid-4 .metric-item {
-            border-left: none;
-            border-top: none;
-        }
-
-        .metrics-grid-4 .metric-item:nth-child(2),
-        .metrics-grid-4 .metric-item:nth-child(4) {
-            border-left: 2px solid rgba(45, 42, 38, 0.2);
-        }
-
-        .metrics-grid-4 .metric-item:nth-child(3),
-        .metrics-grid-4 .metric-item:nth-child(4) {
-            border-top: 2px solid rgba(45, 42, 38, 0.2);
-            padding-top: 0.5rem;
-            margin-top: 0.25rem;
+            padding: 1rem 0.5rem;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            margin: 0 0.25rem;
         }
 
         .metric-value {
             font-family: 'Montserrat', sans-serif;
             font-weight: 800;
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             color: var(--deep-brown);
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.35rem;
             display: flex;
             justify-content: center;
             align-items: baseline;
@@ -916,16 +902,17 @@
         }
 
         .metric-suffix {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
         }
 
         .metric-label {
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             color: var(--deep-brown);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            opacity: 0.8;
+            font-weight: 600;
+            opacity: 0.85;
         }
 
         .metric-number {
@@ -950,22 +937,50 @@
 
         /* Pulse dot for "live" indicator */
         .live-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--deep-brown);
+            width: 10px;
+            height: 10px;
+            background: #22c55e;
             border-radius: 50%;
             animation: livePulse 2s ease-in-out infinite;
+            flex-shrink: 0;
         }
 
         @keyframes livePulse {
             0%, 100% {
                 opacity: 1;
-                box-shadow: 0 0 0 0 rgba(45, 42, 38, 0.7);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
             }
             50% {
-                opacity: 0.6;
-                box-shadow: 0 0 0 6px rgba(45, 42, 38, 0);
+                opacity: 0.8;
+                box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
             }
+        }
+
+        /* BCorp Section */
+        .bcorp-section {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 2px solid rgba(45, 42, 38, 0.15);
+            text-align: center;
+        }
+
+        .bcorp-badge {
+            display: inline-block;
+            background: white;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .bcorp-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .bcorp-badge img {
+            height: 80px;
+            width: auto;
         }
 
         /* Scenic Route Toggle */
@@ -1068,9 +1083,6 @@
                 <p class="tagline">Mountain communities. Outdoor adventures. Cold beer.</p>
             </div>
         </div>
-        <a href="https://www.lawsonsfinest.com" target="_blank" rel="noopener noreferrer" class="brand-logo-link">
-            <img src="assets/images/lawsons-logo.svg" alt="Lawson's Finest Liquids" class="header-brand-logo">
-        </a>
     </header>
 
     <main>
@@ -1081,16 +1093,11 @@
             </p>
 
             <div class="metrics-section">
-                <div class="metrics-header">
-                    <div>
-                        <h3><span class="live-dot"></span> Our Impact</h3>
-                        <p class="metrics-tagline">We pour a little good back into every community we call home.</p>
-                    </div>
-                    <a href="https://www.bcorporation.net/en-us/find-a-b-corp/company/lawsons-finest-liquids-llc/" target="_blank" rel="noopener noreferrer" class="bcorp-badge" title="Certified B Corporation">
-                        <img src="assets/images/b-corp-logo.png" alt="Certified B Corporation">
-                    </a>
+                <div class="metrics-section-header">
+                    <h3><span class="live-dot"></span> Live Impact</h3>
+                    <p class="metrics-tagline">We pour a little good back into every community we call home.</p>
                 </div>
-                <div class="metrics-grid metrics-grid-4">
+                <div class="metrics-grid">
                     <div class="metric-item">
                         <div class="metric-value" id="metric-donated">
                             <span class="metric-prefix">$</span>
@@ -1117,6 +1124,11 @@
                         </div>
                         <div class="metric-label">Nonprofits</div>
                     </div>
+                </div>
+                <div class="bcorp-section">
+                    <a href="https://www.bcorporation.net/en-us/find-a-b-corp/company/lawsons-finest-liquids-llc/" target="_blank" rel="noopener noreferrer" class="bcorp-badge" title="Certified B Corporation">
+                        <img src="assets/images/b-corp-logo.png" alt="Certified B Corporation">
+                    </a>
                 </div>
             </div>
 
@@ -1252,10 +1264,13 @@
         </div>
     </main>
 
-    <footer class="footer-bar">
-        <div class="footer-content">
-            <a href="https://www.lawsonsfinest.com" target="_blank" rel="noopener noreferrer">lawsonsfinest.com</a>
-        </div>
+    <footer class="bottom-brand">
+        <a href="https://www.lawsonsfinest.com" target="_blank" rel="noopener noreferrer" class="bottom-brand-link">
+            <img src="assets/images/lawsons-logo.svg" alt="Lawson's Finest Liquids" class="bottom-brand-logo">
+        </a>
+        <p class="bottom-brand-text">
+            Visit <a href="https://www.lawsonsfinest.com" target="_blank" rel="noopener noreferrer">lawsonsfinest.com</a>
+        </p>
     </footer>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
@@ -2741,51 +2756,104 @@
             }
         ];
 
-        // Create marker cluster groups for each category with custom styling
+        // Category icon paths for cluster display
+        const categoryIconPaths = {
+            brewery: 'assets/images/marker-brewery.svg',
+            tastingroom: 'assets/images/marker-tastingroom.svg',
+            retailer: 'assets/images/marker-retailer.svg',
+            bar: 'assets/images/marker-bar.svg',
+            trail: 'assets/images/marker-trail.svg',
+            river: 'assets/images/marker-river.svg',
+            community: 'assets/images/marker-community.svg',
+            charger: 'assets/images/marker-charger.svg'
+        };
+
+        // Category display order for consistent icon ordering
+        const categoryOrder = ['brewery', 'tastingroom', 'retailer', 'bar', 'trail', 'river', 'community', 'charger'];
+
+        // Create unified marker cluster group with multi-category support
+        function createUnifiedClusterIcon(cluster) {
+            const markers = cluster.getAllChildMarkers();
+            const categories = new Set();
+
+            markers.forEach(marker => {
+                if (marker.options.category) {
+                    categories.add(marker.options.category);
+                }
+            });
+
+            const uniqueCategories = categoryOrder.filter(cat => categories.has(cat));
+            const count = cluster.getChildCount();
+
+            if (uniqueCategories.length === 1) {
+                // Single category - use the classic circular cluster
+                const cat = uniqueCategories[0];
+                return L.divIcon({
+                    html: '<div class="cluster-inner cluster-' + cat + '">' + count + '</div>',
+                    className: 'marker-cluster',
+                    iconSize: L.point(40, 40)
+                });
+            } else {
+                // Multiple categories - show icons for each type
+                const iconsHtml = uniqueCategories.slice(0, 4).map(cat =>
+                    '<img src="' + categoryIconPaths[cat] + '" class="cluster-icon" alt="">'
+                ).join('');
+
+                const width = Math.min(uniqueCategories.length, 4) * 24 + 36;
+                return L.divIcon({
+                    html: '<div class="cluster-multi">' + iconsHtml + '<span class="cluster-count">' + count + '</span></div>',
+                    className: 'marker-cluster',
+                    iconSize: L.point(width, 44)
+                });
+            }
+        }
+
         const clusterOptions = {
             showCoverageOnHover: false,
             spiderfyOnMaxZoom: true,
             disableClusteringAtZoom: 12,
             maxClusterRadius: 50,
             spiderfyDistanceMultiplier: 1.5,
+            iconCreateFunction: createUnifiedClusterIcon
+        };
+
+        // Create a unified cluster group for all main markers
+        const unifiedCluster = L.markerClusterGroup(clusterOptions);
+
+        // Separate cluster for chargers (only shows with route)
+        const chargerCluster = L.markerClusterGroup({
+            ...clusterOptions,
             iconCreateFunction: function(cluster) {
-                const count = cluster.getChildCount();
-                let size = 'small';
-                if (count > 10) size = 'medium';
-                if (count > 25) size = 'large';
                 return L.divIcon({
-                    html: '<div class="cluster-inner">' + count + '</div>',
-                    className: 'marker-cluster marker-cluster-' + size,
+                    html: '<div class="cluster-inner cluster-charger">' + cluster.getChildCount() + '</div>',
+                    className: 'marker-cluster',
                     iconSize: L.point(40, 40)
                 });
             }
+        });
+
+        // Store markers by category for filtering
+        const markersByCategory = {
+            brewery: [],
+            tastingroom: [],
+            retailer: [],
+            bar: [],
+            trail: [],
+            river: [],
+            community: [],
+            charger: []
         };
 
-        const layers = {
-            brewery: L.markerClusterGroup({...clusterOptions, iconCreateFunction: function(cluster) {
-                return L.divIcon({ html: '<div class="cluster-inner cluster-brewery">' + cluster.getChildCount() + '</div>', className: 'marker-cluster', iconSize: L.point(40, 40) });
-            }}),
-            tastingroom: L.markerClusterGroup({...clusterOptions, iconCreateFunction: function(cluster) {
-                return L.divIcon({ html: '<div class="cluster-inner cluster-tastingroom">' + cluster.getChildCount() + '</div>', className: 'marker-cluster', iconSize: L.point(40, 40) });
-            }}),
-            retailer: L.markerClusterGroup({...clusterOptions, iconCreateFunction: function(cluster) {
-                return L.divIcon({ html: '<div class="cluster-inner cluster-retailer">' + cluster.getChildCount() + '</div>', className: 'marker-cluster', iconSize: L.point(40, 40) });
-            }}),
-            bar: L.markerClusterGroup({...clusterOptions, iconCreateFunction: function(cluster) {
-                return L.divIcon({ html: '<div class="cluster-inner cluster-bar">' + cluster.getChildCount() + '</div>', className: 'marker-cluster', iconSize: L.point(40, 40) });
-            }}),
-            trail: L.markerClusterGroup({...clusterOptions, iconCreateFunction: function(cluster) {
-                return L.divIcon({ html: '<div class="cluster-inner cluster-trail">' + cluster.getChildCount() + '</div>', className: 'marker-cluster', iconSize: L.point(40, 40) });
-            }}),
-            river: L.markerClusterGroup({...clusterOptions, iconCreateFunction: function(cluster) {
-                return L.divIcon({ html: '<div class="cluster-inner cluster-river">' + cluster.getChildCount() + '</div>', className: 'marker-cluster', iconSize: L.point(40, 40) });
-            }}),
-            community: L.markerClusterGroup({...clusterOptions, iconCreateFunction: function(cluster) {
-                return L.divIcon({ html: '<div class="cluster-inner cluster-community">' + cluster.getChildCount() + '</div>', className: 'marker-cluster', iconSize: L.point(40, 40) });
-            }}),
-            charger: L.markerClusterGroup({...clusterOptions, iconCreateFunction: function(cluster) {
-                return L.divIcon({ html: '<div class="cluster-inner cluster-charger">' + cluster.getChildCount() + '</div>', className: 'marker-cluster', iconSize: L.point(40, 40) });
-            }})
+        // Track which categories are visible
+        const visibleCategories = {
+            brewery: true,
+            tastingroom: true,
+            retailer: true,
+            bar: true,
+            trail: true,
+            river: true,
+            community: true,
+            charger: false
         };
 
         // Add markers to respective layers
@@ -2840,18 +2908,32 @@
                 popupContent += '</div>';
             }
 
-            const marker = L.marker([spot.lat, spot.lng], { icon: icon })
+            const marker = L.marker([spot.lat, spot.lng], { icon: icon, category: spot.category })
                 .bindPopup(popupContent, { maxWidth: 320 });
 
-            layers[spot.category].addLayer(marker);
-        });
+            // Store marker by category
+            markersByCategory[spot.category].push(marker);
 
-        // Add all layers to map (except chargers - they show with the route)
-        Object.entries(layers).forEach(([key, layer]) => {
-            if (key !== 'charger') {
-                layer.addTo(map);
+            // Add to appropriate cluster
+            if (spot.category === 'charger') {
+                chargerCluster.addLayer(marker);
+            } else {
+                unifiedCluster.addLayer(marker);
             }
         });
+
+        // Add unified cluster to map
+        unifiedCluster.addTo(map);
+
+        // Function to refresh the unified cluster based on visible categories
+        function refreshUnifiedCluster() {
+            unifiedCluster.clearLayers();
+            Object.entries(markersByCategory).forEach(([category, markers]) => {
+                if (category !== 'charger' && visibleCategories[category]) {
+                    markers.forEach(marker => unifiedCluster.addLayer(marker));
+                }
+            });
+        }
 
         // Update counts
         function updateCounts() {
@@ -2866,68 +2948,48 @@
         }
         updateCounts();
 
-        // Filter functionality
+        // Filter functionality - using unified cluster
         document.getElementById('filter-breweries').addEventListener('change', function() {
-            if (this.checked) {
-                map.addLayer(layers.brewery);
-            } else {
-                map.removeLayer(layers.brewery);
-            }
+            visibleCategories.brewery = this.checked;
+            refreshUnifiedCluster();
         });
 
         document.getElementById('filter-tastingrooms').addEventListener('change', function() {
-            if (this.checked) {
-                map.addLayer(layers.tastingroom);
-            } else {
-                map.removeLayer(layers.tastingroom);
-            }
+            visibleCategories.tastingroom = this.checked;
+            refreshUnifiedCluster();
         });
 
         document.getElementById('filter-retailers').addEventListener('change', function() {
-            if (this.checked) {
-                map.addLayer(layers.retailer);
-            } else {
-                map.removeLayer(layers.retailer);
-            }
+            visibleCategories.retailer = this.checked;
+            refreshUnifiedCluster();
         });
 
         document.getElementById('filter-bars').addEventListener('change', function() {
-            if (this.checked) {
-                map.addLayer(layers.bar);
-            } else {
-                map.removeLayer(layers.bar);
-            }
+            visibleCategories.bar = this.checked;
+            refreshUnifiedCluster();
         });
 
         document.getElementById('filter-trails').addEventListener('change', function() {
-            if (this.checked) {
-                map.addLayer(layers.trail);
-            } else {
-                map.removeLayer(layers.trail);
-            }
+            visibleCategories.trail = this.checked;
+            refreshUnifiedCluster();
         });
 
         document.getElementById('filter-rivers').addEventListener('change', function() {
-            if (this.checked) {
-                map.addLayer(layers.river);
-            } else {
-                map.removeLayer(layers.river);
-            }
+            visibleCategories.river = this.checked;
+            refreshUnifiedCluster();
         });
 
         document.getElementById('filter-community').addEventListener('change', function() {
-            if (this.checked) {
-                map.addLayer(layers.community);
-            } else {
-                map.removeLayer(layers.community);
-            }
+            visibleCategories.community = this.checked;
+            refreshUnifiedCluster();
         });
 
         document.getElementById('filter-chargers').addEventListener('change', function() {
+            visibleCategories.charger = this.checked;
             if (this.checked) {
-                map.addLayer(layers.charger);
+                map.addLayer(chargerCluster);
             } else {
-                map.removeLayer(layers.charger);
+                map.removeLayer(chargerCluster);
             }
         });
 
@@ -3003,19 +3065,27 @@
                 }
             });
 
-            // Clear community layer and rebuild with filtered markers
-            layers.community.clearLayers();
+            // Update the markersByCategory.community array based on state filter
+            // First, store all community markers if not already done
+            if (!window.allCommunityMarkers) {
+                window.allCommunityMarkers = [...markersByCategory.community];
+            }
 
-            communityMarkers.forEach(({ marker, state: markerState }) => {
-                if (state === 'all' || markerState === state) {
-                    layers.community.addLayer(marker);
-                }
-            });
+            // Filter community markers by state
+            if (state === 'all') {
+                markersByCategory.community = [...window.allCommunityMarkers];
+            } else {
+                markersByCategory.community = window.allCommunityMarkers.filter(marker => {
+                    const matchingSpot = communityMarkers.find(m => m.marker === marker);
+                    return matchingSpot && matchingSpot.state === state;
+                });
+            }
+
+            // Refresh the unified cluster
+            refreshUnifiedCluster();
 
             // Update community count badge
-            const filteredCount = state === 'all'
-                ? communityMarkers.length
-                : communityMarkers.filter(m => m.state === state).length;
+            const filteredCount = markersByCategory.community.length;
             document.getElementById('count-community').textContent = filteredCount;
 
             // If filtering to a specific state, zoom to show those markers
@@ -3358,7 +3428,8 @@
                 routeLegend.style.display = 'flex';
 
                 // Show chargers when route is shown
-                map.addLayer(layers.charger);
+                map.addLayer(chargerCluster);
+                visibleCategories.charger = true;
                 chargerFilter.checked = true;
                 chargerFilter.disabled = false;
                 chargerFilterItem.style.opacity = '1';
@@ -3381,7 +3452,8 @@
                 routeLegend.style.display = 'none';
 
                 // Hide chargers when route is hidden
-                map.removeLayer(layers.charger);
+                map.removeLayer(chargerCluster);
+                visibleCategories.charger = false;
                 chargerFilter.checked = false;
                 chargerFilter.disabled = true;
                 chargerFilterItem.style.opacity = '0.5';
