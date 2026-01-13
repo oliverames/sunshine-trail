@@ -12,15 +12,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --sunshine-gold: #F5A623;
-            --sunshine-yellow: #FFD93D;
-            --deep-brown: #2d2a26;
-            --forest-green: #2E5A3A;
-            --river-blue: #3A7CA5;
-            --trail-orange: #D35400;
-            --community-purple: #8E44AD;
-            --cream: #FFF9E6;
-            --light-gold: #FFF3D6;
+            /* Lawson's Finest brand colors - extracted from website */
+            --sunshine-gold: #EAC054;      /* Primary gold from "Explore" text & Beer Finder button */
+            --sunshine-orange: #E87722;    /* Orange from sun logo */
+            --sunshine-red: #C13A28;       /* Red accent from sun logo */
+            --deep-brown: #2d2a26;         /* Logo text color */
+            --forest-green: #3A5F3A;       /* Trail marker - earthy green */
+            --river-blue: #4A90A4;         /* River marker - mountain stream blue */
+            --community-purple: #7B5B9A;   /* Community marker - softer purple */
+            --cream: #FFFBF2;              /* Warm cream background */
+            --light-gold: #FDF5E6;         /* Light gold for highlights */
+            --amber: #FCB900;              /* Luminous amber from site */
         }
 
         * {
@@ -54,12 +56,12 @@
         .sun-icon {
             width: 50px;
             height: 50px;
-            background: var(--sunshine-gold);
+            background: linear-gradient(135deg, var(--sunshine-gold) 0%, var(--sunshine-orange) 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 20px rgba(245, 166, 35, 0.5);
+            box-shadow: 0 0 20px rgba(234, 192, 84, 0.6);
         }
 
         .sun-icon svg {
@@ -227,6 +229,33 @@
             height: 100%;
         }
 
+        /* Smooth Leaflet transitions */
+        .leaflet-tile-container {
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        .leaflet-zoom-anim .leaflet-zoom-animated {
+            transition: transform 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        .leaflet-pan-anim .leaflet-tile,
+        .leaflet-pan-anim .leaflet-marker-pane {
+            transition: transform 0.25s ease-out;
+        }
+
+        .leaflet-fade-anim .leaflet-popup {
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .leaflet-marker-icon {
+            transition: transform 0.15s ease-out;
+        }
+
+        .leaflet-marker-icon:hover {
+            transform: scale(1.15);
+        }
+
         /* Custom Leaflet popup styles */
         .leaflet-popup-content-wrapper {
             border-radius: 10px;
@@ -261,6 +290,11 @@
         .popup-category.trail { background: var(--forest-green); color: white; }
         .popup-category.river { background: var(--river-blue); color: white; }
         .popup-category.community { background: var(--community-purple); color: white; }
+
+        .popup-content-wrapper {
+            max-height: 400px;
+            overflow-y: auto;
+        }
 
         .popup-description {
             font-size: 0.85rem;
@@ -497,22 +531,45 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
     <script>
-        // Initialize the map centered between Waitsfield, VT and Asheville, NC
-        const map = L.map('map').setView([39.5, -77.5], 6);
+        // Initialize the map with smooth scrolling and animations
+        const map = L.map('map', {
+            center: [39.5, -77.5],
+            zoom: 6,
+            zoomControl: true,
+            scrollWheelZoom: true,
+            zoomSnap: 0.1,              // Allow finer zoom levels
+            zoomDelta: 0.25,            // Smaller zoom steps for smoother feel
+            wheelPxPerZoomLevel: 100,   // More wheel movement per zoom level
+            wheelDebounceTime: 40,      // Responsive wheel zoom
+            zoomAnimation: true,
+            fadeAnimation: true,
+            markerZoomAnimation: true,
+            inertia: true,
+            inertiaDeceleration: 2000,  // Smooth deceleration
+            inertiaMaxSpeed: 2000,
+            easeLinearity: 0.2,         // Smoother easing
+            tap: true,
+            touchZoom: true,
+            doubleClickZoom: true,
+            boxZoom: true
+        });
 
-        // Add a styled tile layer
+        // Add a styled tile layer with smooth transitions
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
             subdomains: 'abcd',
-            maxZoom: 19
+            maxZoom: 19,
+            updateWhenZooming: false,
+            updateWhenIdle: true,
+            keepBuffer: 4
         }).addTo(map);
 
-        // Define marker colors
+        // Define marker colors - matching Lawson's brand palette
         const markerColors = {
-            retailer: '#F5A623',
-            trail: '#2E5A3A',
-            river: '#3A7CA5',
-            community: '#8E44AD'
+            retailer: '#EAC054',   // Sunshine gold
+            trail: '#3A5F3A',     // Forest green
+            river: '#4A90A4',     // Mountain stream blue
+            community: '#7B5B9A'  // Community purple
         };
 
         // Create custom icon function
@@ -1297,9 +1354,13 @@
             }
         });
 
-        // Fit map to show all markers
+        // Fit map to show all markers with smooth animation
         const allMarkers = sunshineSpots.map(s => [s.lat, s.lng]);
-        map.fitBounds(allMarkers, { padding: [50, 50] });
+        map.fitBounds(allMarkers, {
+            padding: [50, 50],
+            animate: true,
+            duration: 1.0
+        });
     </script>
 </body>
 </html>
