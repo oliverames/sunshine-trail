@@ -292,30 +292,29 @@
 
         /* Multi-category cluster */
         .cluster-multi {
-            width: auto;
-            min-width: 44px;
-            height: 44px;
-            border-radius: 22px;
-            padding: 0 8px;
-            background: white;
             display: flex;
             align-items: center;
-            gap: 2px;
+            gap: 4px;
+            padding: 6px 10px;
+            background: white;
+            border-radius: 24px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.25);
             border: 2px solid var(--sunshine-gold);
+            white-space: nowrap;
         }
 
         .cluster-multi .cluster-count {
             font-family: 'Montserrat', sans-serif;
             font-weight: 700;
-            font-size: 11px;
+            font-size: 12px;
             color: var(--deep-brown);
-            margin-left: 4px;
+            margin-left: 2px;
         }
 
         .cluster-multi .cluster-icon {
-            width: 22px;
-            height: 22px;
+            width: 26px;
+            height: 26px;
+            flex-shrink: 0;
             object-fit: contain;
         }
 
@@ -573,46 +572,25 @@
             display: inline-flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.75rem;
-            padding: 1.5rem 2.5rem;
-            border-radius: 12px;
-            background: white;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            gap: 1rem;
             text-decoration: none;
+            transition: opacity 0.3s ease;
         }
 
         .bottom-brand-link:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
-        }
-
-        .bottom-brand-link:hover .bottom-brand-cta {
-            color: var(--sunshine-gold);
+            opacity: 0.8;
         }
 
         .bottom-brand-logo {
-            height: 50px;
+            height: 70px;
             width: auto;
         }
 
         .bottom-brand-cta {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 600;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 1rem;
             color: var(--deep-brown);
             opacity: 0.7;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: color 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .bottom-brand-cta svg {
-            width: 14px;
-            height: 14px;
         }
         /* Page Load Animations */
         @keyframes fadeInDown {
@@ -1142,7 +1120,7 @@
                     </div>
                 </div>
                 <div class="bcorp-section">
-                    <a href="https://www.bcorporation.net/en-us/find-a-b-corp/company/lawsons-finest-liquids-llc/" target="_blank" rel="noopener noreferrer" class="bcorp-badge" title="Certified B Corporation">
+                    <a href="https://www.bcorporation.net/en-us/find-a-b-corp/company/lawsons-finest-liquids/" target="_blank" rel="noopener noreferrer" class="bcorp-badge" title="Certified B Corporation">
                         <img src="assets/images/b-corp-logo.png" alt="Certified B Corporation">
                     </a>
                 </div>
@@ -1283,12 +1261,7 @@
     <footer class="bottom-brand">
         <a href="https://www.lawsonsfinest.com" target="_blank" rel="noopener noreferrer" class="bottom-brand-link">
             <img src="assets/images/lawsons-logo.svg" alt="Lawson's Finest Liquids" class="bottom-brand-logo">
-            <span class="bottom-brand-cta">
-                Visit Website
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-            </span>
+            <span class="bottom-brand-cta">Visit lawsonsfinest.com</span>
         </a>
     </footer>
 
@@ -2818,11 +2791,12 @@
                     '<img src="' + categoryIconPaths[cat] + '" class="cluster-icon" alt="">'
                 ).join('');
 
-                const width = Math.min(uniqueCategories.length, 4) * 24 + 36;
+                const numIcons = Math.min(uniqueCategories.length, 4);
+                const width = numIcons * 30 + 50;
                 return L.divIcon({
                     html: '<div class="cluster-multi">' + iconsHtml + '<span class="cluster-count">' + count + '</span></div>',
                     className: 'marker-cluster',
-                    iconSize: L.point(width, 44)
+                    iconSize: L.point(width, 42)
                 });
             }
         }
