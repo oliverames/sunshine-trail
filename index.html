@@ -286,7 +286,10 @@
             margin-bottom: 0.5rem;
         }
 
+        .popup-category.brewery { background: #b45309; color: white; }
+        .popup-category.tastingroom { background: #dc2626; color: white; }
         .popup-category.retailer { background: var(--sunshine-gold); color: var(--deep-brown); }
+        .popup-category.bar { background: #7c3aed; color: white; }
         .popup-category.trail { background: var(--forest-green); color: white; }
         .popup-category.river { background: var(--river-blue); color: white; }
         .popup-category.community { background: var(--community-purple); color: white; }
@@ -927,11 +930,35 @@
                 <h3>Filter by Category</h3>
                 <div class="filter-group">
                     <div class="filter-item">
+                        <input type="checkbox" id="filter-breweries" checked>
+                        <label for="filter-breweries">
+                            <img src="assets/images/marker-brewery.svg" alt="" class="filter-icon">
+                            Breweries
+                            <span class="count-badge" id="count-breweries">0</span>
+                        </label>
+                    </div>
+                    <div class="filter-item">
+                        <input type="checkbox" id="filter-tastingrooms" checked>
+                        <label for="filter-tastingrooms">
+                            <img src="assets/images/marker-tastingroom.svg" alt="" class="filter-icon">
+                            Tasting Rooms
+                            <span class="count-badge" id="count-tastingrooms">0</span>
+                        </label>
+                    </div>
+                    <div class="filter-item">
                         <input type="checkbox" id="filter-retailers" checked>
                         <label for="filter-retailers">
                             <img src="assets/images/marker-retailer.svg" alt="" class="filter-icon">
                             Retailers
                             <span class="count-badge" id="count-retailers">0</span>
+                        </label>
+                    </div>
+                    <div class="filter-item">
+                        <input type="checkbox" id="filter-bars" checked>
+                        <label for="filter-bars">
+                            <img src="assets/images/marker-bar.svg" alt="" class="filter-icon">
+                            Bars & Restaurants
+                            <span class="count-badge" id="count-bars">0</span>
                         </label>
                     </div>
                     <div class="filter-item">
@@ -953,7 +980,7 @@
                     <div class="filter-item">
                         <input type="checkbox" id="filter-community" checked>
                         <label for="filter-community">
-                            <img src="assets/images/marker-community.png" alt="" class="filter-icon">
+                            <img src="assets/images/marker-community.svg" alt="" class="filter-icon">
                             Community Partners
                             <span class="count-badge" id="count-community">0</span>
                         </label>
@@ -1072,9 +1099,30 @@
         const markerIcons = {
             retailer: L.icon({
                 iconUrl: 'assets/images/marker-retailer.svg',
-                iconSize: [36, 34],
-                iconAnchor: [18, 34],
-                popupAnchor: [0, -34],
+                iconSize: [36, 36],
+                iconAnchor: [18, 36],
+                popupAnchor: [0, -36],
+                className: 'marker-icon'
+            }),
+            brewery: L.icon({
+                iconUrl: 'assets/images/marker-brewery.svg',
+                iconSize: [40, 40],
+                iconAnchor: [20, 40],
+                popupAnchor: [0, -40],
+                className: 'marker-icon'
+            }),
+            tastingroom: L.icon({
+                iconUrl: 'assets/images/marker-tastingroom.svg',
+                iconSize: [36, 36],
+                iconAnchor: [18, 36],
+                popupAnchor: [0, -36],
+                className: 'marker-icon'
+            }),
+            bar: L.icon({
+                iconUrl: 'assets/images/marker-bar.svg',
+                iconSize: [36, 36],
+                iconAnchor: [18, 36],
+                popupAnchor: [0, -36],
                 className: 'marker-icon'
             }),
             trail: L.icon({
@@ -1092,7 +1140,7 @@
                 className: 'marker-icon'
             }),
             community: L.icon({
-                iconUrl: 'assets/images/marker-community.png',
+                iconUrl: 'assets/images/marker-community.svg',
                 iconSize: [40, 40],
                 iconAnchor: [20, 40],
                 popupAnchor: [0, -40],
@@ -1100,9 +1148,9 @@
             }),
             charger: L.icon({
                 iconUrl: 'assets/images/marker-charger.svg',
-                iconSize: [32, 40],
-                iconAnchor: [16, 40],
-                popupAnchor: [0, -40],
+                iconSize: [36, 36],
+                iconAnchor: [18, 36],
+                popupAnchor: [0, -36],
                 className: 'marker-icon'
             })
         };
@@ -1114,6 +1162,155 @@
 
         // Sunshine Trail Data
         const sunshineSpots = [
+            // === BREWERIES ===
+            {
+                name: "Lawson's Finest Liquids Brewery",
+                category: "brewery",
+                lat: 44.1852,
+                lng: -72.8288,
+                location: "155 Carroll Road, Waitsfield, VT",
+                description: "The destination brewery and spiritual home of Lawson's Finest Liquids. Features a 34-barrel brewhouse, taproom, and Vermont's largest solar canopy.",
+                url: "https://www.lawsonsfinest.com/taproom/"
+            },
+            {
+                name: "Lawson's Original Nanobrewery",
+                category: "brewery",
+                lat: 44.1189,
+                lng: -72.8556,
+                location: "Warren, VT",
+                description: "The 'Crooked Cabin' where Sean Lawson founded the brand in 2008. This 1-barrel nanobrewery is used for R&D and small-batch experimentation. Not open to public.",
+                url: "https://www.lawsonsfinest.com/about-us/history/"
+            },
+            {
+                name: "Two Roads Brewing Company",
+                category: "brewery",
+                lat: 41.1884,
+                lng: -73.1318,
+                location: "1700 Stratford Ave, Stratford, CT",
+                description: "Strategic production partner where Sip of Sunshine is brewed for regional distribution. Alternating proprietorship allows Lawson's direct quality control.",
+                url: "https://tworoadsbrewing.com/"
+            },
+
+            // === TASTING ROOMS ===
+            {
+                name: "Lawson's Finest Taproom",
+                category: "tastingroom",
+                lat: 44.1854,
+                lng: -72.8285,
+                location: "155 Carroll Road, Waitsfield, VT",
+                description: "The primary tasting room featuring taproom-exclusive beers, seasonal releases, and the full Lawson's experience. Open daily with food menu and Bark Park for dogs.",
+                url: "https://www.lawsonsfinest.com/taproom/"
+            },
+
+            // === BARS & RESTAURANTS ===
+            // North Carolina
+            {
+                name: "The Whale",
+                category: "bar",
+                lat: 35.5847,
+                lng: -82.5673,
+                location: "507 Haywood Rd, West Asheville, NC",
+                description: "Tastemaker craft beer bar chosen as a primary launch partner for Lawson's NC distribution in 2024. Known for curated draft selection.",
+                url: null
+            },
+            // Pennsylvania
+            {
+                name: "City Tap House",
+                category: "bar",
+                lat: 39.9543,
+                lng: -75.1715,
+                location: "2 Logan Square, Philadelphia, PA",
+                description: "Upscale gastropub explicitly featuring Sip of Sunshine on draft. Part of the Center City SIPS happy hour circuit.",
+                url: "https://citytap.com/"
+            },
+            {
+                name: "Uptown Beer Garden",
+                category: "bar",
+                lat: 39.9536,
+                lng: -75.1656,
+                location: "1500 JFK Blvd, Philadelphia, PA",
+                description: "Massive outdoor beer garden highlighted as a 'SIPS of Sunshine' destination during Philadelphia's summer happy hour program.",
+                url: null
+            },
+            // New York
+            {
+                name: "Greenwood Park",
+                category: "bar",
+                lat: 40.6592,
+                lng: -73.9897,
+                location: "555 7th Ave, Brooklyn, NY",
+                description: "Massive Brooklyn beer garden that hosted Lawson's Summer Solstice event, indicating strong brand activation capabilities.",
+                url: "https://greenwoodparkbk.com/"
+            },
+            {
+                name: "Stout NYC - Grand Central",
+                category: "bar",
+                lat: 40.7527,
+                lng: -73.9772,
+                location: "133 W 33rd St, New York, NY",
+                description: "High-visibility commuter hub capturing Metro-North traffic. Key draft account for the NYC market.",
+                url: "https://stoutnyc.com/"
+            },
+            // Connecticut
+            {
+                name: "Eli Cannon's Tap Room",
+                category: "bar",
+                lat: 41.5623,
+                lng: -72.6506,
+                location: "695 Main St, Middletown, CT",
+                description: "Legendary beer bar that hosted Summer Solstice with rare kegs of Double Sunshine. A craft beer institution since 1994.",
+                url: "https://elicannons.com/"
+            },
+            // Rhode Island
+            {
+                name: "The Red Door",
+                category: "bar",
+                lat: 41.8236,
+                lng: -71.4222,
+                location: "49 Peck St, Providence, RI",
+                description: "Upscale cocktail bar featuring Lawson's on a curated beer list. Emphasizes culinary and cocktail pairing.",
+                url: null
+            },
+            // Massachusetts
+            {
+                name: "Five Horses Tavern",
+                category: "bar",
+                lat: 42.3388,
+                lng: -71.0885,
+                location: "535 Columbus Ave, Boston, MA",
+                description: "Craft-centric gastropub with 40 rotating drafts. A staple account for consistent Lawson's volume in Boston.",
+                url: "https://www.fivehorsestavern.com/"
+            },
+            // Maine
+            {
+                name: "Luna Rooftop",
+                category: "bar",
+                lat: 43.6568,
+                lng: -70.2495,
+                location: "Canopy Portland Waterfront, Portland, ME",
+                description: "High-end rooftop bar positioning Lawson's as a premium lifestyle beverage in Portland's competitive craft scene.",
+                url: "https://lunarooftopbarmaine.com/"
+            },
+            {
+                name: "Hunt & Alpine Club",
+                category: "bar",
+                lat: 43.6591,
+                lng: -70.2554,
+                location: "75 Market St, Portland, ME",
+                description: "James Beard semi-finalist cocktail bar. Lawson's presence here validates quality among mixology connoisseurs.",
+                url: "https://www.huntandalpineclub.com/"
+            },
+            // Vermont
+            {
+                name: "Worthy Burger",
+                category: "bar",
+                lat: 43.7864,
+                lng: -72.5209,
+                location: "56 Rainbow St, South Royalton, VT",
+                description: "Craft beer destination that hosted the Summer Solstice event, indicating priority status for Lawson's draft takeovers.",
+                url: "https://worthyvermont.com/"
+            },
+
             // === RETAILERS ===
             // Vermont
             {
@@ -2147,7 +2344,10 @@
 
         // Create layer groups for each category
         const layers = {
+            brewery: L.layerGroup(),
+            tastingroom: L.layerGroup(),
             retailer: L.layerGroup(),
+            bar: L.layerGroup(),
             trail: L.layerGroup(),
             river: L.layerGroup(),
             community: L.layerGroup(),
@@ -2166,8 +2366,17 @@
                 popupContent += `<img src="${spot.image}" alt="${spot.name}" class="popup-image" loading="lazy">`;
             }
 
-            const categoryLabel = spot.category === 'community' ? 'Community Partner' :
-                                   spot.category === 'charger' ? 'DC Fast Charger' : spot.category;
+            const categoryLabels = {
+                'brewery': 'Brewery',
+                'tastingroom': 'Tasting Room',
+                'retailer': 'Retailer',
+                'bar': 'Bar & Restaurant',
+                'trail': 'Trail',
+                'river': 'River Put-in',
+                'community': 'Community Partner',
+                'charger': 'DC Fast Charger'
+            };
+            const categoryLabel = categoryLabels[spot.category] || spot.category;
             popupContent += `
                 <div class="popup-category ${spot.category}">${categoryLabel}</div>
                 <div class="popup-title">${spot.name}</div>
@@ -2212,7 +2421,10 @@
 
         // Update counts
         function updateCounts() {
+            document.getElementById('count-breweries').textContent = sunshineSpots.filter(s => s.category === 'brewery').length;
+            document.getElementById('count-tastingrooms').textContent = sunshineSpots.filter(s => s.category === 'tastingroom').length;
             document.getElementById('count-retailers').textContent = sunshineSpots.filter(s => s.category === 'retailer').length;
+            document.getElementById('count-bars').textContent = sunshineSpots.filter(s => s.category === 'bar').length;
             document.getElementById('count-trails').textContent = sunshineSpots.filter(s => s.category === 'trail').length;
             document.getElementById('count-rivers').textContent = sunshineSpots.filter(s => s.category === 'river').length;
             document.getElementById('count-community').textContent = sunshineSpots.filter(s => s.category === 'community').length;
@@ -2221,11 +2433,35 @@
         updateCounts();
 
         // Filter functionality
+        document.getElementById('filter-breweries').addEventListener('change', function() {
+            if (this.checked) {
+                map.addLayer(layers.brewery);
+            } else {
+                map.removeLayer(layers.brewery);
+            }
+        });
+
+        document.getElementById('filter-tastingrooms').addEventListener('change', function() {
+            if (this.checked) {
+                map.addLayer(layers.tastingroom);
+            } else {
+                map.removeLayer(layers.tastingroom);
+            }
+        });
+
         document.getElementById('filter-retailers').addEventListener('change', function() {
             if (this.checked) {
                 map.addLayer(layers.retailer);
             } else {
                 map.removeLayer(layers.retailer);
+            }
+        });
+
+        document.getElementById('filter-bars').addEventListener('change', function() {
+            if (this.checked) {
+                map.addLayer(layers.bar);
+            } else {
+                map.removeLayer(layers.bar);
             }
         });
 
