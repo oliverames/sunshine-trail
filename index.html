@@ -7,6 +7,8 @@
     <meta name="description" content="Explore Sunshine Spots from Waitsfield, VT to Asheville, NC. Interactive map of retailers, hiking trails, river put-ins, and community partners along the Appalachian corridor.">
     <meta name="theme-color" content="#2d2a26">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
@@ -256,6 +258,35 @@
             }
         }
 
+        /* Marker cluster styling */
+        .marker-cluster {
+            background: transparent;
+        }
+
+        .cluster-inner {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            border: 2px solid white;
+        }
+
+        .cluster-brewery { background: #b45309; }
+        .cluster-tastingroom { background: #dc2626; }
+        .cluster-retailer { background: var(--sunshine-gold); color: var(--deep-brown); }
+        .cluster-bar { background: #7c3aed; }
+        .cluster-trail { background: var(--forest-green); }
+        .cluster-river { background: var(--river-blue); }
+        .cluster-community { background: var(--community-purple); }
+        .cluster-charger { background: #22c55e; }
+
         /* Custom Leaflet popup styles */
         .leaflet-popup-content-wrapper {
             border-radius: 10px;
@@ -498,6 +529,29 @@
             .metric-item:nth-child(4) {
                 border-top: 2px solid rgba(45, 42, 38, 0.2);
             }
+        }
+
+        /* Zoom hint overlay */
+        .zoom-hint {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(45, 42, 38, 0.9);
+            color: var(--cream);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 1000;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .zoom-hint.hidden {
+            opacity: 0;
         }
 
         .footer-bar {
@@ -820,17 +874,29 @@
         }
 
         .metrics-grid-4 {
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(2, 1fr);
         }
 
         .metric-item {
             text-align: center;
-            padding: 0.5rem 0;
+            padding: 0.5rem 0.25rem;
+        }
+
+        .metrics-grid-4 .metric-item {
+            border-left: none;
+            border-top: none;
+        }
+
+        .metrics-grid-4 .metric-item:nth-child(2),
+        .metrics-grid-4 .metric-item:nth-child(4) {
             border-left: 2px solid rgba(45, 42, 38, 0.2);
         }
 
-        .metric-item:first-child {
-            border-left: none;
+        .metrics-grid-4 .metric-item:nth-child(3),
+        .metrics-grid-4 .metric-item:nth-child(4) {
+            border-top: 2px solid rgba(45, 42, 38, 0.2);
+            padding-top: 0.5rem;
+            margin-top: 0.25rem;
         }
 
         .metric-value {
@@ -1179,7 +1245,11 @@
             </div>
         </aside>
 
-        <div id="map" role="application" aria-label="Interactive map of Sunshine Trail locations from Vermont to North Carolina"></div>
+        <div id="map" role="application" aria-label="Interactive map of Sunshine Trail locations from Vermont to North Carolina">
+            <div class="zoom-hint" id="zoom-hint">
+                <span>Zoom in for more detail</span>
+            </div>
+        </div>
     </main>
 
     <footer class="footer-bar">
@@ -1189,6 +1259,7 @@
     </footer>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js" crossorigin="anonymous"></script>
     <script>
         // Initialize the map with smooth scrolling and animations
         const map = L.map('map', {
@@ -1437,6 +1508,142 @@
                 location: "56 Rainbow St, South Royalton, VT",
                 description: "Craft beer destination that hosted the Summer Solstice event, indicating priority status for Lawson's draft takeovers.",
                 url: "https://worthyvermont.com/"
+            },
+            // Maine - Additional
+            {
+                name: "The Thirsty Pig",
+                category: "bar",
+                lat: 43.6576,
+                lng: -70.2521,
+                location: "37 Exchange St, Portland, ME",
+                description: "Staple of Portland's Old Port district specializing in house-made sausages and craft beer.",
+                image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=200&fit=crop",
+                url: "https://www.thethirstypig.com/"
+            },
+            {
+                name: "Bonfire Country Bar",
+                category: "bar",
+                lat: 43.6553,
+                lng: -70.2577,
+                location: "24 Preble St, Portland, ME",
+                description: "High-volume venue with Bacon Happier Hour featuring Lawson's in their 20-tap lineup.",
+                image: "https://images.unsplash.com/photo-1575037614876-c38a4c44d4d8?w=400&h=200&fit=crop",
+                url: "https://www.bonfirecountrybar.com/"
+            },
+            // Rhode Island - Additional
+            {
+                name: "Moonshine Alley",
+                category: "bar",
+                lat: 41.8230,
+                lng: -71.4150,
+                location: "293 Atwells Ave, Providence, RI",
+                description: "Nashville-themed venue on Federal Hill serving Lawson's alongside Southern comfort food.",
+                image: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=400&h=200&fit=crop",
+                url: "https://www.moonshinealley.com/"
+            },
+            {
+                name: "The Scurvy Dog",
+                category: "bar",
+                lat: 41.8188,
+                lng: -71.4380,
+                location: "1718 Westminster St, Providence, RI",
+                description: "Self-described punk rock pub. Explicitly lists Sip of Sunshine cans. Validates street credibility.",
+                image: "https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=400&h=200&fit=crop",
+                url: null
+            },
+            {
+                name: "McBride's Irish Pub",
+                category: "bar",
+                lat: 41.8306,
+                lng: -71.3978,
+                location: "161 Wayland Ave, Providence, RI",
+                description: "Historic venue and community hub for Wayland Square neighborhood. Lawson's as a premium option.",
+                image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=200&fit=crop",
+                url: null
+            },
+            // Massachusetts - Additional
+            {
+                name: "Bostonia Public House",
+                category: "bar",
+                lat: 42.3551,
+                lng: -71.0549,
+                location: "131 State St, Boston, MA",
+                description: "Financial district venue serving 16oz Sip of Sunshine, targeting corporate after-work crowd.",
+                image: "https://images.unsplash.com/photo-1525610553991-2bede1a236e2?w=400&h=200&fit=crop",
+                url: "https://bostoniapublichouse.com/"
+            },
+            // New York - Additional
+            {
+                name: "Stout NYC - Penn Station",
+                category: "bar",
+                lat: 40.7505,
+                lng: -73.9934,
+                location: "Penn Station Area, New York, NY",
+                description: "Major transit hub location (Amtrak/LIRR/NJT) with high-volume draft account.",
+                image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=200&fit=crop",
+                url: "https://stoutnyc.com/"
+            },
+            // New Hampshire
+            {
+                name: "Dwyer's Pub",
+                category: "bar",
+                lat: 43.0718,
+                lng: -70.7626,
+                location: "195 Fleet St, Portsmouth, NH",
+                description: "Hosted Summer Solstice event with Double Sunshine on draft. Key NH market account.",
+                image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=200&fit=crop",
+                url: "https://www.dwyerspub.com/"
+            },
+            // Pennsylvania - Additional SIPS Venues
+            {
+                name: "McGillin's Olde Ale House",
+                category: "bar",
+                lat: 39.9512,
+                lng: -75.1610,
+                location: "1310 Drury St, Philadelphia, PA",
+                description: "Philadelphia's oldest continuously operating tavern (est. 1860). Center City SIPS participant.",
+                image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=200&fit=crop",
+                url: "https://mcgillins.com/"
+            },
+            {
+                name: "Independence Beer Garden",
+                category: "bar",
+                lat: 39.9494,
+                lng: -75.1502,
+                location: "100 S Independence Mall W, Philadelphia, PA",
+                description: "Large outdoor beer garden near Independence Hall. Major SIPS venue with hundreds of seats.",
+                image: "https://images.unsplash.com/photo-1575037614876-c38a4c44d4d8?w=400&h=200&fit=crop",
+                url: "https://phlbeergarden.com/"
+            },
+            {
+                name: "Barcade",
+                category: "bar",
+                lat: 39.9497,
+                lng: -75.1595,
+                location: "1326 Chestnut St, Philadelphia, PA",
+                description: "Arcade bar combining classic games with craft beer. SIPS participant featuring Lawson's drafts.",
+                image: "https://images.unsplash.com/photo-1511882150382-421056c89033?w=400&h=200&fit=crop",
+                url: "https://barcadephiladelphia.com/"
+            },
+            {
+                name: "Brü Craft & Wurst",
+                category: "bar",
+                lat: 39.9502,
+                lng: -75.1603,
+                location: "1318 Chestnut St, Philadelphia, PA",
+                description: "German-style beer hall and SIPS venue. Perfect pairing for Lawson's IPAs.",
+                image: "https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=400&h=200&fit=crop",
+                url: "https://brucraftwurst.com/"
+            },
+            {
+                name: "Fado Irish Pub",
+                category: "bar",
+                lat: 39.9480,
+                lng: -75.1651,
+                location: "1500 Locust St, Philadelphia, PA",
+                description: "Authentic Irish pub on Rittenhouse Row. SIPS participant with extensive craft selection.",
+                image: "https://images.unsplash.com/photo-1555658636-6e4a36218be7?w=400&h=200&fit=crop",
+                url: "https://fadoirishpub.com/philadelphia/"
             },
 
             // === RETAILERS ===
@@ -2467,19 +2674,118 @@
                 location: "172 Waits River Rd, Bradford, VT",
                 description: "Vermont NEVI program DC fast charger at Denny Park, up to 150kW. Scenic I-91 corridor charging.",
                 url: "https://www.driveelectricvt.com/"
+            },
+            // Additional DC Fast Chargers to ensure 100-200 mile coverage
+            {
+                name: "Electrify America - Roanoke",
+                category: "charger",
+                lat: 37.2756,
+                lng: -79.9414,
+                location: "4807 Valley View Blvd NW, Roanoke, VA",
+                description: "Electrify America DC fast chargers at Target, up to 350kW. Key stop between Blue Ridge Parkway and Skyline Drive.",
+                url: "https://www.electrifyamerica.com/locate-charger/"
+            },
+            {
+                name: "Tesla Supercharger - Lynchburg",
+                category: "charger",
+                lat: 37.3540,
+                lng: -79.1784,
+                location: "3901 Wards Rd, Lynchburg, VA",
+                description: "Tesla Supercharger with 12 stalls, up to 250kW. Strategic stop on US-29 corridor.",
+                url: "https://www.tesla.com/findus"
+            },
+            {
+                name: "Electrify America - Tysons Corner",
+                category: "charger",
+                lat: 38.9187,
+                lng: -77.2311,
+                location: "8357 Leesburg Pike, Tysons, VA",
+                description: "Electrify America DC fast chargers, up to 350kW. Major Northern Virginia hub near I-495 Beltway.",
+                url: "https://www.electrifyamerica.com/locate-charger/"
+            },
+            {
+                name: "Tesla Supercharger - Newark",
+                category: "charger",
+                lat: 40.7282,
+                lng: -74.1724,
+                location: "450 Broad St, Newark, NJ",
+                description: "Tesla Supercharger with 20 stalls, up to 250kW. Key New Jersey Turnpike corridor stop.",
+                url: "https://www.tesla.com/findus"
+            },
+            {
+                name: "Electrify America - Edison",
+                category: "charger",
+                lat: 40.5187,
+                lng: -74.4121,
+                location: "1931 Route 27, Edison, NJ",
+                description: "Electrify America DC fast chargers at Walmart, up to 350kW. Central New Jersey charging hub.",
+                url: "https://www.electrifyamerica.com/locate-charger/"
+            },
+            {
+                name: "Tesla Supercharger - Milford",
+                category: "charger",
+                lat: 41.2223,
+                lng: -73.0648,
+                location: "1201 Boston Post Rd, Milford, CT",
+                description: "Tesla Supercharger with 12 stalls, up to 250kW. Convenient I-95 corridor stop between NY and MA.",
+                url: "https://www.tesla.com/findus"
+            },
+            {
+                name: "Electrify America - Hartford",
+                category: "charger",
+                lat: 41.7410,
+                lng: -72.6739,
+                location: "495 Flatbush Ave, Hartford, CT",
+                description: "Electrify America DC fast chargers, up to 350kW. Central Connecticut charging hub on I-84.",
+                url: "https://www.electrifyamerica.com/locate-charger/"
             }
         ];
 
-        // Create layer groups for each category
+        // Create marker cluster groups for each category with custom styling
+        const clusterOptions = {
+            showCoverageOnHover: false,
+            spiderfyOnMaxZoom: true,
+            disableClusteringAtZoom: 12,
+            maxClusterRadius: 50,
+            spiderfyDistanceMultiplier: 1.5,
+            iconCreateFunction: function(cluster) {
+                const count = cluster.getChildCount();
+                let size = 'small';
+                if (count > 10) size = 'medium';
+                if (count > 25) size = 'large';
+                return L.divIcon({
+                    html: '<div class="cluster-inner">' + count + '</div>',
+                    className: 'marker-cluster marker-cluster-' + size,
+                    iconSize: L.point(40, 40)
+                });
+            }
+        };
+
         const layers = {
-            brewery: L.layerGroup(),
-            tastingroom: L.layerGroup(),
-            retailer: L.layerGroup(),
-            bar: L.layerGroup(),
-            trail: L.layerGroup(),
-            river: L.layerGroup(),
-            community: L.layerGroup(),
-            charger: L.layerGroup()
+            brewery: L.markerClusterGroup({...clusterOptions, iconCreateFunction: function(cluster) {
+                return L.divIcon({ html: '<div class="cluster-inner cluster-brewery">' + cluster.getChildCount() + '</div>', className: 'marker-cluster', iconSize: L.point(40, 40) });
+            }}),
+            tastingroom: L.markerClusterGroup({...clusterOptions, iconCreateFunction: function(cluster) {
+                return L.divIcon({ html: '<div class="cluster-inner cluster-tastingroom">' + cluster.getChildCount() + '</div>', className: 'marker-cluster', iconSize: L.point(40, 40) });
+            }}),
+            retailer: L.markerClusterGroup({...clusterOptions, iconCreateFunction: function(cluster) {
+                return L.divIcon({ html: '<div class="cluster-inner cluster-retailer">' + cluster.getChildCount() + '</div>', className: 'marker-cluster', iconSize: L.point(40, 40) });
+            }}),
+            bar: L.markerClusterGroup({...clusterOptions, iconCreateFunction: function(cluster) {
+                return L.divIcon({ html: '<div class="cluster-inner cluster-bar">' + cluster.getChildCount() + '</div>', className: 'marker-cluster', iconSize: L.point(40, 40) });
+            }}),
+            trail: L.markerClusterGroup({...clusterOptions, iconCreateFunction: function(cluster) {
+                return L.divIcon({ html: '<div class="cluster-inner cluster-trail">' + cluster.getChildCount() + '</div>', className: 'marker-cluster', iconSize: L.point(40, 40) });
+            }}),
+            river: L.markerClusterGroup({...clusterOptions, iconCreateFunction: function(cluster) {
+                return L.divIcon({ html: '<div class="cluster-inner cluster-river">' + cluster.getChildCount() + '</div>', className: 'marker-cluster', iconSize: L.point(40, 40) });
+            }}),
+            community: L.markerClusterGroup({...clusterOptions, iconCreateFunction: function(cluster) {
+                return L.divIcon({ html: '<div class="cluster-inner cluster-community">' + cluster.getChildCount() + '</div>', className: 'marker-cluster', iconSize: L.point(40, 40) });
+            }}),
+            charger: L.markerClusterGroup({...clusterOptions, iconCreateFunction: function(cluster) {
+                return L.divIcon({ html: '<div class="cluster-inner cluster-charger">' + cluster.getChildCount() + '</div>', className: 'marker-cluster', iconSize: L.point(40, 40) });
+            }})
         };
 
         // Add markers to respective layers
@@ -2631,6 +2937,16 @@
             padding: [50, 50],
             animate: true,
             duration: 1.0
+        });
+
+        // Zoom hint - hide when zoomed in past level 9
+        const zoomHint = document.getElementById('zoom-hint');
+        map.on('zoomend', function() {
+            if (map.getZoom() >= 9) {
+                zoomHint.classList.add('hidden');
+            } else {
+                zoomHint.classList.remove('hidden');
+            }
         });
 
         // State filtering for community partners
