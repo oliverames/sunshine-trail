@@ -6570,25 +6570,27 @@
             freezeOverlay.classList.add('active');
 
             // Create initial burst of snowflakes from the top
-            for (let i = 0; i < 30; i++) {
+            for (let i = 0; i < 50; i++) {
                 setTimeout(() => {
                     if (isSnowing) createSnowflake();
-                }, i * 30);  // Staggered over ~900ms
+                }, i * 20);  // Staggered over ~1000ms
             }
 
-            // Start continuous creation - this is the key to avoiding gaps
-            // Fast enough interval ensures steady coverage as flakes fall
+            // Start continuous creation - matches initial burst density
+            // Creates 3-4 snowflakes every 40ms to maintain heavy snowfall
             snowInterval = setInterval(() => {
-                if (isSnowing && snowflakes.length < 120) {
+                if (isSnowing && snowflakes.length < 250) {
+                    // Create multiple flakes per interval for heavy snow
                     createSnowflake();
-                    // Add extra flakes randomly for natural density variation (70% chance)
-                    if (Math.random() > 0.3) {
-                        setTimeout(() => {
-                            if (isSnowing) createSnowflake();
-                        }, 20 + Math.random() * 30);
+                    createSnowflake();
+                    if (Math.random() > 0.4) {
+                        createSnowflake();
+                    }
+                    if (Math.random() > 0.7) {
+                        createSnowflake();
                     }
                 }
-            }, 60);  // Faster interval for denser continuous coverage
+            }, 40);  // Fast interval for heavy continuous snowfall
         }
 
         function stopSnow() {
