@@ -6605,26 +6605,15 @@
             isSnowing = true;
             freezeOverlay.classList.add('active');
 
-            // Large initial burst from the top - creates the "snow just started" effect
-            // Spread over 3 seconds to overlap with continuous creation
-            for (let i = 0; i < 150; i++) {
-                setTimeout(() => {
-                    if (isSnowing) createSnowflake();
-                }, i * 20);  // 150 flakes over 3 seconds
-            }
-
-            // Start continuous creation immediately at high rate
-            // This ensures no gap as initial burst flakes fall
+            // Start continuous creation immediately - same rate throughout
+            // ~3 flakes every 30ms = 100 flakes/second for heavy, consistent snow
             snowInterval = setInterval(() => {
-                if (isSnowing && snowflakes.length < 300) {
+                if (isSnowing && snowflakes.length < 350) {
                     createSnowflake();
                     createSnowflake();
                     createSnowflake();
-                    if (Math.random() > 0.5) {
-                        createSnowflake();
-                    }
                 }
-            }, 35);  // Faster interval, more flakes per tick
+            }, 30);
         }
 
         function stopSnow() {
