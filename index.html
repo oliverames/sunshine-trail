@@ -6,13 +6,16 @@
     <title>The Sunshine Trail | Lawson's Finest Liquids</title>
     <meta name="description" content="Explore Sunshine Spots from Waitsfield, VT to Asheville, NC. Interactive map of retailers, hiking trails, river put-ins, and community partners along the Appalachian corridor.">
     <meta name="theme-color" content="#EAC054">
-    <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <link rel="apple-touch-icon" href="assets/images/favicon.png">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" crossorigin="anonymous">
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Lawson's Finest Liquids Adobe Typekit Fonts -->
+    <link rel="stylesheet" href="https://use.typekit.net/abz4zsp.css">
     <style>
         :root {
             /* Lawson's Finest brand colors - extracted from website */
@@ -34,10 +37,17 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
         body {
             font-family: 'Open Sans', sans-serif;
             background-color: var(--light-gold);
             color: var(--deep-brown);
+            display: flex;
+            flex-direction: column;
         }
 
         header {
@@ -48,6 +58,7 @@
             align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid #e5e5e5;
+            flex-shrink: 0;
         }
 
         .logo-section {
@@ -77,50 +88,135 @@
             opacity: 0.8;
         }
 
+        /* Fidget Sun Spinner */
+        .fidget-sun-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            margin: -40px;
+            cursor: grab;
+        }
+
+        .fidget-sun {
+            width: 80px;
+            height: 80px;
+            cursor: grab;
+            user-select: none;
+            -webkit-user-drag: none;
+            transition: transform 0.05s linear;
+            pointer-events: none;
+        }
+
+        .fidget-sun-container:active {
+            cursor: grabbing;
+        }
+
+        .fidget-sun.spinning {
+            transition: none;
+        }
+
+        @media (max-width: 768px) {
+            .fidget-sun-container {
+                display: none;
+            }
+        }
+
+        .header-title-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .header-title-link:hover {
+            opacity: 0.85;
+        }
+
         h1 {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 800;
-            font-size: 1.6rem;
+            font-family: "new-spirit", serif;
+            font-weight: 700;
+            font-size: 3rem;
             letter-spacing: 0.5px;
             color: var(--deep-brown);
         }
 
         h1 span {
-            color: var(--sunshine-gold);
+            --gradient-x: 50%;
+            --gradient-y: 50%;
+            background: radial-gradient(
+                circle at var(--gradient-x) var(--gradient-y),
+                var(--sunshine-red) 0%,
+                var(--sunshine-orange) 40%,
+                var(--sunshine-gold) 80%
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: default;
         }
 
         .tagline {
-            font-size: 0.8rem;
+            font-family: 'new-spirit', serif;
+            font-size: 1.1rem;
             color: #666;
-            font-weight: 400;
-            margin-top: 0.15rem;
+            font-weight: 500;
+            margin-top: 0.25rem;
+        }
+
+        .cold-beer {
+            transition: all 2s ease-out;
+            cursor: default;
+            padding: 0 2px;
+            border-radius: 3px;
+        }
+
+        .cold-beer:hover {
+            transition: all 0.3s ease;
+            color: #7ec8e3;
+            text-shadow:
+                0 0 5px rgba(255, 255, 255, 0.9),
+                0 0 10px rgba(173, 216, 230, 0.8),
+                0 0 15px rgba(135, 206, 235, 0.6),
+                0 0 20px rgba(135, 206, 235, 0.4);
+            background: linear-gradient(
+                180deg,
+                rgba(255, 255, 255, 0.3) 0%,
+                rgba(200, 230, 255, 0.2) 50%,
+                rgba(173, 216, 230, 0.1) 100%
+            );
+            letter-spacing: 0.5px;
         }
 
         .filter-icon {
-            width: 28px;
-            height: 28px;
+            width: 36px;
+            height: 36px;
             object-fit: contain;
         }
 
         main {
-            display: flex;
-            flex-direction: row;
-            height: calc(100vh - 80px);
+            position: relative;
+            flex: 1;
+            min-height: 0;
         }
 
         .sidebar {
-            width: 360px;
-            flex-shrink: 0;
+            position: absolute;
+            top: 1.25rem;
+            left: 1.25rem;
+            bottom: 1.25rem;
+            width: 420px;
             background: white;
-            padding: 1.5rem;
+            padding: 1.25rem;
             overflow-y: auto;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border-radius: 16px;
+            z-index: 1000;
         }
 
         .sidebar h2 {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'new-spirit', serif;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1.25rem;
             margin-bottom: 1rem;
             color: var(--deep-brown);
             display: flex;
@@ -129,7 +225,8 @@
         }
 
         .intro-text {
-            font-size: 0.9rem;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 1rem;
             line-height: 1.6;
             margin-bottom: 1.5rem;
             color: #555;
@@ -140,9 +237,9 @@
         }
 
         .filter-section h3 {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'new-spirit', serif;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 1.05rem;
             margin-bottom: 0.75rem;
             color: var(--deep-brown);
         }
@@ -175,7 +272,9 @@
 
         .filter-item label {
             cursor: pointer;
-            font-size: 0.9rem;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 400;
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -183,12 +282,15 @@
 
 
         .count-badge {
-            background: var(--light-gold);
-            padding: 0.15rem 0.5rem;
-            border-radius: 10px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            background: var(--sunshine-gold);
+            padding: 0.25rem 0.6rem;
+            border-radius: 8px;
+            font-family: 'new-spirit', serif;
+            font-size: 0.85rem;
+            font-weight: 700;
             color: var(--deep-brown);
+            min-width: 1.75rem;
+            text-align: center;
         }
 
         .legend {
@@ -199,16 +301,18 @@
         }
 
         .legend h4 {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            font-size: 0.85rem;
+            font-family: 'new-spirit', serif;
+            font-weight: 700;
+            font-size: 1rem;
             margin-bottom: 0.75rem;
+            color: var(--deep-brown);
         }
 
         .legend p {
-            font-size: 0.8rem;
-            line-height: 1.5;
-            color: #555;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--deep-brown);
         }
 
         .legend-item {
@@ -220,9 +324,11 @@
         }
 
         #map {
-            flex: 1;
-            height: 100%;
-            position: relative;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
         }
 
         /* Smooth Leaflet transitions */
@@ -274,7 +380,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'new-spirit', serif;
             font-weight: 700;
             font-size: 12px;
             color: white;
@@ -291,32 +397,33 @@
         .cluster-community { background: var(--community-purple); }
         .cluster-charger { background: #22c55e; }
 
-        /* Multi-category cluster */
-        .cluster-multi {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 6px 10px;
-            background: white;
-            border-radius: 24px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.25);
-            border: 2px solid var(--sunshine-gold);
-            white-space: nowrap;
+        /* Multi-category cluster pill - clear Leaflet defaults but allow pill background */
+        .marker-cluster-pill {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
         }
 
-        .cluster-multi .cluster-count {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            font-size: 12px;
-            color: var(--deep-brown);
-            margin-left: 2px;
+        /* Smooth fade-in for cluster pills at all zoom levels */
+        .marker-cluster-pill > div {
+            animation: clusterPillFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
-        .cluster-multi .cluster-icon {
-            width: 26px;
-            height: 26px;
-            flex-shrink: 0;
-            object-fit: contain;
+        @keyframes clusterPillFadeIn {
+            0% {
+                opacity: 0;
+            }
+            40% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Smooth transitions for cluster pills only */
+        .marker-cluster-pill {
+            transition: opacity 0.5s ease;
         }
 
         /* Custom Leaflet popup styles */
@@ -325,15 +432,49 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
+        .leaflet-popup-close-button {
+            width: 26px !important;
+            height: 26px !important;
+            top: 20px !important;
+            right: 24px !important;
+            color: transparent !important;
+            overflow: hidden;
+            opacity: 0.9;
+            transition: opacity 0.2s ease, background-color 0.2s ease;
+            position: absolute !important;
+            z-index: 1000 !important;
+            background-color: rgba(255, 255, 255, 0.85) !important;
+            border-radius: 5px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .leaflet-popup-close-button::before {
+            content: '';
+            display: block;
+            width: 14px;
+            height: 14px;
+            background: url('assets/images/close.svg') no-repeat center center;
+            background-size: contain;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .leaflet-popup-close-button:hover {
+            opacity: 1;
+        }
+
         .leaflet-popup-content {
             margin: 12px 16px;
             font-family: 'Open Sans', sans-serif;
         }
 
         .popup-title {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'new-spirit', serif;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 1.15rem;
             color: var(--deep-brown);
             margin-bottom: 0.5rem;
         }
@@ -364,7 +505,8 @@
         }
 
         .popup-description {
-            font-size: 0.85rem;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.95rem;
             line-height: 1.5;
             color: #555;
             margin-bottom: 0.5rem;
@@ -373,6 +515,16 @@
         .popup-location {
             font-size: 0.8rem;
             color: #777;
+        }
+
+        .popup-location a {
+            color: var(--sunshine-gold);
+            text-decoration: underline;
+            transition: color 0.2s ease;
+        }
+
+        .popup-location a:hover {
+            color: var(--sunshine-orange);
         }
 
         .popup-link {
@@ -422,32 +574,54 @@
         }
 
         .popup-btn {
-            display: inline-block;
-            padding: 0.6rem 1rem;
-            border-radius: 25px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.1rem 1.75rem;
+            border-radius: 50px;
+            font-family: "new-spirit", serif;
+            font-size: 1.1rem;
             font-weight: 700;
             text-decoration: none;
             text-align: center;
             flex: 1;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            white-space: nowrap;
         }
 
         .popup-btn-primary {
-            background: var(--sunshine-gold);
-            color: var(--deep-brown);
+            background: #EAC054;
+            color: #1a1a1a !important;
+            overflow: hidden;
+            position: relative;
         }
 
         .popup-btn-secondary {
-            background: white;
-            color: var(--deep-brown);
-            border: 2px solid var(--deep-brown);
+            background: var(--deep-brown);
+            color: #ffffff !important;
+            border: none;
+            overflow: hidden;
+            position: relative;
         }
 
-        .popup-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        @keyframes letterWave {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+
+        .wave-text span {
+            display: inline-block;
+            animation: letterWave 0.4s ease-in-out;
+            animation-fill-mode: both;
+        }
+
+        .zoom-hint.wave-text span {
+            animation: letterWave 0.25s ease-in-out;
         }
 
         /* Custom marker styles */
@@ -459,24 +633,42 @@
 
         /* Mobile responsive */
         @media (max-width: 768px) {
+            html, body {
+                overflow-x: hidden;
+                overflow-y: auto;
+            }
+
             main {
+                display: flex;
                 flex-direction: column;
                 height: auto;
                 min-height: auto;
+                overflow: visible;
             }
 
             .sidebar {
+                position: relative;
+                top: auto;
+                left: auto;
+                bottom: auto;
                 width: 100%;
                 padding: 1.5rem;
                 order: 2;
                 box-shadow: none;
+                border-radius: 0;
                 overflow-y: visible;
+                height: auto;
+                z-index: auto;
             }
 
             #map {
+                position: relative;
                 height: 55vh;
                 min-height: 350px;
+                max-height: 450px;
                 order: 1;
+                flex-shrink: 0;
+                width: 100%;
             }
 
             header {
@@ -487,7 +679,7 @@
             }
 
             h1 {
-                font-size: 1.3rem;
+                font-size: 1.8rem;
             }
 
             .header-trail-logo {
@@ -495,7 +687,7 @@
             }
 
             .metrics-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: 1fr;
                 gap: 0.5rem;
             }
 
@@ -511,12 +703,24 @@
                 font-size: 0.7rem;
             }
 
+            .bcorp-badge {
+                padding: 1rem 1.5rem;
+                max-width: 280px;
+                margin: 0 auto;
+            }
+
             .bcorp-badge img {
-                height: 60px;
+                height: auto;
+                max-height: 120px;
             }
 
             .bottom-brand-logo {
                 height: 45px;
+            }
+
+            /* Hide footer on mobile since logo will be in sidebar */
+            .bottom-brand {
+                display: none;
             }
         }
 
@@ -527,50 +731,188 @@
             }
 
             h1 {
-                font-size: 1.8rem;
+                font-size: 3.2rem;
+            }
+
+            .sidebar {
+                width: 460px;
+            }
+
+            .zoom-hint {
+                left: calc(490px + (100% - 490px) / 2);
             }
         }
 
-        /* Tablet screens */
-        @media (min-width: 769px) and (max-width: 1024px) {
+        /* Very large screens */
+        @media (min-width: 1800px) {
+            .sidebar {
+                width: 500px;
+            }
+
+            h1 {
+                font-size: 3.5rem;
+            }
+
+            .zoom-hint {
+                left: calc(530px + (100% - 530px) / 2);
+            }
+        }
+
+        /* Desktop screens - use 1 column for metrics to fit decimal numbers */
+        @media (min-width: 769px) {
             .metrics-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.5rem;
+                grid-template-columns: 1fr !important;
+                gap: 0.4rem;
             }
 
             .metric-item {
                 margin: 0;
+                padding: 0.5rem;
             }
         }
 
-        /* Zoom hint overlay */
+        /* Zoom hint overlay - centered in visible map area */
         .zoom-hint {
             position: absolute;
-            bottom: 20px;
-            left: 50%;
+            bottom: 100px;
+            left: calc(450px + (100% - 450px) / 2);
             transform: translateX(-50%);
-            background: rgba(45, 42, 38, 0.9);
+            background: rgba(45, 42, 38, 0.95);
             color: var(--cream);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.75rem;
-            font-weight: 600;
+            padding: 0.85rem 1.75rem;
+            border-radius: 25px;
+            font-family: 'new-spirit', serif;
+            font-size: 1.2rem;
+            font-weight: 700;
             z-index: 1000;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
+            pointer-events: auto;
+            cursor: pointer;
+            transition: opacity 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            animation: breathingGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes breathingGlow {
+            0%, 100% {
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            }
+            30% {
+                box-shadow: 0 0 25px rgba(234, 192, 84, 0.9), 0 0 50px rgba(234, 192, 84, 0.6), 0 0 80px rgba(234, 192, 84, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(234, 192, 84, 0.8), 0 0 45px rgba(234, 192, 84, 0.5), 0 0 70px rgba(234, 192, 84, 0.25);
+            }
+            70% {
+                box-shadow: 0 0 15px rgba(234, 192, 84, 0.5), 0 0 30px rgba(234, 192, 84, 0.3), 0 0 50px rgba(234, 192, 84, 0.15);
+            }
+        }
+
+        .zoom-hint:hover {
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            animation: none;
         }
 
         .zoom-hint.hidden {
             opacity: 0;
+            pointer-events: none;
         }
 
-        /* Bottom brand section */
+        /* Mobile zoom hint adjustments */
+        @media (max-width: 768px) {
+            .zoom-hint {
+                left: 50%;
+                bottom: 20px;
+                font-size: 0.9rem;
+                padding: 0.6rem 1.25rem;
+            }
+        }
+
+        /* Mobile: slower cluster pill fade */
+        @media (max-width: 1200px) {
+            .marker-cluster-pill > div {
+                animation: clusterPillFadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            }
+        }
+
+        /* Style Leaflet zoom controls */
+        .leaflet-control-zoom {
+            border: none !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+            overflow: hidden;
+        }
+
+        .leaflet-control-zoom-in,
+        .leaflet-control-zoom-out {
+            background: var(--sunshine-gold) !important;
+            color: var(--deep-brown) !important;
+            font-weight: 700 !important;
+            border: none !important;
+            width: 48px !important;
+            height: 48px !important;
+            line-height: 48px !important;
+            font-size: 26px !important;
+        }
+
+        .leaflet-control-zoom-in:hover,
+        .leaflet-control-zoom-out:hover {
+            background: #d4a94a !important;
+        }
+
+        .leaflet-control-zoom-in {
+            border-radius: 10px 10px 0 0 !important;
+        }
+
+        .leaflet-control-zoom-out {
+            border-radius: 0 0 10px 10px !important;
+        }
+
+        .leaflet-bottom.leaflet-right .leaflet-control-zoom {
+            margin-bottom: 30px;
+            margin-right: 15px;
+        }
+
+        /* Sidebar brand section */
+        .sidebar-brand {
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 1.5rem;
+            border-top: 1px solid #e5e5e5;
+            animation: fadeInUp 0.6s ease-out 0.9s both;
+        }
+
+        .sidebar-brand-link {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .sidebar-brand-link:hover {
+            opacity: 0.85;
+            transform: translateY(-2px);
+        }
+
+        .sidebar-brand-logo {
+            height: 60px;
+            width: auto;
+        }
+
+        .sidebar-brand-cta {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.9rem;
+            color: var(--deep-brown);
+            opacity: 0.7;
+        }
+
+        /* Bottom brand section (desktop footer) */
         .bottom-brand {
             padding: 3rem 2rem;
             text-align: center;
             background: transparent;
+            display: none; /* Hidden by default, sidebar-brand is preferred */
         }
 
         .bottom-brand-link {
@@ -598,20 +940,43 @@
             opacity: 0.7;
         }
 
+        .demo-disclaimer {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.75rem;
+            color: var(--deep-brown);
+            opacity: 0.5;
+            margin: 1.5rem auto 0.5rem;
+            max-width: 300px;
+            line-height: 1.4;
+        }
+
+        .demo-copyright {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.7rem;
+            color: var(--deep-brown);
+            opacity: 0.4;
+            margin: 0;
+        }
+
         /* Have a Sip Section */
         .beer-section {
             background: var(--cream);
-            padding: 2rem;
+            padding: 1.5rem;
             border-radius: 16px;
             margin: 2rem 0;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 2rem;
+            text-align: center;
+            gap: 1rem;
             animation: fadeInUp 0.6s ease-out 0.8s both;
         }
 
         .beer-section-image {
-            flex: 0 0 200px;
+            flex: 0 0 auto;
+            max-width: 340px;
+            cursor: pointer;
+            display: block;
         }
 
         .beer-section-image img {
@@ -620,7 +985,7 @@
             transition: transform 0.3s ease;
         }
 
-        .beer-section:hover .beer-section-image img {
+        .beer-section-image:hover img {
             transform: scale(1.05);
         }
 
@@ -629,15 +994,16 @@
         }
 
         .beer-section-content h3 {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 800;
-            font-size: 1.5rem;
+            font-family: "new-spirit", serif;
+            font-weight: 700;
+            font-size: 1.75rem;
             color: var(--deep-brown);
             margin-bottom: 0.5rem;
         }
 
         .beer-section-content p {
-            font-size: 0.9rem;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 1.05rem;
             color: #555;
             line-height: 1.5;
             margin-bottom: 1rem;
@@ -645,30 +1011,30 @@
 
         .beer-section-btn {
             display: inline-block;
-            padding: 0.75rem 1.5rem;
-            background: var(--sunshine-gold);
-            color: var(--deep-brown);
-            font-family: 'Montserrat', sans-serif;
+            padding: 1.25rem 3rem;
+            background: #EAC054;
+            color: #1a1a1a;
+            font-family: 'new-spirit', serif;
             font-weight: 700;
-            font-size: 0.85rem;
-            border-radius: 25px;
+            font-size: 1.25rem;
+            border-radius: 50px;
             text-decoration: none;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            border: none;
         }
 
-        .beer-section-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(234, 192, 84, 0.4);
-        }
 
         @media (max-width: 768px) {
             .beer-section {
-                flex-direction: column;
-                text-align: center;
+                padding: 1.25rem;
             }
 
             .beer-section-image {
-                flex: 0 0 auto;
+                max-width: 280px;
+            }
+
+            .beer-section-content h3 {
+                font-size: 1.3rem;
             }
         }
 
@@ -823,11 +1189,6 @@
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .popup-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
         .popup-btn:active {
             transform: translateY(0);
         }
@@ -855,7 +1216,7 @@
         }
 
         .state-filter-section h3 {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'new-spirit', serif;
             font-weight: 600;
             font-size: 0.9rem;
             margin-bottom: 0.75rem;
@@ -869,11 +1230,11 @@
         }
 
         .state-btn {
-            padding: 0.4rem 0.75rem;
-            border: 2px solid var(--community-purple);
-            background: white;
-            color: var(--community-purple);
-            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--sunshine-gold);
+            background: #FFFDF7;
+            color: var(--deep-brown);
+            border-radius: 50px;
             font-size: 0.8rem;
             font-weight: 600;
             cursor: pointer;
@@ -881,24 +1242,13 @@
         }
 
         .state-btn:hover {
-            background: var(--community-purple);
-            color: white;
+            background: var(--sunshine-gold);
+            color: var(--deep-brown);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(123, 91, 154, 0.3);
+            box-shadow: 0 4px 12px rgba(234, 192, 84, 0.4);
         }
 
         .state-btn.active {
-            background: var(--community-purple);
-            color: white;
-        }
-
-        .state-btn.all-states {
-            border-color: var(--sunshine-gold);
-            color: var(--deep-brown);
-        }
-
-        .state-btn.all-states:hover,
-        .state-btn.all-states.active {
             background: var(--sunshine-gold);
             color: var(--deep-brown);
         }
@@ -915,18 +1265,18 @@
 
         .metrics-section-header {
             text-align: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             padding-bottom: 1rem;
             border-bottom: 2px solid rgba(45, 42, 38, 0.15);
         }
 
         .metrics-section-header h3 {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 800;
-            font-size: 1.1rem;
+            font-family: 'new-spirit', serif;
+            font-weight: 900;
+            font-size: 1.35rem;
             color: var(--deep-brown);
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 0.5px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -947,24 +1297,30 @@
 
         .metrics-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 0;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        /* Mobile override for metrics grid - must come after base styles */
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: 1fr !important;
+            }
         }
 
         .metric-item {
             text-align: center;
-            padding: 1rem 0.5rem;
+            padding: 0.75rem 0.5rem;
             background: rgba(255, 255, 255, 0.25);
             border-radius: 12px;
-            margin: 0 0.25rem;
         }
 
         .metric-value {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'new-spirit', serif;
             font-weight: 800;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             color: var(--deep-brown);
-            margin-bottom: 0.35rem;
+            margin-bottom: 0.25rem;
             display: flex;
             justify-content: center;
             align-items: baseline;
@@ -972,16 +1328,17 @@
         }
 
         .metric-prefix {
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
 
         .metric-suffix {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             font-weight: 600;
         }
 
         .metric-label {
-            font-size: 0.7rem;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.65rem;
             color: var(--deep-brown);
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -1009,6 +1366,13 @@
             animation: countUp 0.1s ease-out;
         }
 
+        /* Wave animation for metric numbers */
+        .metric-number.wave span {
+            display: inline-block;
+            animation: letterWave 0.4s ease-in-out;
+            animation-fill-mode: both;
+        }
+
         /* Pulse dot for "live" indicator */
         .live-dot {
             width: 10px;
@@ -1032,19 +1396,24 @@
 
         /* BCorp Section */
         .bcorp-section {
-            margin-top: 1.5rem;
+            margin-top: 1rem;
             padding-top: 1rem;
             border-top: 2px solid rgba(45, 42, 38, 0.15);
-            text-align: center;
+        }
+
+        /* Ensure equal spacing above metrics grid and below to bcorp */
+        .metrics-grid {
+            margin-bottom: 0;
         }
 
         .bcorp-badge {
-            display: inline-block;
+            display: block;
             background: white;
             border-radius: 12px;
-            padding: 1rem 1.5rem;
+            padding: 1rem 2.5rem;
             box-shadow: 0 2px 12px rgba(0,0,0,0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
         }
 
         .bcorp-badge:hover {
@@ -1053,58 +1422,60 @@
         }
 
         .bcorp-badge img {
-            height: 80px;
-            width: auto;
+            width: 100%;
+            height: auto;
         }
 
         /* Scenic Route Toggle */
         .route-toggle-section {
             margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e5e5e5;
             animation: fadeInUp 0.6s ease-out 0.55s both;
         }
 
         .route-toggle-section h3 {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 0.75rem;
+            font-family: 'new-spirit', serif;
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 0.5rem;
             color: var(--deep-brown);
+        }
+
+        .route-info {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
         }
 
         .route-toggle {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            padding: 0.6rem 0.75rem;
-            background: linear-gradient(135deg, var(--sunshine-gold) 0%, var(--amber) 100%);
-            border-radius: 8px;
+            padding: 0.5rem;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: background-color 0.2s;
         }
 
         .route-toggle:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(234, 192, 84, 0.4);
+            background-color: var(--light-gold);
         }
 
         .route-toggle input[type="checkbox"] {
             width: 18px;
             height: 18px;
-            accent-color: var(--deep-brown);
+            accent-color: var(--sunshine-gold);
         }
 
         .route-toggle label {
             cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 400;
             color: var(--deep-brown);
-        }
-
-        .route-info {
-            font-size: 0.75rem;
-            color: #555;
-            margin-top: 0.5rem;
-            line-height: 1.4;
         }
 
         /* Route Legend */
@@ -1152,10 +1523,13 @@
 <body>
     <header>
         <div class="logo-section">
-            <div>
+            <a href="./" class="header-title-link">
                 <h1>The <span>Sunshine</span> Trail</h1>
-                <p class="tagline">Mountain communities. Outdoor adventures. Cold beer.</p>
-            </div>
+                <p class="tagline">Mountain communities. Outdoor adventures. <span class="cold-beer">Cold beer.</span></p>
+            </a>
+        </div>
+        <div class="fidget-sun-container">
+            <img src="assets/images/fidget-sun.png" alt="Spin me!" class="fidget-sun" id="fidget-sun" draggable="false">
         </div>
     </header>
 
@@ -1203,6 +1577,34 @@
                     <a href="https://www.bcorporation.net/en-us/find-a-b-corp/company/lawsons-finest-liquids/" target="_blank" rel="noopener noreferrer" class="bcorp-badge" title="Certified B Corporation">
                         <img src="assets/images/b-corp-logo.png" alt="Certified B Corporation">
                     </a>
+                </div>
+            </div>
+
+            <div class="route-toggle-section">
+                <h3>The Sunshine Trail Route</h3>
+                <p class="route-info">The ultimate road trip from Asheville, NC to Waitsfield, VT via America's most scenic mountain roads.</p>
+                <div class="route-toggle">
+                    <input type="checkbox" id="toggle-scenic-route">
+                    <label for="toggle-scenic-route">Show Route on Map</label>
+                </div>
+
+                <div class="route-legend" id="route-legend" style="display: none;">
+                    <div class="route-legend-item">
+                        <span class="route-line blue-ridge"></span>
+                        <span>Blue Ridge Parkway (469 mi)</span>
+                    </div>
+                    <div class="route-legend-item">
+                        <span class="route-line skyline"></span>
+                        <span>Skyline Drive (105 mi)</span>
+                    </div>
+                    <div class="route-legend-item">
+                        <span class="route-line connector"></span>
+                        <span>I-81 / US-7 Connector</span>
+                    </div>
+                    <div class="route-legend-item">
+                        <span class="route-line route-100"></span>
+                        <span>VT Route 100 (217 mi)</span>
+                    </div>
                 </div>
             </div>
 
@@ -1266,39 +1668,12 @@
                         </label>
                     </div>
                     <div class="filter-item">
-                        <input type="checkbox" id="filter-chargers" checked>
+                        <input type="checkbox" id="filter-chargers">
                         <label for="filter-chargers">
                             <img src="assets/images/marker-charger.svg" alt="" class="filter-icon">
                             DC Fast Chargers
                             <span class="count-badge" id="count-chargers">0</span>
                         </label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="route-toggle-section">
-                <h3>Scenic Road Trip Route</h3>
-                <div class="route-toggle">
-                    <input type="checkbox" id="toggle-scenic-route">
-                    <label for="toggle-scenic-route">Show The Sunshine Trail Route</label>
-                </div>
-                <p class="route-info">The ultimate road trip from Asheville, NC to Waitsfield, VT via America's most scenic mountain roads.</p>
-                <div class="route-legend" id="route-legend" style="display: none;">
-                    <div class="route-legend-item">
-                        <span class="route-line blue-ridge"></span>
-                        <span>Blue Ridge Parkway (469 mi)</span>
-                    </div>
-                    <div class="route-legend-item">
-                        <span class="route-line skyline"></span>
-                        <span>Skyline Drive (105 mi)</span>
-                    </div>
-                    <div class="route-legend-item">
-                        <span class="route-line connector"></span>
-                        <span>I-81 / US-7 Connector</span>
-                    </div>
-                    <div class="route-legend-item">
-                        <span class="route-line route-100"></span>
-                        <span>VT Route 100 (217 mi)</span>
                     </div>
                 </div>
             </div>
@@ -1322,9 +1697,9 @@
             </div>
 
             <div class="beer-section">
-                <div class="beer-section-image">
-                    <img src="https://www.lawsonsfinest.com/wp-content/uploads/2024/01/3-cans-1.png" alt="Lawson's Finest Liquids beers - Hop Wired, Sip of Sunshine, Little Sip">
-                </div>
+                <a href="https://www.lawsonsfinest.com/beers/" target="_blank" rel="noopener noreferrer" class="beer-section-image">
+                    <img src="assets/images/beer-cans.png" alt="Lawson's Finest Liquids beers - Hop Wired, Sip of Sunshine, Little Sip">
+                </a>
                 <div class="beer-section-content">
                     <h3>Have a Sip!</h3>
                     <p>Learn more about our finest and freshest signature liquids, limited releases, and taproom regulars.</p>
@@ -1340,10 +1715,19 @@
                     Every spot on this map represents our commitment to quality, community, and the great outdoors.
                 </p>
             </div>
+
+            <div class="sidebar-brand">
+                <a href="https://www.lawsonsfinest.com" target="_blank" rel="noopener noreferrer" class="sidebar-brand-link">
+                    <img src="assets/images/lawsons-logo.svg" alt="Lawson's Finest Liquids" class="sidebar-brand-logo">
+                    <span class="sidebar-brand-cta">Visit lawsonsfinest.com</span>
+                </a>
+                <p class="demo-disclaimer">This is a demonstration project and is not operated by or affiliated with Lawson's Finest Liquids.</p>
+                <p class="demo-copyright">&copy; 2026 Ames Consulting LLC. All rights reserved.</p>
+            </div>
         </aside>
 
         <div id="map" role="application" aria-label="Interactive map of Sunshine Trail locations from Vermont to North Carolina">
-            <div class="zoom-hint" id="zoom-hint">
+            <div class="zoom-hint" id="zoom-hint" title="Click to find Sunshine Spots near you">
                 <span>Zoom in for more detail</span>
             </div>
         </div>
@@ -1354,6 +1738,8 @@
             <img src="assets/images/lawsons-logo.svg" alt="Lawson's Finest Liquids" class="bottom-brand-logo">
             <span class="bottom-brand-cta">Visit lawsonsfinest.com</span>
         </a>
+        <p class="demo-disclaimer">This is a demonstration project and is not operated by or affiliated with Lawson's Finest Liquids.</p>
+        <p class="demo-copyright">&copy; 2026 Ames Consulting LLC. All rights reserved.</p>
     </footer>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
@@ -1363,7 +1749,7 @@
         const map = L.map('map', {
             center: [39.5, -77.5],
             zoom: 6,
-            zoomControl: true,
+            zoomControl: false,  // We'll add it manually to bottom-right
             scrollWheelZoom: true,
             zoomSnap: 0.1,              // Allow finer zoom levels
             zoomDelta: 0.25,            // Smaller zoom steps for smoother feel
@@ -1394,67 +1780,37 @@
 
         // Define marker icons - using custom images with correct dimensions
         const markerIcons = {
-            retailer: L.icon({
-                iconUrl: 'assets/images/marker-retailer.svg',
-                iconSize: [36, 36],
-                iconAnchor: [18, 36],
-                popupAnchor: [0, -36],
-                className: 'marker-icon'
-            }),
-            brewery: L.icon({
-                iconUrl: 'assets/images/marker-brewery.svg',
-                iconSize: [40, 40],
-                iconAnchor: [20, 40],
-                popupAnchor: [0, -40],
-                className: 'marker-icon'
-            }),
-            tastingroom: L.icon({
-                iconUrl: 'assets/images/marker-tastingroom.svg',
-                iconSize: [36, 36],
-                iconAnchor: [18, 36],
-                popupAnchor: [0, -36],
-                className: 'marker-icon'
-            }),
-            bar: L.icon({
-                iconUrl: 'assets/images/marker-bar.svg',
-                iconSize: [36, 36],
-                iconAnchor: [18, 36],
-                popupAnchor: [0, -36],
-                className: 'marker-icon'
-            }),
-            trail: L.icon({
-                iconUrl: 'assets/images/marker-trail.svg',
-                iconSize: [40, 40],
-                iconAnchor: [20, 40],
-                popupAnchor: [0, -40],
-                className: 'marker-icon'
-            }),
-            river: L.icon({
-                iconUrl: 'assets/images/marker-river.svg',
-                iconSize: [40, 40],
-                iconAnchor: [20, 40],
-                popupAnchor: [0, -40],
-                className: 'marker-icon'
-            }),
-            community: L.icon({
-                iconUrl: 'assets/images/marker-community.svg',
-                iconSize: [40, 40],
-                iconAnchor: [20, 40],
-                popupAnchor: [0, -40],
-                className: 'marker-icon'
-            }),
-            charger: L.icon({
-                iconUrl: 'assets/images/marker-charger.svg',
-                iconSize: [36, 36],
-                iconAnchor: [18, 36],
-                popupAnchor: [0, -36],
-                className: 'marker-icon'
-            })
+            retailer: 'assets/images/marker-retailer.svg',
+            brewery: 'assets/images/marker-brewery.svg',
+            tastingroom: 'assets/images/marker-tastingroom.svg',
+            bar: 'assets/images/marker-bar.svg',
+            trail: 'assets/images/marker-trail.svg',
+            river: 'assets/images/marker-river.svg',
+            community: 'assets/images/marker-community.svg',
+            charger: 'assets/images/marker-charger.svg'
         };
 
-        // Get marker icon for category
+        // Create marker icon with pill background
         function createMarkerIcon(category) {
-            return markerIcons[category];
+            const iconUrl = markerIcons[category];
+            const pillStyle = 'display:flex;align-items:center;justify-content:center;width:46px;height:46px;background:#FFFDF7;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.25);border:2px solid #EAC054;position:relative;';
+
+            // Adjust icon size based on aspect ratio for visual balance
+            let iconSize = '28px';
+            if (category === 'river') {
+                iconSize = '36px';  // Larger - wide aspect ratio
+            } else if (category === 'trail') {
+                iconSize = '26px';  // Slightly smaller - tall aspect ratio
+            }
+            const imgStyle = 'width:' + iconSize + ';height:' + iconSize + ';object-fit:contain;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);';
+
+            return L.divIcon({
+                html: '<div style="' + pillStyle + '"><img src="' + iconUrl + '" style="' + imgStyle + '" alt=""></div>',
+                className: 'marker-icon-pill',
+                iconSize: L.point(46, 46),
+                iconAnchor: L.point(23, 23),
+                popupAnchor: L.point(0, -23)
+            });
         }
 
         // Sunshine Trail Data
@@ -1463,7 +1819,7 @@
             {
                 name: "Lawson's Finest Liquids Brewery",
                 category: "brewery",
-                image: "https://www.lawsonsfinest.com/wp-content/uploads/2023/08/taproom-exterior.jpg",
+                image: "https://www.lawsonsfinest.com/wp-content/uploads/2025/12/LFL_Taproom_Night-1.jpg",
                 lat: 44.1852,
                 lng: -72.8288,
                 location: "155 Carroll Road, Waitsfield, VT",
@@ -1473,6 +1829,7 @@
             {
                 name: "Lawson's Original Nanobrewery",
                 category: "brewery",
+                image: "https://images.unsplash.com/photo-1559526642-c3f001ea68ee?w=800",
                 lat: 44.1189,
                 lng: -72.8556,
                 location: "Warren, VT",
@@ -1482,6 +1839,7 @@
             {
                 name: "Two Roads Brewing Company",
                 category: "brewery",
+                image: "https://tworoadsbrewing.com/wp-content/uploads/2023/08/tbr.jpg",
                 lat: 41.1884,
                 lng: -73.1318,
                 location: "1700 Stratford Ave, Stratford, CT",
@@ -1493,7 +1851,7 @@
             {
                 name: "Lawson's Finest Taproom",
                 category: "tastingroom",
-                image: "https://www.lawsonsfinest.com/wp-content/uploads/2023/08/taproom-interior.jpg",
+                image: "https://www.lawsonsfinest.com/wp-content/uploads/2025/12/LFL_Taproom_Guests-1.jpg",
                 lat: 44.1854,
                 lng: -72.8285,
                 location: "155 Carroll Road, Waitsfield, VT",
@@ -1506,6 +1864,7 @@
             {
                 name: "The Whale",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800",
                 lat: 35.5847,
                 lng: -82.5673,
                 location: "507 Haywood Rd, West Asheville, NC",
@@ -1516,6 +1875,7 @@
             {
                 name: "City Tap House",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=800",
                 lat: 39.9543,
                 lng: -75.1715,
                 location: "2 Logan Square, Philadelphia, PA",
@@ -1525,6 +1885,7 @@
             {
                 name: "Uptown Beer Garden",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1555658636-6e4a36218be7?w=800",
                 lat: 39.9536,
                 lng: -75.1656,
                 location: "1500 JFK Blvd, Philadelphia, PA",
@@ -1535,6 +1896,7 @@
             {
                 name: "Greenwood Park",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1571613316887-6f8d5cbf7ef7?w=800",
                 lat: 40.6592,
                 lng: -73.9897,
                 location: "555 7th Ave, Brooklyn, NY",
@@ -1544,6 +1906,7 @@
             {
                 name: "Stout NYC - Grand Central",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1546622891-02c72c1537b6?w=800",
                 lat: 40.7527,
                 lng: -73.9772,
                 location: "133 W 33rd St, New York, NY",
@@ -1554,6 +1917,7 @@
             {
                 name: "Eli Cannon's Tap Room",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?w=800",
                 lat: 41.5623,
                 lng: -72.6506,
                 location: "695 Main St, Middletown, CT",
@@ -1564,6 +1928,7 @@
             {
                 name: "The Red Door",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=800",
                 lat: 41.8236,
                 lng: -71.4222,
                 location: "49 Peck St, Providence, RI",
@@ -1574,6 +1939,7 @@
             {
                 name: "Five Horses Tavern",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=800",
                 lat: 42.3388,
                 lng: -71.0885,
                 location: "535 Columbus Ave, Boston, MA",
@@ -1584,6 +1950,7 @@
             {
                 name: "Luna Rooftop",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?w=800",
                 lat: 43.6568,
                 lng: -70.2495,
                 location: "Canopy Portland Waterfront, Portland, ME",
@@ -1593,6 +1960,7 @@
             {
                 name: "Hunt & Alpine Club",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1525268323446-0505b6fe7778?w=800",
                 lat: 43.6591,
                 lng: -70.2554,
                 location: "75 Market St, Portland, ME",
@@ -1603,6 +1971,7 @@
             {
                 name: "Worthy Burger",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800",
                 lat: 43.7864,
                 lng: -72.5209,
                 location: "56 Rainbow St, South Royalton, VT",
@@ -1613,6 +1982,7 @@
             {
                 name: "The Thirsty Pig",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800",
                 lat: 43.6576,
                 lng: -70.2521,
                 location: "37 Exchange St, Portland, ME",
@@ -1622,6 +1992,7 @@
             {
                 name: "Bonfire Country Bar",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1575037614876-c38a4c44842c?w=800",
                 lat: 43.6553,
                 lng: -70.2577,
                 location: "24 Preble St, Portland, ME",
@@ -1632,6 +2003,7 @@
             {
                 name: "Moonshine Alley",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?w=800",
                 lat: 41.8230,
                 lng: -71.4150,
                 location: "293 Atwells Ave, Providence, RI",
@@ -1641,6 +2013,7 @@
             {
                 name: "The Scurvy Dog",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1574126154517-d1e0d89ef734?w=800",
                 lat: 41.8188,
                 lng: -71.4380,
                 location: "1718 Westminster St, Providence, RI",
@@ -1650,6 +2023,7 @@
             {
                 name: "McBride's Irish Pub",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1559329009-cd1c8c17f5b2?w=800",
                 lat: 41.8306,
                 lng: -71.3978,
                 location: "161 Wayland Ave, Providence, RI",
@@ -1660,6 +2034,7 @@
             {
                 name: "Bostonia Public House",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800",
                 lat: 42.3551,
                 lng: -71.0549,
                 location: "131 State St, Boston, MA",
@@ -1670,6 +2045,7 @@
             {
                 name: "Stout NYC - Penn Station",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800",
                 lat: 40.7505,
                 lng: -73.9934,
                 location: "Penn Station Area, New York, NY",
@@ -1680,6 +2056,7 @@
             {
                 name: "Dwyer's Pub",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=800",
                 lat: 43.0718,
                 lng: -70.7626,
                 location: "195 Fleet St, Portsmouth, NH",
@@ -1690,6 +2067,7 @@
             {
                 name: "McGillin's Olde Ale House",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1538488881038-e252a119ace7?w=800",
                 lat: 39.9512,
                 lng: -75.1610,
                 location: "1310 Drury St, Philadelphia, PA",
@@ -1699,6 +2077,7 @@
             {
                 name: "Independence Beer Garden",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=800",
                 lat: 39.9494,
                 lng: -75.1502,
                 location: "100 S Independence Mall W, Philadelphia, PA",
@@ -1708,6 +2087,7 @@
             {
                 name: "Barcade",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1511882150382-421056c89033?w=800",
                 lat: 39.9497,
                 lng: -75.1595,
                 location: "1326 Chestnut St, Philadelphia, PA",
@@ -1717,6 +2097,7 @@
             {
                 name: "Brü Craft & Wurst",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1600788886242-5c96aabe3757?w=800",
                 lat: 39.9502,
                 lng: -75.1603,
                 location: "1318 Chestnut St, Philadelphia, PA",
@@ -1726,6 +2107,7 @@
             {
                 name: "Fado Irish Pub",
                 category: "bar",
+                image: "https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=800",
                 lat: 39.9480,
                 lng: -75.1651,
                 location: "1500 Locust St, Philadelphia, PA",
@@ -1738,6 +2120,7 @@
             {
                 name: "Lawson's Finest Liquids Taproom",
                 category: "retailer",
+                image: "https://www.lawsonsfinest.com/wp-content/uploads/2025/12/LFL_Taproom_Night-1.jpg",
                 lat: 44.1852,
                 lng: -72.8288,
                 location: "Waitsfield, VT",
@@ -1747,6 +2130,7 @@
             {
                 name: "Mad River Taste Place",
                 category: "retailer",
+                image: "https://images.unsplash.com/photo-1584225064785-c62a8b43d148?w=800",
                 lat: 44.1870,
                 lng: -72.8256,
                 location: "Waitsfield, VT",
@@ -1756,6 +2140,7 @@
             {
                 name: "Mehuron's Supermarket",
                 category: "retailer",
+                image: "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=800",
                 lat: 44.1858,
                 lng: -72.8271,
                 location: "Waitsfield, VT",
@@ -1765,6 +2150,7 @@
             {
                 name: "JD's Quick Stop",
                 category: "retailer",
+                image: "https://images.unsplash.com/photo-1567696911980-2eed69a46042?w=800",
                 lat: 43.9289,
                 lng: -72.8411,
                 location: "Hancock, VT",
@@ -1775,6 +2161,7 @@
             {
                 name: "Craft Beer Cellar - Belmont",
                 category: "retailer",
+                image: "https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=800",
                 lat: 42.3962,
                 lng: -71.1784,
                 location: "Belmont, MA",
@@ -1784,6 +2171,7 @@
             {
                 name: "Blanchard's Liquors",
                 category: "retailer",
+                image: "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?w=800",
                 lat: 42.3151,
                 lng: -71.0589,
                 location: "Boston, MA",
@@ -1794,6 +2182,7 @@
             {
                 name: "Two Roads Brewing Company",
                 category: "retailer",
+                image: "https://images.unsplash.com/photo-1532634922-8fe0b757fb13?w=800",
                 lat: 41.2226,
                 lng: -73.1353,
                 location: "Stratford, CT",
@@ -1804,6 +2193,7 @@
             {
                 name: "Whole Foods Market - Union Square",
                 category: "retailer",
+                image: "https://images.unsplash.com/photo-1534723452862-4c874018d66d?w=800",
                 lat: 40.7359,
                 lng: -73.9911,
                 location: "New York, NY",
@@ -1814,6 +2204,7 @@
             {
                 name: "Monk's Cafe",
                 category: "retailer",
+                image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800",
                 lat: 39.9478,
                 lng: -75.1639,
                 location: "Philadelphia, PA",
@@ -1823,6 +2214,7 @@
             {
                 name: "Tired Hands Brewing Company",
                 category: "retailer",
+                image: "https://images.unsplash.com/photo-1559526642-c3f001ea68ee?w=800",
                 lat: 40.0054,
                 lng: -75.3099,
                 location: "Ardmore, PA",
@@ -1833,6 +2225,7 @@
             {
                 name: "Total Wine & More - Richmond",
                 category: "retailer",
+                image: "https://images.unsplash.com/photo-1578911373434-0cb395d2cbfb?w=800",
                 lat: 37.5955,
                 lng: -77.5201,
                 location: "Richmond, VA",
@@ -1842,6 +2235,7 @@
             {
                 name: "The Veil Brewing Co.",
                 category: "retailer",
+                image: "https://images.unsplash.com/photo-1559526642-c3f001ea68ee?w=800",
                 lat: 37.5541,
                 lng: -77.4599,
                 location: "Richmond, VA",
@@ -1912,7 +2306,8 @@
                 lng: -71.4548,
                 location: "Hooksett, NH",
                 description: "New Hampshire's premier craft beer destination with 1,200+ craft beers. Consistently stocks Lawson's.",
-                url: "https://bertsbetterbeers.com"
+                url: "https://bertsbetterbeers.com",
+                image: "https://bertsbetterbeers.com/wp-content/uploads/2023/03/berts-storefront.jpg"
             },
             // Additional Massachusetts
             {
@@ -2367,6 +2762,7 @@
                 location: "Barre, VT",
                 description: "Vermont's largest hunger-relief organization, serving all 14 counties through a network of food shelves, meal sites, and community programs.",
                 impact: "Thanks to support from Lawson's Cosmic Shift IPA, families like the Martins in rural Vermont can count on fresh produce and protein each week. 'After my husband's job loss, the food shelf kept our kids fed while we got back on our feet.'",
+                image: "https://www.vtfoodbank.org/wp-content/uploads/2024/12/20221028_hpSlider.jpg",
                 url: "https://vtfoodbank.org",
                 donateUrl: "https://vtfoodbank.org/give"
             },
@@ -2823,6 +3219,54 @@
         // Category display order for consistent icon ordering
         const categoryOrder = ['brewery', 'tastingroom', 'retailer', 'bar', 'trail', 'river', 'community', 'charger'];
 
+        // Get sidebar width in pixels based on screen size
+        function getSidebarWidth() {
+            if (window.innerWidth <= 1200) return 0;  // Mobile/tablet - sidebar is below map
+            if (window.innerWidth >= 1800) return 500;
+            if (window.innerWidth >= 1400) return 460;
+            return 420;
+        }
+
+        // Get padding for fitBounds - account for sidebar floating over map
+        // Left padding must be sidebar width + margins + buffer to keep pills visible
+        function getSidebarPadding() {
+            if (window.innerWidth <= 1200) {
+                // Mobile/tablet: extra bottom padding to keep content above "Zoom in for more detail" button
+                return [20, 40, 380, 40]; // [top, right, bottom, left]
+            }
+            const sidebarWidth = getSidebarWidth();
+            const margin = 20; // sidebar left margin
+            const buffer = 80; // extra buffer for pill radius
+            return [60, 60, 60, sidebarWidth + margin + buffer];
+        }
+
+        // Custom fitBounds that treats the visible map area (right of sidebar) as the target
+        // Uses paddingTopLeft to offset bounds calculation so markers appear in visible area
+        function fitBoundsWithSidebarOffset(bounds, options = {}) {
+            const sidebarWidth = getSidebarWidth();
+            if (sidebarWidth === 0) {
+                // Mobile/tablet: extra bottom padding to keep content above "Zoom in for more detail" button
+                map.fitBounds(bounds, {
+                    ...options,
+                    paddingTopLeft: L.point(40, 20),
+                    paddingBottomRight: L.point(40, 140)
+                });
+                return;
+            }
+
+            // Use paddingTopLeft/paddingBottomRight for precise control
+            // The left padding needs to be large enough that the bounds calculation
+            // treats the area under the sidebar as "outside" the viewable area
+            const leftPadding = sidebarWidth + 180; // sidebar + margins + generous buffer for pill width
+            const rightPadding = 120; // buffer for pill clusters on right edge
+
+            map.fitBounds(bounds, {
+                ...options,
+                paddingTopLeft: L.point(leftPadding, 60),
+                paddingBottomRight: L.point(rightPadding, 60)
+            });
+        }
+
         // Create unified marker cluster group with multi-category support
         function createUnifiedClusterIcon(cluster) {
             const markers = cluster.getAllChildMarkers();
@@ -2838,52 +3282,69 @@
             const count = cluster.getChildCount();
 
             if (uniqueCategories.length === 1) {
-                // Single category - use the classic circular cluster
+                // Single category - show icon + count in pill format like multi-category
                 const cat = uniqueCategories[0];
+                let iconSize = '28px';
+                if (cat === 'river') iconSize = '36px';
+                if (cat === 'trail') iconSize = '26px';
+
+                const pillStyle = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:5px;padding:8px 12px;background:#FFFDF7;border-radius:23px;box-shadow:0 2px 8px rgba(0,0,0,0.25);border:2px solid #EAC054;white-space:nowrap;';
+                const countStyle = 'font-family:new-spirit,serif;font-weight:700;font-size:14px;color:#2D2A26;background:#EAC054;padding:4px 10px;border-radius:12px;margin-left:3px;min-width:24px;text-align:center;';
+                const iconHtml = '<img src="' + categoryIconPaths[cat] + '" style="width:' + iconSize + ';height:' + iconSize + ';flex-shrink:0;object-fit:contain;display:block;" alt="">';
+
+                const width = 120;
+                const height = 50;
+
                 return L.divIcon({
-                    html: '<div class="cluster-inner cluster-' + cat + '">' + count + '</div>',
-                    className: 'marker-cluster',
-                    iconSize: L.point(40, 40)
+                    html: '<div style="' + pillStyle + '">' + iconHtml + '<span style="' + countStyle + '">' + count + '</span></div>',
+                    className: 'marker-cluster-pill',
+                    iconSize: L.point(width, height),
+                    iconAnchor: L.point(width / 2, height / 2)
                 });
             } else {
-                // Multiple categories - show icons for each type
-                const iconsHtml = uniqueCategories.slice(0, 4).map(cat =>
-                    '<img src="' + categoryIconPaths[cat] + '" class="cluster-icon" alt="">'
-                ).join('');
+                // Multiple categories - show icons for each type with inline styles
+                // Adjust sizes for visual balance: hiking is tall, river/canoe is wide
+                const iconsHtml = uniqueCategories.slice(0, 4).map(cat => {
+                    let size = '24px';
+                    if (cat === 'river') size = '32px';  // Larger - wide aspect ratio
+                    if (cat === 'trail') size = '22px';  // Slightly smaller - tall aspect ratio
+                    return '<img src="' + categoryIconPaths[cat] + '" style="width:' + size + ';height:' + size + ';flex-shrink:0;object-fit:contain;display:block;" alt="">';
+                }).join('');
 
                 const numIcons = Math.min(uniqueCategories.length, 4);
-                const width = numIcons * 30 + 50;
+                // Calculate dimensions based on content - generous sizing to contain pill
+                const width = (numIcons * 35) + 80;
+                const height = 55;
+
+                // Use inline styles to guarantee rendering - absolutely positioned to center in container
+                const pillStyle = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:5px;padding:8px 12px;background:#FFFDF7;border-radius:23px;box-shadow:0 2px 8px rgba(0,0,0,0.25);border:2px solid #EAC054;white-space:nowrap;';
+                const countStyle = 'font-family:new-spirit,serif;font-weight:700;font-size:14px;color:#2D2A26;background:#EAC054;padding:4px 10px;border-radius:12px;margin-left:3px;min-width:24px;text-align:center;';
+
                 return L.divIcon({
-                    html: '<div class="cluster-multi">' + iconsHtml + '<span class="cluster-count">' + count + '</span></div>',
-                    className: 'marker-cluster',
-                    iconSize: L.point(width, 42)
+                    html: '<div style="' + pillStyle + '">' + iconsHtml + '<span style="' + countStyle + '">' + count + '</span></div>',
+                    className: 'marker-cluster-pill',
+                    iconSize: L.point(width, height),
+                    iconAnchor: L.point(width / 2, height / 2)
                 });
             }
         }
 
         const clusterOptions = {
             showCoverageOnHover: false,
-            spiderfyOnMaxZoom: true,
-            disableClusteringAtZoom: 12,
-            maxClusterRadius: 50,
-            spiderfyDistanceMultiplier: 1.5,
-            iconCreateFunction: createUnifiedClusterIcon
+            spiderfyOnMaxZoom: true,  // Spider out only when can't zoom any further
+            zoomToBoundsOnClick: false,  // We'll handle this manually with sidebar padding
+            disableClusteringAtZoom: 19,  // Max zoom level to separate very close markers
+            maxClusterRadius: 120,  // Increased to group nearby markers together
+            iconCreateFunction: createUnifiedClusterIcon,
+            spiderLegPolylineOptions: { weight: 2, color: '#EAC054', opacity: 0.6 },
+            spiderfyDistanceMultiplier: 1.8,  // More spread out spider
+            animate: true,
+            animateAddingMarkers: false  // Disable fly-in animation on initial load
         };
 
         // Create a unified cluster group for all main markers
         const unifiedCluster = L.markerClusterGroup(clusterOptions);
 
-        // Separate cluster for chargers (only shows with route)
-        const chargerCluster = L.markerClusterGroup({
-            ...clusterOptions,
-            iconCreateFunction: function(cluster) {
-                return L.divIcon({
-                    html: '<div class="cluster-inner cluster-charger">' + cluster.getChildCount() + '</div>',
-                    className: 'marker-cluster',
-                    iconSize: L.point(40, 40)
-                });
-            }
-        });
 
         // Store markers by category for filtering
         const markersByCategory = {
@@ -2932,11 +3393,12 @@
                 'charger': 'DC Fast Charger'
             };
             const categoryLabel = categoryLabels[spot.category] || spot.category;
+            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.location)}`;
             popupContent += `
                 <div class="popup-category ${spot.category}">${categoryLabel}</div>
                 <div class="popup-title">${spot.name}</div>
                 <div class="popup-description">${spot.description}</div>
-                <div class="popup-location">${spot.location}</div>
+                <div class="popup-location"><a href="${mapsUrl}" target="_blank" rel="noopener noreferrer">${spot.location}</a></div>
             `;
 
             // Add impact story for community partners
@@ -2967,10 +3429,8 @@
             // Store marker by category
             markersByCategory[spot.category].push(marker);
 
-            // Add to appropriate cluster
-            if (spot.category === 'charger') {
-                chargerCluster.addLayer(marker);
-            } else {
+            // Add to unified cluster (chargers start hidden, added when route is shown)
+            if (spot.category !== 'charger') {
                 unifiedCluster.addLayer(marker);
             }
         });
@@ -2978,11 +3438,32 @@
         // Add unified cluster to map
         unifiedCluster.addTo(map);
 
+        // Custom cluster click handler - zoom with sidebar padding
+        unifiedCluster.on('clusterclick', function(e) {
+            const cluster = e.layer;
+            const currentZoom = map.getZoom();
+
+            // If already at high zoom, just spiderfy immediately
+            if (currentZoom >= 17) {
+                cluster.spiderfy();
+                return;
+            }
+
+            const bounds = cluster.getBounds();
+            fitBoundsWithSidebarOffset(bounds, {
+                animate: true,
+                duration: 0.8,  // Slower, smoother zoom
+                easeLinearity: 0.25,
+                maxZoom: 17  // Stop at 17 to avoid jarring final zoom
+            });
+        });
+
+
         // Function to refresh the unified cluster based on visible categories
         function refreshUnifiedCluster() {
             unifiedCluster.clearLayers();
             Object.entries(markersByCategory).forEach(([category, markers]) => {
-                if (category !== 'charger' && visibleCategories[category]) {
+                if (visibleCategories[category]) {
                     markers.forEach(marker => unifiedCluster.addLayer(marker));
                 }
             });
@@ -3039,28 +3520,147 @@
 
         document.getElementById('filter-chargers').addEventListener('change', function() {
             visibleCategories.charger = this.checked;
-            if (this.checked) {
-                map.addLayer(chargerCluster);
-            } else {
-                map.removeLayer(chargerCluster);
-            }
+            refreshUnifiedCluster();
         });
+
+        // Add zoom control to bottom-right
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
 
         // Fit map to show all markers with smooth animation
         const allMarkers = sunshineSpots.map(s => [s.lat, s.lng]);
-        map.fitBounds(allMarkers, {
-            padding: [50, 50],
+        fitBoundsWithSidebarOffset(allMarkers, {
             animate: true,
             duration: 1.0
         });
 
+        // Enable marker animations after initial load completes
+        setTimeout(() => {
+            unifiedCluster.options.animate = true;
+            unifiedCluster.options.animateAddingMarkers = true;
+        }, 1500);
+
         // Zoom hint - hide when zoomed in past level 9
         const zoomHint = document.getElementById('zoom-hint');
+        const zoomHintText = zoomHint.querySelector('span');
+        const zoomHintOriginalText = zoomHintText.textContent;
+
+        // Wave animation on hover for zoom hint (faster timing)
+        zoomHint.addEventListener('mouseenter', () => {
+            createWaveAnimation(zoomHintText, 0.015);
+        });
+        zoomHint.addEventListener('mouseleave', () => {
+            resetWaveAnimation(zoomHintText, zoomHintOriginalText);
+        });
+
+        // Click handler - find nearest Sunshine Spot
+        zoomHint.addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by your browser');
+                return;
+            }
+
+            zoomHintText.textContent = 'Finding you...';
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const userLat = position.coords.latitude;
+                    const userLng = position.coords.longitude;
+
+                    // Find the nearest spot
+                    let nearestSpot = null;
+                    let nearestDistance = Infinity;
+
+                    sunshineSpots.forEach(spot => {
+                        const distance = Math.sqrt(
+                            Math.pow(spot.lat - userLat, 2) + Math.pow(spot.lng - userLng, 2)
+                        );
+                        if (distance < nearestDistance) {
+                            nearestDistance = distance;
+                            nearestSpot = spot;
+                        }
+                    });
+
+                    if (nearestSpot) {
+                        // Create bounds that include user location and nearest spot
+                        const bounds = L.latLngBounds([
+                            [userLat, userLng],
+                            [nearestSpot.lat, nearestSpot.lng]
+                        ]);
+
+                        // Zoom to show both with padding
+                        fitBoundsWithSidebarOffset(bounds, {
+                            maxZoom: 12,
+                            animate: true,
+                            duration: 1.0
+                        });
+
+                        // Add a temporary marker for user location
+                        const userMarker = L.circleMarker([userLat, userLng], {
+                            radius: 10,
+                            fillColor: '#4285F4',
+                            color: '#ffffff',
+                            weight: 3,
+                            opacity: 1,
+                            fillOpacity: 0.9
+                        }).addTo(map);
+
+                        // Pulse animation for user location
+                        const pulseMarker = L.circleMarker([userLat, userLng], {
+                            radius: 20,
+                            fillColor: '#4285F4',
+                            color: '#4285F4',
+                            weight: 2,
+                            opacity: 0.5,
+                            fillOpacity: 0.2
+                        }).addTo(map);
+
+                        // Remove user markers after 10 seconds
+                        setTimeout(() => {
+                            map.removeLayer(userMarker);
+                            map.removeLayer(pulseMarker);
+                        }, 10000);
+                    }
+
+                    zoomHintText.textContent = zoomHintOriginalText;
+                    zoomHint.classList.add('hidden');
+                },
+                (error) => {
+                    zoomHintText.textContent = zoomHintOriginalText;
+                    alert('Unable to get your location. Please try zooming manually.');
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        });
+
         map.on('zoomend', function() {
             if (map.getZoom() >= 9) {
                 zoomHint.classList.add('hidden');
             } else {
                 zoomHint.classList.remove('hidden');
+            }
+        });
+
+        // Save map position before popup opens, restore on close (mobile only)
+        let savedMapState = null;
+
+        map.on('popupopen', function(e) {
+            // Only save state on mobile/tablet
+            if (window.innerWidth <= 1200) {
+                savedMapState = {
+                    center: map.getCenter(),
+                    zoom: map.getZoom()
+                };
+            }
+        });
+
+        map.on('popupclose', function(e) {
+            // Only restore state on mobile/tablet
+            if (window.innerWidth <= 1200 && savedMapState) {
+                map.setView(savedMapState.center, savedMapState.zoom, {
+                    animate: true,
+                    duration: 0.5
+                });
+                savedMapState = null;
             }
         });
 
@@ -3076,11 +3676,12 @@
             if (spot.image) {
                 popupContent += `<img src="${spot.image}" alt="${spot.name}" class="popup-image" loading="lazy">`;
             }
+            const communityMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.location)}`;
             popupContent += `
                 <div class="popup-category community">Community Partner</div>
                 <div class="popup-title">${spot.name}</div>
                 <div class="popup-description">${spot.description}</div>
-                <div class="popup-location">${spot.location}</div>
+                <div class="popup-location"><a href="${communityMapsUrl}" target="_blank" rel="noopener noreferrer">${spot.location}</a></div>
             `;
             if (spot.impact) {
                 popupContent += `
@@ -3146,8 +3747,7 @@
                 const filteredSpots = communityMarkers.filter(m => m.state === state);
                 if (filteredSpots.length > 0) {
                     const bounds = filteredSpots.map(m => [m.spot.lat, m.spot.lng]);
-                    map.fitBounds(bounds, {
-                        padding: [80, 80],
+                    fitBoundsWithSidebarOffset(bounds, {
                         animate: true,
                         duration: 0.5,
                         maxZoom: 10
@@ -3299,9 +3899,9 @@
             requestAnimationFrame(update);
         }
 
-        // Format functions
-        const formatDollars = (val) => Math.floor(val).toLocaleString();
-        const formatKwh = (val) => Math.floor(val).toLocaleString();
+        // Format functions - show cents/decimals for live ticker effect
+        const formatDollars = (val) => val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const formatKwh = (val) => val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         const formatPercent = (val) => val.toFixed(1);
 
         // Live ticker update
@@ -3324,13 +3924,21 @@
 
             // After initial animation, start live updates every 100ms
             // This makes the counters tick up in real-time showing ongoing impact
+            let lastDonations = currentDonations;
+            let lastSolar = currentSolar;
+
             setTimeout(() => {
                 tickerInterval = setInterval(() => {
+                    const newDonations = calculateCurrentDonations();
+                    const newSolar = calculateCurrentSolar();
+
                     if (donationsEl) {
-                        donationsEl.textContent = formatDollars(calculateCurrentDonations());
+                        donationsEl.textContent = formatDollars(newDonations);
+                        lastDonations = newDonations;
                     }
                     if (solarEl) {
-                        solarEl.textContent = formatKwh(calculateCurrentSolar());
+                        solarEl.textContent = formatKwh(newSolar);
+                        lastSolar = newSolar;
                     }
                 }, 100);
             }, 2600);
@@ -3480,39 +4088,292 @@
                 map.addLayer(routeLayers);
                 routeLegend.style.display = 'flex';
 
-                // Show chargers when route is shown
-                map.addLayer(chargerCluster);
+                // Show chargers when route is shown (add to unified cluster)
                 visibleCategories.charger = true;
                 chargerFilter.checked = true;
                 chargerFilter.disabled = false;
                 chargerFilterItem.style.opacity = '1';
                 chargerFilterItem.title = '';
+                refreshUnifiedCluster();
 
-                // Animate to show full route
+                // Animate to show full route with extra padding for wide cluster pills
                 const fullRoute = [
                     ...blueRidgeParkway,
                     ...skylineDrive,
                     ...connectorRoute,
                     ...route100Vermont
                 ];
+                const sidebarWidth = getSidebarWidth();
                 map.fitBounds(fullRoute, {
-                    padding: [50, 50],
                     animate: true,
-                    duration: 1.0
+                    duration: 1.0,
+                    paddingTopLeft: L.point(sidebarWidth + 180, 100),
+                    paddingBottomRight: L.point(250, 100)
                 });
             } else {
                 map.removeLayer(routeLayers);
                 routeLegend.style.display = 'none';
 
-                // Hide chargers when route is hidden
-                map.removeLayer(chargerCluster);
+                // Hide chargers when route is hidden (remove from unified cluster)
                 visibleCategories.charger = false;
                 chargerFilter.checked = false;
                 chargerFilter.disabled = true;
                 chargerFilterItem.style.opacity = '0.5';
                 chargerFilterItem.title = 'Enable "Show The Sunshine Trail Route" to see DC Fast Chargers';
+                refreshUnifiedCluster();
             }
         });
+
+        // ============================================
+        // BUTTON WAVE ANIMATION
+        // Stadium-style wave effect on hover
+        // ============================================
+        function createWaveAnimation(button, delayPerChar = 0.03) {
+            const text = button.textContent;
+            button.innerHTML = '';
+            button.classList.add('wave-text');
+
+            const chars = [...text];
+            const totalChars = chars.length;
+
+            // Split text into spans for each character - animate right to left
+            chars.forEach((char, index) => {
+                const span = document.createElement('span');
+                span.textContent = char === ' ' ? '\u00A0' : char; // Use non-breaking space
+                // Reverse the delay: last char starts first, first char starts last
+                span.style.animationDelay = `${(totalChars - 1 - index) * delayPerChar}s`;
+                button.appendChild(span);
+            });
+        }
+
+        function resetWaveAnimation(button, originalText) {
+            button.classList.remove('wave-text');
+            button.textContent = originalText;
+        }
+
+        // Apply wave animation to buttons
+        document.querySelectorAll('.popup-btn, .beer-section-btn').forEach(btn => {
+            const originalText = btn.textContent;
+
+            btn.addEventListener('mouseenter', () => {
+                createWaveAnimation(btn);
+            });
+
+            btn.addEventListener('mouseleave', () => {
+                resetWaveAnimation(btn, originalText);
+            });
+        });
+
+        // For dynamically created popup buttons, use event delegation
+        document.addEventListener('mouseenter', (e) => {
+            if (e.target.classList.contains('popup-btn')) {
+                if (!e.target._originalText) {
+                    e.target._originalText = e.target.textContent;
+                }
+                if (!e.target.classList.contains('wave-text')) {
+                    createWaveAnimation(e.target);
+                }
+            }
+        }, true);
+
+        document.addEventListener('mouseleave', (e) => {
+            if (e.target.classList.contains('popup-btn') && e.target._originalText) {
+                resetWaveAnimation(e.target, e.target._originalText);
+            }
+        }, true);
+
+        // ============================================
+        // SUNSHINE TEXT GRADIENT FOLLOW
+        // Darkest part follows mouse cursor
+        // ============================================
+        const sunshineText = document.querySelector('h1 span');
+        if (sunshineText) {
+            sunshineText.addEventListener('mousemove', function(e) {
+                const rect = sunshineText.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                sunshineText.style.setProperty('--gradient-x', x + '%');
+                sunshineText.style.setProperty('--gradient-y', y + '%');
+            });
+        }
+
+        // ============================================
+        // FIDGET SUN SPINNER
+        // Drag to spin with momentum physics
+        // ============================================
+        const fidgetSun = document.getElementById('fidget-sun');
+        const fidgetContainer = fidgetSun ? fidgetSun.parentElement : null;
+        if (fidgetSun && fidgetContainer) {
+            let rotation = 0;
+            let velocity = 0;
+            let isDragging = false;
+            let lastAngle = 0;
+            let lastTime = 0;
+            let animationId = null;
+
+            function getAngle(e, rect) {
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return Math.atan2(clientY - centerY, clientX - centerX);
+            }
+
+            function startDrag(e) {
+                e.preventDefault();
+                isDragging = true;
+                fidgetSun.classList.add('spinning');
+                const rect = fidgetSun.getBoundingClientRect();
+                lastAngle = getAngle(e, rect);
+                lastTime = Date.now();
+                velocity = 0;
+                if (animationId) cancelAnimationFrame(animationId);
+            }
+
+            function drag(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                const rect = fidgetSun.getBoundingClientRect();
+                const currentAngle = getAngle(e, rect);
+                const now = Date.now();
+                const dt = Math.max(now - lastTime, 1);
+
+                let deltaAngle = currentAngle - lastAngle;
+                // Handle angle wrap-around
+                if (deltaAngle > Math.PI) deltaAngle -= 2 * Math.PI;
+                if (deltaAngle < -Math.PI) deltaAngle += 2 * Math.PI;
+
+                rotation += deltaAngle * (180 / Math.PI);
+                velocity = (deltaAngle * (180 / Math.PI)) / dt * 35; // Maximum momentum for fast flicks
+
+                fidgetSun.style.transform = `rotate(${rotation}deg)`;
+                lastAngle = currentAngle;
+                lastTime = now;
+            }
+
+            function endDrag() {
+                if (!isDragging) return;
+                isDragging = false;
+                fidgetSun.classList.remove('spinning');
+                // Start momentum animation
+                animateMomentum();
+            }
+
+            function animateMomentum() {
+                if (Math.abs(velocity) < 0.005) {
+                    velocity = 0;
+                    return;
+                }
+                rotation += velocity;
+                velocity *= 0.9995; // Ultra-low friction - precision bearings
+                fidgetSun.style.transform = `rotate(${rotation}deg)`;
+                animationId = requestAnimationFrame(animateMomentum);
+            }
+
+            // Mouse events - use container for larger hit area
+            fidgetContainer.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', endDrag);
+
+            // Touch events
+            fidgetContainer.addEventListener('touchstart', startDrag, { passive: false });
+            document.addEventListener('touchmove', drag, { passive: false });
+            document.addEventListener('touchend', endDrag);
+
+            // Emoji burst on click
+            const emojis = ['😊', '😁', '🍺', '🍻', '☀️', '🧊', '🌈'];
+            let clickStartTime = 0;
+            let clickStartPos = { x: 0, y: 0 };
+
+            fidgetContainer.addEventListener('mousedown', (e) => {
+                clickStartTime = Date.now();
+                clickStartPos = { x: e.clientX, y: e.clientY };
+            });
+
+            fidgetContainer.addEventListener('mouseup', (e) => {
+                const elapsed = Date.now() - clickStartTime;
+                const moved = Math.sqrt(
+                    Math.pow(e.clientX - clickStartPos.x, 2) +
+                    Math.pow(e.clientY - clickStartPos.y, 2)
+                );
+                // Only burst if it was a quick click without much drag
+                if (elapsed < 200 && moved < 10) {
+                    burstEmojis(e);
+                }
+            });
+
+            function burstEmojis(e) {
+                const rect = fidgetSun.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                // Pick 3 random emoji types for this burst
+                const shuffled = [...emojis].sort(() => Math.random() - 0.5);
+                const selectedEmojis = shuffled.slice(0, 3);
+
+                // Spawn 20 emojis using only the 3 selected types
+                const burstCount = 20;
+                for (let i = 0; i < burstCount; i++) {
+                    const emoji = document.createElement('div');
+                    emoji.textContent = selectedEmojis[Math.floor(Math.random() * selectedEmojis.length)];
+                    const size = 24 + Math.random() * 20;
+                    emoji.style.cssText = `
+                        position: fixed;
+                        left: ${centerX}px;
+                        top: ${centerY}px;
+                        font-size: ${size}px;
+                        pointer-events: none;
+                        z-index: 10000;
+                        transform: translate(-50%, -50%);
+                        will-change: transform, opacity, left, top;
+                    `;
+                    document.body.appendChild(emoji);
+
+                    // Random direction and velocity - bigger explosion
+                    const angle = (Math.PI * 2 * i / burstCount) + (Math.random() - 0.5) * 0.6;
+                    const speed = 250 + Math.random() * 200;  // Faster
+                    const vx = Math.cos(angle) * speed;
+                    const vy = Math.sin(angle) * speed;
+                    const gravity = 400;
+                    const startTime = performance.now();
+                    // Pre-calculate spin direction to avoid flicker
+                    const spinDirection = Math.random() > 0.5 ? 1 : -1;
+                    const spinSpeed = 180 + Math.random() * 180;
+
+                    function animateEmoji(currentTime) {
+                        const t = (currentTime - startTime) / 1000;
+                        const x = centerX + vx * t;
+                        const y = centerY + vy * t + 0.5 * gravity * t * t;
+                        const opacity = Math.max(0, 1 - t * 0.9);  // Slower fade
+                        const scale = 1 + t * 0.5;
+                        const spin = t * spinSpeed * spinDirection;
+
+                        emoji.style.left = `${x}px`;
+                        emoji.style.top = `${y}px`;
+                        emoji.style.opacity = opacity;
+                        emoji.style.transform = `translate(-50%, -50%) scale(${scale}) rotate(${spin}deg)`;
+
+                        if (opacity > 0) {
+                            requestAnimationFrame(animateEmoji);
+                        } else {
+                            emoji.remove();
+                        }
+                    }
+                    requestAnimationFrame(animateEmoji);
+                }
+            }
+
+            // Gentle idle spin
+            let idleRotation = 0;
+            function idleSpin() {
+                if (!isDragging && Math.abs(velocity) < 0.1) {
+                    idleRotation += 0.1;
+                    fidgetSun.style.transform = `rotate(${rotation + idleRotation}deg)`;
+                }
+                requestAnimationFrame(idleSpin);
+            }
+            idleSpin();
+        }
     </script>
 </body>
 </html>
