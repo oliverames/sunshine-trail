@@ -180,6 +180,84 @@ test.describe('Issue #13 - Search Result Selection', () => {
       expect(searchClosed || popupVisible).toBe(true);
     }
   });
+
+  test('search should close when clicking Show Route toggle', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('.leaflet-container', { state: 'visible' });
+    await page.waitForTimeout(1500);
+
+    // Open search and type something
+    const searchButton = page.locator('#map-search-btn');
+    const searchInput = page.locator('#map-search-input');
+    const searchResults = page.locator('#map-search-results');
+
+    await searchButton.click();
+    await page.waitForTimeout(300);
+    await searchInput.fill('Lawson');
+    await page.waitForTimeout(1200);
+
+    // Verify search is expanded and results are visible
+    await expect(searchInput).toHaveClass(/expanded/);
+    await expect(searchResults).toHaveClass(/visible/, { timeout: 3000 });
+
+    // Click the "Show Route on Map" toggle using JavaScript to ensure event fires
+    const routeToggle = page.locator('#toggle-scenic-route');
+    await routeToggle.evaluate(el => el.click());
+
+    // Wait for search to close (with timeout for stability)
+    await page.waitForFunction(() => {
+      const input = document.getElementById('map-search-input');
+      const results = document.getElementById('map-search-results');
+      return input && !input.classList.contains('expanded') &&
+             results && !results.classList.contains('visible');
+    }, { timeout: 3000 }).catch(() => {});
+
+    // Verify search input collapsed and results hidden
+    const inputExpanded = await searchInput.evaluate(el => el.classList.contains('expanded'));
+    const resultsVisible = await searchResults.evaluate(el => el.classList.contains('visible'));
+
+    expect(inputExpanded).toBe(false);
+    expect(resultsVisible).toBe(false);
+  });
+
+  test('search should close when clicking sidebar controls', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('.leaflet-container', { state: 'visible' });
+    await page.waitForTimeout(1500);
+
+    // Open search and type something
+    const searchButton = page.locator('#map-search-btn');
+    const searchInput = page.locator('#map-search-input');
+    const searchResults = page.locator('#map-search-results');
+
+    await searchButton.click();
+    await page.waitForTimeout(300);
+    await searchInput.fill('Lawson');
+    await page.waitForTimeout(1200);
+
+    // Verify search is expanded and results are visible
+    await expect(searchInput).toHaveClass(/expanded/);
+    await expect(searchResults).toHaveClass(/visible/, { timeout: 3000 });
+
+    // Click a category filter checkbox using JavaScript
+    const breweryFilter = page.locator('#filter-breweries');
+    await breweryFilter.evaluate(el => el.click());
+
+    // Wait for search to close (with timeout for stability)
+    await page.waitForFunction(() => {
+      const input = document.getElementById('map-search-input');
+      const results = document.getElementById('map-search-results');
+      return input && !input.classList.contains('expanded') &&
+             results && !results.classList.contains('visible');
+    }, { timeout: 3000 }).catch(() => {});
+
+    // Verify search collapsed
+    const inputExpanded = await searchInput.evaluate(el => el.classList.contains('expanded'));
+    const resultsVisible = await searchResults.evaluate(el => el.classList.contains('visible'));
+
+    expect(inputExpanded).toBe(false);
+    expect(resultsVisible).toBe(false);
+  });
 });
 
 test.describe('Initial Map View', () => {

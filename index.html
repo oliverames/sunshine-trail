@@ -5231,6 +5231,9 @@
             const zoomHintEl = document.getElementById('zoom-hint');
             const routeToggleContainer = document.getElementById('route-toggle-container');
 
+            // Close search when toggling route
+            if (window.collapseSearch) window.collapseSearch();
+
             if (this.checked) {
                 // Show loading spinner FIRST - let it render before heavy operations
                 routeToggleContainer.classList.add('loading');
@@ -5806,6 +5809,20 @@
         const mapSearchResults = document.getElementById('map-search-results');
         let searchExpanded = false;
 
+        // Helper function to collapse search (closes input and results)
+        // This is called when user interacts with other UI elements
+        function collapseSearch() {
+            if (searchExpanded && mapSearchInput && mapSearchResults) {
+                searchExpanded = false;
+                mapSearchInput.classList.remove('expanded');
+                mapSearchInput.value = '';
+                mapSearchResults.classList.remove('visible');
+            }
+        }
+
+        // Expose collapseSearch globally so other sections can use it
+        window.collapseSearch = collapseSearch;
+
         if (mapSearchBtn && mapSearchInput && mapSearchResults) {
             // Toggle search input expansion
             mapSearchBtn.addEventListener('click', () => {
@@ -5825,15 +5842,23 @@
                 }
             });
 
-            // Close search when clicking outside
+            // Close search when clicking outside search control
             document.addEventListener('click', (e) => {
                 if (searchExpanded && !e.target.closest('#map-search-control')) {
-                    searchExpanded = false;
-                    mapSearchInput.classList.remove('expanded');
-                    mapSearchInput.value = '';
-                    mapSearchResults.classList.remove('visible');
+                    collapseSearch();
                 }
             });
+
+            // Also close search when clicking anywhere in sidebar (except search control)
+            // This ensures interactions like checkboxes, toggles, etc. close the search
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.addEventListener('click', (e) => {
+                    if (searchExpanded && !e.target.closest('#map-search-control')) {
+                        collapseSearch();
+                    }
+                }, true); // Use capture phase to ensure this fires before other handlers
+            }
 
             // Fuzzy search function for listings
             function searchListings(query) {
@@ -5910,10 +5935,7 @@
                         e.stopPropagation();
 
                         // Close search first
-                        searchExpanded = false;
-                        mapSearchInput.classList.remove('expanded');
-                        mapSearchInput.value = '';
-                        mapSearchResults.classList.remove('visible');
+                        collapseSearch();
 
                         // Find the marker first
                         let targetMarker = null;
@@ -5964,10 +5986,7 @@
                         e.stopPropagation();
 
                         // Close search first
-                        searchExpanded = false;
-                        mapSearchInput.classList.remove('expanded');
-                        mapSearchInput.value = '';
-                        mapSearchResults.classList.remove('visible');
+                        collapseSearch();
 
                         // Fly to location using viewport-aware utility
                         flyToWithOffset(L.latLng(loc.lat, loc.lng), 12);
@@ -6505,8 +6524,9 @@
             snowflake.style.setProperty('--sway4', (swayBase * -0.2 + (Math.random() - 0.5) * 25) + 'px');
 
             // Variable fall duration for natural continuous effect (avoids "wave" pattern)
-            const duration = 6 + Math.random() * 6;  // 6-12 seconds
-            const delay = Math.random() * 0.3;
+            // Wide range ensures snowflakes finish at different times for steady coverage
+            const duration = 5 + Math.random() * 12;  // 5-17 seconds (wider spread)
+            const delay = Math.random() * 0.5;
             snowflake.style.animation = `snowfall ${duration}s linear ${delay}s forwards`;
 
             document.body.appendChild(snowflake);
@@ -6527,25 +6547,25 @@
             freezeOverlay.classList.add('active');
 
             // Create initial burst of snowflakes from the top
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 30; i++) {
                 setTimeout(() => {
                     if (isSnowing) createSnowflake();
-                }, i * 40);  // Staggered over ~800ms
+                }, i * 30);  // Staggered over ~900ms
             }
 
             // Start continuous creation - this is the key to avoiding gaps
             // Fast enough interval ensures steady coverage as flakes fall
             snowInterval = setInterval(() => {
-                if (isSnowing && snowflakes.length < 80) {
+                if (isSnowing && snowflakes.length < 120) {
                     createSnowflake();
-                    // Add extra flakes randomly for natural density variation
-                    if (Math.random() > 0.5) {
+                    // Add extra flakes randomly for natural density variation (70% chance)
+                    if (Math.random() > 0.3) {
                         setTimeout(() => {
                             if (isSnowing) createSnowflake();
-                        }, 30 + Math.random() * 40);
+                        }, 20 + Math.random() * 30);
                     }
                 }
-            }, 80);  // Fast interval for continuous coverage
+            }, 60);  // Faster interval for denser continuous coverage
         }
 
         function stopSnow() {
