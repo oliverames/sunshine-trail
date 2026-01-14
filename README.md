@@ -2,7 +2,7 @@
 
 **Mountain communities. Outdoor adventures. Cold beer.**
 
-An interactive digital map experience connecting Lawson's Finest Liquids from Waitsfield, Vermont to Asheville, North Carolina—791 miles of shared culture, outdoor adventure, and community impact.
+An interactive microsite built as a conceptual campaign for Lawson's Finest Liquids—a digital map experience connecting Waitsfield, Vermont to Asheville, North Carolina across 791 miles of shared culture, outdoor adventure, and community impact.
 
 > "Explore the sunshine spots from Waitsfield, Vermont to Asheville, North Carolina. Discover retailers, hiking trails, river put-ins, and the community organizations we support along the way."
 
