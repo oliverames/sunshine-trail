@@ -1491,7 +1491,6 @@
             font-size: 1.25rem;
             border-radius: 50px;
             text-decoration: none;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
             border: none;
         }
 
@@ -2024,13 +2023,7 @@
             font-size: 1.1rem;
             color: #1a1a1a;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
             text-align: center;
-        }
-
-        .get-itinerary-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 199, 45, 0.4);
         }
 
         .route-legend-item {
@@ -2253,18 +2246,8 @@
             font-weight: 700;
             font-size: 1.1rem;
             cursor: pointer;
-            transition: background 0.2s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
-        }
-
-        .email-submit:hover {
-            background: #e6b328;
-        }
-
-        .email-submit:active {
-            background: #d4a520;
         }
 
         /* Ripple effect for submit button */
@@ -4387,6 +4370,10 @@
                     padding: [40, 40]
                 });
             }
+            // Mark initial load complete after a short delay to allow zoom events to finish
+            setTimeout(function() {
+                window.isInitialLoad = false;
+            }, 200);
         }, 100);
 
         // Custom cluster click handler - zoom with sidebar padding
@@ -4660,9 +4647,11 @@
 
         // Track if user has interacted with zoom controls
         let userHasZoomed = false;
+        window.isInitialLoad = true;  // Flag to prevent initial fitBounds from hiding zoom hint
 
-        // Hide zoom hint on any zoom interaction
+        // Hide zoom hint on any zoom interaction (but not during initial load)
         map.on('zoomstart', function() {
+            if (window.isInitialLoad) return;  // Don't hide during initial view fit
             userHasZoomed = true;
             zoomHint.classList.add('hidden');
         });
@@ -6420,9 +6409,9 @@
             snowflake.style.setProperty('--sway3', (swayBase * 0.3 + (Math.random() - 0.5) * 35) + 'px');
             snowflake.style.setProperty('--sway4', (swayBase * -0.2 + (Math.random() - 0.5) * 25) + 'px');
 
-            // Constant fall duration with small delay variation
-            const duration = 8;
-            const delay = Math.random() * 0.4;
+            // Variable fall duration for natural continuous effect (avoids "wave" pattern)
+            const duration = 6 + Math.random() * 6;  // 6-12 seconds
+            const delay = Math.random() * 0.3;
             snowflake.style.animation = `snowfall ${duration}s linear ${delay}s forwards`;
 
             document.body.appendChild(snowflake);
