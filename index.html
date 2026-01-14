@@ -1308,16 +1308,17 @@
 
         .map-search-results {
             position: absolute;
-            bottom: 60px; /* Float above the expanded text box and button */
-            right: 0;
-            width: 300px;
+            bottom: 60px; /* Float above the input */
+            right: 71px; /* Position above input: 15px (container right) + 48px (button) + 8px (gap) */
+            width: 320px; /* Same width as expanded input */
             max-height: 300px;
             overflow-y: auto;
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.2);
             display: none;
-            z-index: 1001;
+            z-index: 1002;
+            pointer-events: auto;
         }
 
         .map-search-results.visible {
@@ -1398,8 +1399,9 @@
             }
 
             .map-search-results {
-                width: 250px;
+                width: 260px; /* Match mobile input width */
                 bottom: 56px; /* Account for larger button */
+                right: 56px; /* 48px button + 8px gap (no extra right margin on mobile) */
             }
         }
 
@@ -1415,9 +1417,9 @@
             }
 
             .map-search-results {
-                width: calc(100vw - 40px);
+                width: calc(100vw - 90px); /* Match input width on narrow screens */
                 min-width: 220px;
-                right: 0;
+                right: 56px; /* Position above input */
             }
         }
 
