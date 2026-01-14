@@ -501,6 +501,8 @@
             width: 36px;
             height: 36px;
             object-fit: contain;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
         }
 
         main {
@@ -946,6 +948,16 @@
             background: transparent !important;
             border: none !important;
             box-shadow: none !important;
+        }
+
+        /* Improve rendering of marker icons (some contain embedded PNGs) */
+        .leaflet-marker-icon img,
+        .marker-cluster-pill img {
+            image-rendering: -webkit-optimize-contrast; /* Chrome, Safari */
+            image-rendering: crisp-edges; /* Firefox */
+            -ms-interpolation-mode: nearest-neighbor; /* IE */
+            backface-visibility: hidden;
+            transform: translateZ(0); /* Force GPU rendering */
         }
 
         /* Cluster pill icon wave animation - matches letter wave (bounce up) */
