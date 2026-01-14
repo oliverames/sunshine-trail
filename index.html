@@ -5811,23 +5811,36 @@
 
         // Helper function to collapse search (closes input and results)
         // This is called when user interacts with other UI elements
+        // Always hides results regardless of searchExpanded state to handle edge cases
         function collapseSearch() {
-            if (searchExpanded && mapSearchInput && mapSearchResults) {
-                searchExpanded = false;
+            searchExpanded = false;
+            if (mapSearchInput) {
                 mapSearchInput.classList.remove('expanded');
                 mapSearchInput.value = '';
+                mapSearchInput.blur(); // Remove focus
+            }
+            if (mapSearchResults) {
                 mapSearchResults.classList.remove('visible');
+                mapSearchResults.innerHTML = ''; // Clear results content
             }
         }
 
         // Expose collapseSearch globally so other sections can use it
         window.collapseSearch = collapseSearch;
 
+        // Global Escape key handler - closes search from anywhere
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && (searchExpanded || mapSearchResults?.classList.contains('visible'))) {
+                collapseSearch();
+            }
+        });
+
         if (mapSearchBtn && mapSearchInput && mapSearchResults) {
             // Toggle search input expansion
             mapSearchBtn.addEventListener('click', () => {
-                searchExpanded = !searchExpanded;
-                if (searchExpanded) {
+                if (!searchExpanded) {
+                    // Expand search
+                    searchExpanded = true;
                     mapSearchInput.classList.add('expanded');
                     mapSearchInput.focus();
                     // Hide zoom hint when search is expanded (#11)
@@ -5836,15 +5849,16 @@
                         zoomHintEl.classList.add('hidden');
                     }
                 } else {
-                    mapSearchInput.classList.remove('expanded');
-                    mapSearchInput.value = '';
-                    mapSearchResults.classList.remove('visible');
+                    // Collapse search - use helper function for consistency
+                    collapseSearch();
                 }
             });
 
             // Close search when clicking outside search control
+            // Check both searchExpanded state AND if results are visible (handles edge cases)
             document.addEventListener('click', (e) => {
-                if (searchExpanded && !e.target.closest('#map-search-control')) {
+                const resultsVisible = mapSearchResults.classList.contains('visible');
+                if ((searchExpanded || resultsVisible) && !e.target.closest('#map-search-control')) {
                     collapseSearch();
                 }
             });
@@ -5854,7 +5868,8 @@
             const sidebar = document.getElementById('sidebar');
             if (sidebar) {
                 sidebar.addEventListener('click', (e) => {
-                    if (searchExpanded && !e.target.closest('#map-search-control')) {
+                    const resultsVisible = mapSearchResults.classList.contains('visible');
+                    if ((searchExpanded || resultsVisible) && !e.target.closest('#map-search-control')) {
                         collapseSearch();
                     }
                 }, true); // Use capture phase to ensure this fires before other handlers
@@ -6027,7 +6042,7 @@
                 }, 300);
             });
 
-            // Handle Enter key
+            // Handle Enter key for immediate search
             mapSearchInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
@@ -6041,12 +6056,8 @@
                             renderSearchResults(listingResults, locationResults);
                         })();
                     }
-                } else if (e.key === 'Escape') {
-                    searchExpanded = false;
-                    mapSearchInput.classList.remove('expanded');
-                    mapSearchInput.value = '';
-                    mapSearchResults.classList.remove('visible');
                 }
+                // Note: Escape key is handled by the global document keydown listener
             });
         }
 
