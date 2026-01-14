@@ -4365,6 +4365,30 @@
         // Add unified cluster to map
         unifiedCluster.addTo(map);
 
+        // Fit initial view to show all markers with sidebar offset
+        // Use setTimeout to ensure cluster is fully rendered before calculating bounds
+        setTimeout(function() {
+            const clusterBounds = unifiedCluster.getBounds();
+            if (clusterBounds.isValid()) {
+                // Adapt maxZoom based on viewport - smaller screens need to zoom out more
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                let initialMaxZoom = 6;  // Default for large/wide screens
+
+                if (viewportWidth < 768 || viewportHeight < 600) {
+                    initialMaxZoom = 4;  // Small phones and narrow/short viewports
+                } else if (viewportWidth < 1200) {
+                    initialMaxZoom = 5;  // Tablets and medium screens
+                }
+
+                fitBoundsWithSidebarOffset(clusterBounds, {
+                    animate: false,  // No animation on initial load
+                    maxZoom: initialMaxZoom,
+                    padding: [40, 40]
+                });
+            }
+        }, 100);
+
         // Custom cluster click handler - zoom with sidebar padding
         unifiedCluster.on('clusterclick', function(e) {
             const cluster = e.layer;
