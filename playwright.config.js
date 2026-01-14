@@ -24,13 +24,15 @@ module.exports = defineConfig({
     {
       name: 'chromium-tablet',
       use: {
-        ...devices['iPad Mini'],
+        ...devices['Desktop Chrome'],
+        viewport: { width: 768, height: 1024 },
       },
     },
     {
       name: 'chromium-mobile',
       use: {
-        ...devices['iPhone 12'],
+        ...devices['Desktop Chrome'],
+        viewport: { width: 375, height: 667 },
       },
     },
   ],

@@ -374,6 +374,35 @@ The location capture enables geo-targeted content:
 
 ---
 
+## Strategic Decision Points
+
+Throughout development, several strategic decisions were made to enhance the user experience and protect the brand:
+
+### Content Protection
+- **Copy protection enabled** — All site content is protected from copying via CSS `user-select: none` and JavaScript event prevention. This protects brand assets, impact stories, and curated content while still allowing users to copy text they enter into form fields.
+
+### Responsive Design Philosophy
+- **Safe area concept** — The map viewport is divided into a "safe area" that accounts for the floating sidebar overlay. All marker clusters are positioned within this visible area to ensure nothing is hidden under UI elements.
+- **Adaptive zoom levels** — Initial map zoom adapts to viewport size: smaller screens zoom out more to show the full trail, while larger screens can show more detail.
+- **Mobile-first interactions** — Touch events (touchstart, touchend) are implemented alongside click handlers for full mobile compatibility.
+
+### Animation & Performance
+- **Continuous snowflake effect** — Snowflakes use variable fall durations (6-12 seconds) to create a natural, continuous falling pattern rather than synchronized "waves."
+- **GPU-accelerated animations** — CSS transforms use `will-change` and `backface-visibility: hidden` for smooth 60fps animations.
+
+### Button Behavior Consistency
+- **Standardized hover states** — All yellow CTA buttons (Get Itinerary, Send My Itinerary, Our Beers) use only the wave text animation on hover—no transform, box-shadow, or color changes. This creates brand consistency.
+
+### UX Guardrails
+- **Zoom hint persistence** — The "Zoom for detail" button remains visible until the user actively interacts with zoom controls, search, or pinch gestures—not during automatic map adjustments.
+- **Auto-scroll on mobile** — When selecting a state filter on mobile, the page automatically scrolls to bring the map into view.
+- **Popup auto-close** — Only one location popup can be open at a time; selecting a new location automatically closes any existing popup.
+
+### Quality Assurance
+- **Automated testing** — Playwright test suite covers zoom hint visibility, search functionality, initial map view across viewports, and copy protection behavior.
+
+---
+
 ## Project Status
 
 This is a demonstration project created for a job interview—not operated by or affiliated with Lawson's Finest Liquids. This wasn't part of the prompt they gave me—it's something I cooked up on my own. I'm super proud of it, though there's still some work to do to make it a little less buggy.

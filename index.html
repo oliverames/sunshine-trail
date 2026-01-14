@@ -42,6 +42,14 @@
             box-sizing: border-box;
         }
 
+        /* Allow text selection in input fields */
+        input, textarea {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
         html, body {
             height: 100%;
             overflow: hidden;
@@ -57,6 +65,11 @@
             background-color: var(--light-gold);
             color: var(--deep-brown);
             display: flex;
+            /* Prevent text selection and copying */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
             flex-direction: column;
         }
 
@@ -81,14 +94,26 @@
 
         /* Stack tagline under title when viewport is too narrow */
         @media (max-width: 1100px) and (min-width: 769px) {
+            header {
+                flex-wrap: nowrap;
+            }
+
             .logo-section {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 0.25rem;
+                flex-shrink: 0;
             }
 
             .tagline {
-                font-size: 1.1rem;
+                font-size: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+                white-space: nowrap;
+                word-break: keep-all;
+                overflow-wrap: normal;
             }
         }
 
@@ -2465,7 +2490,7 @@
             </div>
 
             <div class="state-filter-section">
-                <h3>Community Partners by State</h3>
+                <h3>Filter by State</h3>
                 <div class="state-buttons">
                     <button class="state-btn all-states active" data-state="all">All States</button>
                     <button class="state-btn" data-state="VT">VT</button>
@@ -4163,10 +4188,11 @@
             }
 
             // Calculate padding dynamically based on actual sidebar width
-            const leftPadding = viewport.sidebarWidth + 40; // sidebar + margin
-            const rightPadding = 60; // buffer for pill clusters
-            const topPadding = 60;
-            const bottomPadding = 100;
+            // Pill clusters can be 150-200px wide, so we need generous padding
+            const leftPadding = viewport.sidebarWidth + 120; // sidebar + margin + pill buffer
+            const rightPadding = 140; // buffer for pill clusters on right edge
+            const topPadding = 80;
+            const bottomPadding = 140; // space for zoom hint button
 
             map.fitBounds(bounds, {
                 ...options,
@@ -4476,6 +4502,17 @@
 
         document.getElementById('filter-chargers').addEventListener('change', function() {
             visibleCategories.charger = this.checked;
+
+            // If user tries to enable chargers, also enable the route (chargers are only relevant along the route)
+            if (this.checked) {
+                const routeCheckbox = document.getElementById('toggle-scenic-route');
+                if (routeCheckbox && !routeCheckbox.checked) {
+                    routeCheckbox.checked = true;
+                    // Trigger the change event to load the route
+                    routeCheckbox.dispatchEvent(new Event('change'));
+                }
+            }
+
             refreshUnifiedCluster();
         });
 
@@ -6593,6 +6630,35 @@
             typeof DeviceOrientationEvent.requestPermission !== 'function') {
             window.addEventListener('deviceorientation', handleDeviceOrientation);
         }
+
+        // ============================================
+        // COPY PROTECTION
+        // Prevents copying of site content (except user input fields)
+        // ============================================
+        document.addEventListener('copy', function(e) {
+            // Allow copying from input fields
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            e.preventDefault();
+        });
+
+        document.addEventListener('cut', function(e) {
+            // Allow cutting from input fields
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            e.preventDefault();
+        });
+
+        // Prevent right-click context menu (optional additional protection)
+        document.addEventListener('contextmenu', function(e) {
+            // Allow context menu on input fields
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            e.preventDefault();
+        });
 
         // ============================================
         // CLEANUP ON PAGE UNLOAD
