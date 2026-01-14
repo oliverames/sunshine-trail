@@ -208,6 +208,18 @@
             }
         }
 
+        /* Larger fidget sun on bigger phones (iPhone Pro Max, etc.) */
+        @media (max-width: 768px) and (min-width: 390px) {
+            .fidget-sun-sidebar .fidget-sun {
+                width: 100px;
+                height: 100px;
+            }
+
+            .fidget-sun-sidebar {
+                padding: 35px 45px;
+            }
+        }
+
 
         .header-title-link {
             text-decoration: none;
@@ -443,6 +455,46 @@
             .snowflake.thawing {
                 transition: opacity 3s ease-out; /* Longer fade on mobile */
             }
+        }
+
+        /* Snow close button (mobile only) - matches popup close button style */
+        .snow-close-button {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 36px;
+            height: 36px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            z-index: 10001;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .snow-close-button.visible {
+            display: block;
+            opacity: 1;
+        }
+
+        .snow-close-button::before {
+            content: '';
+            display: block;
+            width: 18px;
+            height: 18px;
+            background: url('assets/images/close.svg') no-repeat center center;
+            background-size: contain;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .snow-close-button:hover {
+            background-color: rgba(255, 255, 255, 1);
         }
 
         .filter-icon {
@@ -2321,6 +2373,7 @@
 <body>
     <!-- Freeze overlay for cold beer hover effect -->
     <div class="freeze-overlay" id="freeze-overlay"></div>
+    <button class="snow-close-button" id="snow-close-button" aria-label="Stop snow effect"></button>
 
     <!-- God rays glow overlay - fixed position, highest z-index -->
     <div id="god-rays-glow">
@@ -2633,30 +2686,46 @@
             keepBuffer: 4
         }).addTo(map);
 
-        // Handle window resize - preserve map view
+        // Handle window resize
+        // If user has zoomed: preserve their current view
+        // If user hasn't zoomed: recenter to fit all markers in safe area
         let resizeTimeout;
         let lastBounds = null;
 
-        // Store current bounds before resize
-        function saveCurrentBounds() {
-            lastBounds = map.getBounds();
-        }
-
-        // Restore bounds after resize
-        function restoreBounds() {
-            if (lastBounds) {
-                map.invalidateSize();
-                map.fitBounds(lastBounds, { animate: false });
-            }
-        }
-
         window.addEventListener('resize', function() {
             if (!lastBounds) {
-                saveCurrentBounds();
+                lastBounds = map.getBounds();
             }
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(function() {
-                restoreBounds();
+                map.invalidateSize();
+
+                // Check if unifiedCluster exists and user hasn't manually zoomed
+                if (typeof unifiedCluster !== 'undefined' && !userHasZoomed) {
+                    // Recenter to fit all markers
+                    const clusterBounds = unifiedCluster.getBounds();
+                    if (clusterBounds && clusterBounds.isValid()) {
+                        const viewportWidth = window.innerWidth;
+                        const viewportHeight = window.innerHeight;
+                        let maxZoom = 6;
+
+                        if (viewportWidth < 768 || viewportHeight < 600) {
+                            maxZoom = 4;
+                        } else if (viewportWidth < 1200) {
+                            maxZoom = 5;
+                        }
+
+                        fitBoundsWithSidebarOffset(clusterBounds, {
+                            animate: true,
+                            duration: 0.5,
+                            maxZoom: maxZoom,
+                            padding: [40, 40]
+                        });
+                    }
+                } else if (lastBounds) {
+                    // User has zoomed - restore their view
+                    map.fitBounds(lastBounds, { animate: false });
+                }
                 lastBounds = null;
             }, 150);
         });
@@ -4270,7 +4339,7 @@
             spiderfyOnMaxZoom: true,  // Spider out only when can't zoom any further
             zoomToBoundsOnClick: false,  // We'll handle this manually with sidebar padding
             disableClusteringAtZoom: 17,  // Separate markers at zoom 17+
-            maxClusterRadius: 120,  // Balance between visibility and overlap
+            maxClusterRadius: 160,  // Larger radius to prevent overlapping pill clusters
             iconCreateFunction: createUnifiedClusterIcon,
             spiderLegPolylineOptions: { weight: 2, color: '#ffc72d', opacity: 0.6 },
             spiderfyDistanceMultiplier: 1.8,  // More spread out spider
@@ -4416,28 +4485,15 @@
 
             const bounds = cluster.getBounds();
 
-            // Calculate target zoom based on cluster size and current zoom
-            // Smaller clusters should zoom in more aggressively
-            let minZoom = currentZoom + 2;
-            if (childCount <= 10) minZoom = currentZoom + 3;
-            if (childCount <= 5) minZoom = currentZoom + 4;
-
+            // Zoom to show all markers in the cluster within safe area
+            // Use fitBoundsWithSidebarOffset which respects the sidebar
             fitBoundsWithSidebarOffset(bounds, {
                 animate: true,
                 duration: 0.6,
                 easeLinearity: 0.25,
-                maxZoom: 16,
-                padding: [50, 50]  // Add padding to ensure markers aren't at edge
+                maxZoom: 15,  // Don't zoom in too far, let user click again if needed
+                padding: [60, 60]  // Generous padding to keep markers visible
             });
-
-            // If zoom didn't change much, force a bigger zoom
-            setTimeout(() => {
-                const newZoom = map.getZoom();
-                if (newZoom < minZoom && newZoom < 15) {
-                    const center = bounds.getCenter();
-                    map.setView(center, Math.min(minZoom, 15), { animate: true, duration: 0.5 });
-                }
-            }, 700);
         });
 
 
@@ -6468,27 +6524,26 @@
             isSnowing = true;
             freezeOverlay.classList.add('active');
 
-            // Create initial burst of snowflakes spread across the screen
-            for (let i = 0; i < 25; i++) {
+            // Create initial burst of snowflakes from the top
+            for (let i = 0; i < 20; i++) {
                 setTimeout(() => {
-                    // Only create if still snowing (prevents creation during thaw)
                     if (isSnowing) createSnowflake();
-                }, i * 60);
+                }, i * 40);  // Staggered over ~800ms
             }
 
-            // Start continuous creation immediately (runs alongside initial burst)
+            // Start continuous creation - this is the key to avoiding gaps
+            // Fast enough interval ensures steady coverage as flakes fall
             snowInterval = setInterval(() => {
-                // Only create if still snowing
-                if (isSnowing && snowflakes.length < 70) {
+                if (isSnowing && snowflakes.length < 80) {
                     createSnowflake();
-                    // Create extra snowflakes randomly for density
+                    // Add extra flakes randomly for natural density variation
                     if (Math.random() > 0.5) {
                         setTimeout(() => {
                             if (isSnowing) createSnowflake();
-                        }, 50);
+                        }, 30 + Math.random() * 40);
                     }
                 }
-            }, 100);
+            }, 80);  // Fast interval for continuous coverage
         }
 
         function stopSnow() {
@@ -6515,37 +6570,70 @@
             }, 2600);
         }
 
+        // Snow close button for mobile
+        const snowCloseButton = document.getElementById('snow-close-button');
+        let snowActivatedByTap = false;  // Track if snow was activated by tap (vs hold)
+
+        function showSnowCloseButton() {
+            if (snowCloseButton) {
+                snowCloseButton.classList.add('visible');
+            }
+        }
+
+        function hideSnowCloseButton() {
+            if (snowCloseButton) {
+                snowCloseButton.classList.remove('visible');
+            }
+        }
+
+        if (snowCloseButton) {
+            snowCloseButton.addEventListener('click', function() {
+                snowActivatedByTap = false;
+                stopSnow();
+                hideSnowCloseButton();
+            });
+        }
+
         if (coldBeerElement) {
             // Check if device supports hover (has a pointer like mouse/trackpad)
             const hasHover = window.matchMedia('(hover: hover)').matches;
 
             if (hasHover) {
-                // Desktop: use hover behavior
+                // Desktop: use hover behavior (like sunshine effect)
                 coldBeerElement.addEventListener('mouseenter', startSnow);
                 coldBeerElement.addEventListener('mouseleave', stopSnow);
             }
 
-            // Touch/tap support - tap to toggle (works on all devices)
-            coldBeerElement.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                if (isSnowing) {
-                    stopSnow();
-                } else {
-                    startSnow();
-                }
-            }, { passive: false });
+            // Mobile: supports both tap-to-toggle AND touch-and-hold
+            let touchStartTime = 0;
+            let touchHoldThreshold = 300; // ms - holds longer than this are "hold" mode
 
-            // For non-hover devices, also support click to toggle
-            if (!hasHover) {
-                coldBeerElement.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    if (isSnowing) {
+            coldBeerElement.addEventListener('touchstart', function(e) {
+                touchStartTime = Date.now();
+                startSnow();
+            }, { passive: true });
+
+            coldBeerElement.addEventListener('touchend', function() {
+                const touchDuration = Date.now() - touchStartTime;
+
+                if (touchDuration < touchHoldThreshold) {
+                    // Short tap - toggle mode, show close button
+                    snowActivatedByTap = true;
+                    showSnowCloseButton();
+                    // Don't stop snow - let user close with button
+                } else {
+                    // Long hold - stop when released (like sunshine)
+                    if (!snowActivatedByTap) {
                         stopSnow();
-                    } else {
-                        startSnow();
                     }
-                });
-            }
+                }
+            }, { passive: true });
+
+            coldBeerElement.addEventListener('touchcancel', function() {
+                if (!snowActivatedByTap) {
+                    stopSnow();
+                }
+            }, { passive: true });
         }
 
         // ============================================
@@ -6561,30 +6649,29 @@
             // gamma is left-right tilt (-90 to 90)
             const tilt = event.gamma || 0;
 
-            // Convert tilt to wind offset (negative tilt = wind from left, positive = wind from right)
-            targetWindOffset = tilt * 2; // Scale factor for wind strength
-
-            // Apply wind effect to all snowflakes
-            snowflakes.forEach(flake => {
-                if (!flake.classList.contains('melting')) {
-                    const currentLeft = parseFloat(flake.style.left) || 50;
-                    // Add wind drift based on tilt
-                    const drift = tilt * 0.15;
-                    flake.style.marginLeft = drift + 'px';
-                }
-            });
+            // Convert tilt to wind - balanced effect (not too subtle, not too extreme)
+            const clampedTilt = Math.max(-50, Math.min(50, tilt));
+            // Happy medium - noticeable and whimsical but not overwhelming
+            targetWindOffset = clampedTilt * 4; // Up to ~200px drift at max tilt
         }
 
-        // Smooth wind animation loop
+        // Smooth wind animation loop - applies drift to snowflakes
         function animateWind() {
-            windOffset += (targetWindOffset - windOffset) * 0.1;
+            // Smooth interpolation for natural, responsive feel
+            windOffset += (targetWindOffset - windOffset) * 0.15;
 
             if (isSnowing && snowflakes.length > 0) {
-                snowflakes.forEach((flake, index) => {
-                    if (!flake.classList.contains('melting')) {
+                snowflakes.forEach((flake) => {
+                    if (!flake.classList.contains('melting') && !flake.classList.contains('thawing')) {
                         // Apply varying wind effect based on snowflake "weight" (size)
+                        // Smaller flakes are lighter and drift more
                         const size = parseFloat(flake.style.fontSize) || 1.5;
-                        const windEffect = windOffset * (2 - size * 0.5); // Smaller flakes drift more
+                        const weightFactor = 2.5 - size * 0.6; // Range ~0.7 to ~1.9
+
+                        // Calculate drift
+                        const windEffect = windOffset * weightFactor;
+
+                        // Apply as marginLeft (works alongside CSS animation transform)
                         flake.style.marginLeft = windEffect + 'px';
                     }
                 });
