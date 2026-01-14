@@ -6564,33 +6564,67 @@
             }, (duration + delay) * 1000);
         }
 
+        // Create a snowflake already partway through its fall (for pre-filling viewport)
+        function createSnowflakeAtProgress(progress) {
+            const snowflake = document.createElement('div');
+            snowflake.className = 'snowflake';
+            snowflake.textContent = ['❄', '❅', '❆', '✻', '✼', '❄', '❅'][Math.floor(Math.random() * 7)];
+            snowflake.style.left = Math.random() * 100 + 'vw';
+
+            const size = 1.2 + Math.random() * 1.3;
+            snowflake.style.fontSize = size + 'rem';
+
+            const spinDirection = Math.random() > 0.5 ? 1 : -1;
+            const spinAmount = (180 + Math.random() * 540) * spinDirection;
+            snowflake.style.setProperty('--spin', spinAmount + 'deg');
+
+            const swayBase = (Math.random() - 0.5) * 60;
+            snowflake.style.setProperty('--sway1', (swayBase + (Math.random() - 0.5) * 30) + 'px');
+            snowflake.style.setProperty('--sway2', (swayBase * -0.5 + (Math.random() - 0.5) * 40) + 'px');
+            snowflake.style.setProperty('--sway3', (swayBase * 0.3 + (Math.random() - 0.5) * 35) + 'px');
+            snowflake.style.setProperty('--sway4', (swayBase * -0.2 + (Math.random() - 0.5) * 25) + 'px');
+
+            // Use negative delay to start animation partway through
+            const duration = 5 + Math.random() * 12;
+            const negativeDelay = -progress * duration; // Negative delay starts animation in progress
+            snowflake.style.animation = `snowfall ${duration}s linear ${negativeDelay}s forwards`;
+
+            document.body.appendChild(snowflake);
+            snowflakes.push(snowflake);
+
+            // Remaining time until animation completes
+            const remainingTime = duration * (1 - progress);
+            setTimeout(() => {
+                if (snowflake.parentNode) snowflake.remove();
+                snowflakes = snowflakes.filter(s => s !== snowflake);
+            }, remainingTime * 1000);
+        }
+
         function startSnow() {
             if (isSnowing) return;
             isSnowing = true;
             freezeOverlay.classList.add('active');
 
-            // Create initial burst of snowflakes from the top
-            for (let i = 0; i < 50; i++) {
+            // Large initial burst from the top - creates the "snow just started" effect
+            // Spread over 3 seconds to overlap with continuous creation
+            for (let i = 0; i < 150; i++) {
                 setTimeout(() => {
                     if (isSnowing) createSnowflake();
-                }, i * 20);  // Staggered over ~1000ms
+                }, i * 20);  // 150 flakes over 3 seconds
             }
 
-            // Start continuous creation - matches initial burst density
-            // Creates 3-4 snowflakes every 40ms to maintain heavy snowfall
+            // Start continuous creation immediately at high rate
+            // This ensures no gap as initial burst flakes fall
             snowInterval = setInterval(() => {
-                if (isSnowing && snowflakes.length < 250) {
-                    // Create multiple flakes per interval for heavy snow
+                if (isSnowing && snowflakes.length < 300) {
                     createSnowflake();
                     createSnowflake();
-                    if (Math.random() > 0.4) {
-                        createSnowflake();
-                    }
-                    if (Math.random() > 0.7) {
+                    createSnowflake();
+                    if (Math.random() > 0.5) {
                         createSnowflake();
                     }
                 }
-            }, 40);  // Fast interval for heavy continuous snowfall
+            }, 35);  // Faster interval, more flakes per tick
         }
 
         function stopSnow() {
