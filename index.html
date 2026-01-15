@@ -11,6 +11,14 @@
     <meta name="color-scheme" content="light">
     <meta name="supported-color-schemes" content="light">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <!-- Early auth check - runs before body parses to prevent any flash of password page -->
+    <script>
+        if (localStorage.getItem('sunshineTrailAuth') === 'true') {
+            document.documentElement.classList.add('authenticated');
+            // Update theme color to white immediately
+            document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.content = '#ffffff');
+        }
+    </script>
     <link rel="icon" type="image/png" href="assets/images/favicon.png">
     <link rel="apple-touch-icon" href="assets/images/favicon.png">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
@@ -1421,7 +1429,7 @@
             /* Mobile search expands to full width of map */
             .map-search-input.expanded {
                 width: calc(100vw - 95px); /* Full width minus button, gap, and padding */
-                padding: 0 16px; /* Horizontal padding only - height handles vertical */
+                padding: 0 16px;
                 font-size: 1rem;
                 position: absolute;
                 right: 56px; /* Button width + gap */
@@ -1429,13 +1437,14 @@
                 bottom: 0;
             }
 
+            /* Full-width search results on mobile - fixed position for proper alignment */
             .map-search-results {
-                width: calc(100vw - 30px); /* Full map width with padding */
+                position: fixed;
+                left: 15px;
+                right: 15px;
+                width: auto;
                 max-height: calc(50vh - 200px); /* Fit within mobile map height */
-                bottom: 58px; /* Above the search input */
-                top: auto;
-                left: -200px; /* Align to left edge of map */
-                right: auto;
+                bottom: calc(50vh - 130px + 58px); /* Position above search input */
             }
         }
 
@@ -1446,13 +1455,13 @@
             }
 
             .map-search-input.expanded {
-                width: calc(100vw - 85px);
+                width: calc(100vw - 78px);
                 right: 56px;
             }
 
             .map-search-results {
-                width: calc(100vw - 20px);
-                left: -185px;
+                left: 10px;
+                right: 10px;
             }
         }
 
@@ -2547,6 +2556,11 @@
 
         /* Hide immediately for returning users - no transition */
         .password-overlay.instant-hidden {
+            display: none !important;
+        }
+
+        /* Hide password overlay when authenticated (set by early script in head) */
+        html.authenticated .password-overlay {
             display: none !important;
         }
 
