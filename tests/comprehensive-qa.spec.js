@@ -6,6 +6,14 @@ const { test, expect } = require('@playwright/test');
  * Tests all functionality across all viewports to find issues
  */
 
+// Global beforeEach to bypass password overlay for all tests
+test.beforeEach(async ({ page }) => {
+  // Set authentication before page loads to skip password overlay
+  await page.addInitScript(() => {
+    sessionStorage.setItem('sunshineTrailAuth', 'true');
+  });
+});
+
 // Helper to get viewport category
 function getViewportCategory(width) {
   if (width <= 428) return 'mobile';
