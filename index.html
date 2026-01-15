@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Sunshine Trail | Lawson's Finest Liquids</title>
     <meta name="description" content="Explore Sunshine Spots from Waitsfield, VT to Asheville, NC. Interactive map of retailers, hiking trails, river put-ins, and community partners along the Appalachian corridor.">
-    <meta name="theme-color" content="#ffffff">
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#f8e849">
+    <meta name="theme-color" content="#f8e849" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#f8e849" media="(prefers-color-scheme: dark)">
     <meta name="color-scheme" content="light">
     <meta name="supported-color-schemes" content="light">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -56,8 +56,8 @@
         }
 
         html {
-            /* White background for Safari tab bar color sampling */
-            background-color: #ffffff;
+            /* Yellow background for Safari tab bar color sampling */
+            background-color: #f8e849;
         }
 
         body {
@@ -92,8 +92,8 @@
             overflow: visible;
         }
 
-        /* Stack tagline under title when viewport is too narrow */
-        @media (max-width: 1100px) and (min-width: 769px) {
+        /* Stack tagline under title when viewport is too narrow for side-by-side with sun */
+        @media (max-width: 1280px) and (min-width: 769px) {
             header {
                 flex-wrap: nowrap;
             }
@@ -2213,29 +2213,38 @@
             transform: scale(1) translateY(0);
         }
 
+        /* Email modal close button - matches popup close button style */
         .email-modal-close {
             position: absolute;
             top: 15px;
             right: 15px;
-            background: rgba(61, 43, 31, 0.1);
+            background-color: rgba(255, 255, 255, 0.85);
             border: none;
             width: 36px;
             height: 36px;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            color: var(--deep-brown);
+            border-radius: 8px;
             cursor: pointer;
-            opacity: 0.8;
-            transition: opacity 0.2s, background-color 0.2s, transform 0.2s;
-            line-height: 1;
+            opacity: 0.9;
+            transition: opacity 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
+        .email-modal-close::before {
+            content: '';
+            display: block;
+            width: 16px;
+            height: 16px;
+            background: url('assets/images/close.svg') no-repeat center center;
+            background-size: contain;
+        }
+
         .email-modal-close:hover {
             opacity: 1;
-            background: rgba(61, 43, 31, 0.15);
+            background-color: rgba(255, 255, 255, 1);
         }
 
         .email-modal-close:active {
@@ -2246,9 +2255,13 @@
             .email-modal-close {
                 width: 44px;
                 height: 44px;
-                font-size: 1.8rem;
                 top: 12px;
                 right: 12px;
+            }
+
+            .email-modal-close::before {
+                width: 20px;
+                height: 20px;
             }
         }
 
@@ -2516,13 +2529,14 @@
         }
 
         /* Password Protection Overlay - presentation gate */
+        /* Styled to match email modal for consistency */
         .password-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: #f7e949;
+            background: #f8e849;
             z-index: 99999;
             display: flex;
             flex-direction: column;
@@ -2530,6 +2544,11 @@
             justify-content: center;
             padding: 2rem;
             transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        /* Hide immediately for returning users - no transition */
+        .password-overlay.instant-hidden {
+            display: none !important;
         }
 
         .password-overlay.hidden {
@@ -2544,12 +2563,39 @@
             width: 100%;
         }
 
+        /* Rotating sun for password modal */
+        .password-sun {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .fidget-sun-password {
+            width: 80px;
+            height: 80px;
+            cursor: grab;
+            user-select: none;
+            -webkit-user-drag: none;
+            transition: transform 0.05s linear;
+        }
+
+        .fidget-sun-password.spinning {
+            transition: none;
+        }
+
+        .password-sun:active {
+            cursor: grabbing;
+        }
+
         .password-overlay h1 {
             font-family: 'new-spirit', serif;
             font-weight: 800;
-            font-size: 2.5rem;
+            font-size: 1.75rem;
             color: var(--deep-brown);
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.75rem;
         }
 
         .password-overlay .welcome-text {
@@ -2568,47 +2614,69 @@
         }
 
         .password-input-container {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
+        /* Rounded pill input to match email modal */
         .password-input {
             width: 100%;
-            padding: 0.9rem 1rem;
-            border: 2px solid var(--deep-brown);
-            border-radius: 10px;
-            font-family: 'Open Sans', sans-serif;
+            padding: 1rem 1.25rem;
             font-size: 1rem;
-            background: #FFFDF7;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Open Sans', sans-serif;
+            transition: box-shadow 0.2s;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             color: var(--deep-brown);
             text-align: center;
             letter-spacing: 2px;
         }
 
         .password-input::placeholder {
-            color: rgba(61, 43, 31, 0.5);
+            color: #999;
             letter-spacing: normal;
         }
 
         .password-input:focus {
             outline: none;
-            border-color: var(--deep-brown);
-            box-shadow: 0 0 0 3px rgba(61, 43, 31, 0.1);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
         }
 
+        /* Gold pill button to match email modal */
         .password-submit {
             width: 100%;
-            padding: 0.9rem 1.5rem;
-            background: var(--deep-brown);
-            color: #f7e949;
+            padding: 1.1rem 2rem;
+            background: #ffc72d;
+            color: var(--deep-brown);
             border: none;
-            border-radius: 10px;
-            font-family: 'Open Sans', sans-serif;
-            font-weight: 600;
-            font-size: 1rem;
+            border-radius: 50px;
+            font-family: 'new-spirit', serif;
+            font-weight: 700;
+            font-size: 1.1rem;
             cursor: pointer;
             position: relative;
             overflow: hidden;
             transition: transform 0.2s ease;
+        }
+
+        /* Ripple effect for submit button */
+        .password-submit::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease, height 0.4s ease;
+        }
+
+        .password-submit:active::after {
+            width: 300px;
+            height: 300px;
         }
 
         .password-submit:hover {
@@ -2651,7 +2719,7 @@
 
         @media (max-width: 768px) {
             .password-overlay h1 {
-                font-size: 2rem;
+                font-size: 1.4rem;
             }
             .password-overlay .welcome-text {
                 font-size: 2.5rem;
@@ -2669,6 +2737,9 @@
     <!-- Password Protection Overlay - presentation gate -->
     <div class="password-overlay" id="password-overlay">
         <div class="password-overlay-content" id="password-content">
+            <div class="password-sun">
+                <img src="assets/images/fidget-sun.png" alt="Spin me!" class="fidget-sun-password" id="fidget-sun-password" draggable="false">
+            </div>
             <h1>The Sunshine Trail</h1>
             <div class="password-input-container">
                 <input type="password" class="password-input" id="password-input" placeholder="Enter password" autocomplete="off">
@@ -2934,7 +3005,7 @@
     <!-- Email Signup Modal -->
     <div class="email-modal-overlay" id="email-modal">
         <div class="email-modal">
-            <button class="email-modal-close" id="email-modal-close" aria-label="Close">&times;</button>
+            <button class="email-modal-close" id="email-modal-close" aria-label="Close"></button>
             <div class="email-modal-sun">
                 <img src="assets/images/fidget-sun.png" alt="Spin me!" class="fidget-sun-modal" id="fidget-sun-modal" draggable="false">
             </div>
@@ -2974,6 +3045,7 @@
         // ============================================
         // PASSWORD PROTECTION OVERLAY
         // Simple presentation gate (not for security)
+        // Uses localStorage for persistent caching
         // ============================================
         const passwordOverlay = document.getElementById('password-overlay');
         const passwordInput = document.getElementById('password-input');
@@ -2983,10 +3055,24 @@
         const welcomeText = document.getElementById('welcome-text');
         const correctPassword = 'hireme';
 
-        // Check if already authenticated this session
-        const isAuthenticated = sessionStorage.getItem('sunshineTrailAuth') === 'true';
+        // Track authentication state for email timer
+        window.siteRevealed = false;
+
+        // Check if already authenticated (persistent with localStorage)
+        const isAuthenticated = localStorage.getItem('sunshineTrailAuth') === 'true';
         if (isAuthenticated && passwordOverlay) {
+            // Hide immediately - no flash, no transition
+            passwordOverlay.classList.add('instant-hidden');
+            window.siteRevealed = true;
+        }
+
+        function completeAuthentication() {
             passwordOverlay.classList.add('hidden');
+            // Use localStorage for persistent caching
+            localStorage.setItem('sunshineTrailAuth', 'true');
+            // Signal that site is revealed (for email timer)
+            window.siteRevealed = true;
+            window.dispatchEvent(new CustomEvent('siteRevealed'));
         }
 
         function handlePasswordSubmit() {
@@ -3003,8 +3089,7 @@
                 }, 300);
 
                 setTimeout(() => {
-                    passwordOverlay.classList.add('hidden');
-                    sessionStorage.setItem('sunshineTrailAuth', 'true');
+                    completeAuthentication();
                 }, 1500);
             } else {
                 // Incorrect password - show error
@@ -3034,6 +3119,78 @@
             if (!isAuthenticated) {
                 setTimeout(() => passwordInput.focus(), 100);
             }
+        }
+
+        // ============================================
+        // FIDGET SUN SPINNER FOR PASSWORD MODAL
+        // Same physics as header fidget sun
+        // ============================================
+        const fidgetSunPassword = document.getElementById('fidget-sun-password');
+        const passwordSunContainer = document.querySelector('.password-sun');
+
+        if (fidgetSunPassword && passwordSunContainer && !isAuthenticated) {
+            let passwordSunRotation = 0;
+            let passwordSunVelocity = 0;
+            let passwordSunLastAngle = 0;
+            let passwordSunIsDragging = false;
+            let passwordSunAnimationFrame = null;
+
+            function getPasswordSunAngle(e, rect) {
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return Math.atan2(clientY - centerY, clientX - centerX) * (180 / Math.PI);
+            }
+
+            function startPasswordSunDrag(e) {
+                e.preventDefault();
+                passwordSunIsDragging = true;
+                fidgetSunPassword.classList.add('spinning');
+                const rect = fidgetSunPassword.getBoundingClientRect();
+                passwordSunLastAngle = getPasswordSunAngle(e, rect);
+                if (passwordSunAnimationFrame) cancelAnimationFrame(passwordSunAnimationFrame);
+            }
+
+            function movePasswordSunDrag(e) {
+                if (!passwordSunIsDragging) return;
+                e.preventDefault();
+                const rect = fidgetSunPassword.getBoundingClientRect();
+                const currentAngle = getPasswordSunAngle(e, rect);
+                let delta = currentAngle - passwordSunLastAngle;
+                if (delta > 180) delta -= 360;
+                if (delta < -180) delta += 360;
+                passwordSunRotation += delta;
+                passwordSunVelocity = delta * 0.8;
+                passwordSunLastAngle = currentAngle;
+                fidgetSunPassword.style.transform = `rotate(${passwordSunRotation}deg)`;
+            }
+
+            function endPasswordSunDrag() {
+                if (!passwordSunIsDragging) return;
+                passwordSunIsDragging = false;
+                fidgetSunPassword.classList.remove('spinning');
+
+                function spinDown() {
+                    if (Math.abs(passwordSunVelocity) > 0.1) {
+                        passwordSunRotation += passwordSunVelocity;
+                        passwordSunVelocity *= 0.97;
+                        fidgetSunPassword.style.transform = `rotate(${passwordSunRotation}deg)`;
+                        passwordSunAnimationFrame = requestAnimationFrame(spinDown);
+                    }
+                }
+                spinDown();
+            }
+
+            // Mouse events
+            passwordSunContainer.addEventListener('mousedown', startPasswordSunDrag);
+            document.addEventListener('mousemove', movePasswordSunDrag);
+            document.addEventListener('mouseup', endPasswordSunDrag);
+
+            // Touch events
+            passwordSunContainer.addEventListener('touchstart', startPasswordSunDrag, { passive: false });
+            document.addEventListener('touchmove', movePasswordSunDrag, { passive: false });
+            document.addEventListener('touchend', endPasswordSunDrag);
         }
 
         // Initialize the map with smooth scrolling and animations
@@ -4623,11 +4780,12 @@
         // ============================================
 
         // Get sidebar width in pixels based on screen size
+        // Must match CSS breakpoints: sidebar floats over map at viewport > 768px
         function getSidebarWidth() {
-            if (window.innerWidth <= 1200) return 0;  // Mobile/tablet - sidebar is below map
-            if (window.innerWidth >= 1800) return 500;
-            if (window.innerWidth >= 1400) return 460;
-            return 420;
+            if (window.innerWidth <= 768) return 0;  // Mobile - sidebar is below map (CSS: position: relative)
+            if (window.innerWidth >= 1800) return 500;  // CSS: width: 500px
+            if (window.innerWidth >= 1400) return 460;  // CSS: width: 460px
+            return 420;  // Default CSS: width: 420px (applies to 769-1399px)
         }
 
         // Get the visible map viewport dimensions (excluding sidebar overlay)
@@ -4677,8 +4835,8 @@
         // Get padding for fitBounds - account for sidebar floating over map
         // Left padding must be sidebar width + margins + buffer to keep pills visible
         function getSidebarPadding() {
-            if (window.innerWidth <= 1200) {
-                // Mobile/tablet: extra bottom padding to keep content above "Zoom for detail" button
+            if (window.innerWidth <= 768) {
+                // Mobile: sidebar is stacked below map (CSS: position: relative)
                 return [20, 40, 380, 40]; // [top, right, bottom, left]
             }
             const sidebarWidth = getSidebarWidth();
@@ -5237,8 +5395,14 @@
                 const popupLatLng = e.popup._latlng;
                 // Offset slightly north to account for popup appearing above marker
                 const offset = map.getZoom() > 12 ? 0.002 : 0.01;
-                const adjustedLat = popupLatLng.lat + offset;
-                map.panTo([adjustedLat, popupLatLng.lng], { animate: true, duration: 0.3 });
+                const adjustedLatLng = [popupLatLng.lat + offset, popupLatLng.lng];
+
+                // Use sidebar-aware centering when sidebar floats over map (>768px)
+                if (window.innerWidth > 768) {
+                    panToWithOffset(adjustedLatLng, { animate: true, duration: 0.3 });
+                } else {
+                    map.panTo(adjustedLatLng, { animate: true, duration: 0.3 });
+                }
             }
         });
 
@@ -5694,12 +5858,15 @@
         const emailModalShownKey = 'sunshineTrailEmailModalShown';
         let emailModalShownEarly = localStorage.getItem(emailModalShownKey) === 'true';
 
-        // Start email modal timer from page load (30 seconds of ACTIVE viewing)
+        // Start email modal timer ONLY AFTER site is revealed (password authenticated)
+        // 30 seconds of ACTIVE viewing after authentication
         // Uses visibility API to pause timer when tab is in background
         if (!emailModalShownEarly) {
             const emailModalEl = document.getElementById('email-modal');
 
             function startEmailTimer() {
+                // Don't start timer until site is revealed (password authenticated)
+                if (!window.siteRevealed) return;
                 if (emailModalShownEarly || emailModalTimer) return;
                 emailModalStartTime = Date.now();
                 const remainingTime = emailModalDelay - emailModalElapsedTime;
@@ -5726,7 +5893,7 @@
 
             // Handle visibility changes (tab switching, minimizing)
             document.addEventListener('visibilitychange', () => {
-                if (emailModalShownEarly) return;
+                if (emailModalShownEarly || !window.siteRevealed) return;
                 if (document.hidden) {
                     pauseEmailTimer();
                 } else {
@@ -5734,8 +5901,15 @@
                 }
             });
 
-            // Start timer if page is visible
-            if (!document.hidden) {
+            // Listen for site reveal event (password authentication complete)
+            window.addEventListener('siteRevealed', () => {
+                if (!document.hidden) {
+                    startEmailTimer();
+                }
+            });
+
+            // Start timer if page is visible AND site is already revealed (cached auth)
+            if (!document.hidden && window.siteRevealed) {
                 startEmailTimer();
             }
         }
