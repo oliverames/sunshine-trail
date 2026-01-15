@@ -1263,13 +1263,10 @@
             margin-right: 15px;
         }
 
-        /* Map Search Control - aligned with Leaflet zoom controls */
+        /* Map Search Control - inside Leaflet control container, anchored to zoom buttons */
         .map-search-control {
-            position: absolute;
-            bottom: 150px;
-            right: 0;
-            z-index: 1000;
-            pointer-events: none;
+            margin-bottom: 10px; /* Gap between search and zoom buttons */
+            margin-right: 15px; /* Same as zoom controls */
         }
 
         .map-search-btn {
@@ -1299,13 +1296,9 @@
         }
 
         .map-search-container {
-            position: absolute;
-            right: 15px;
-            bottom: 0;
             display: flex;
             align-items: center;
             gap: 8px;
-            pointer-events: auto;
         }
 
         .map-search-input {
@@ -1400,51 +1393,25 @@
         }
 
         @media (max-width: 768px) {
+            /* On mobile, search button stays above zoom controls, same styling */
             .map-search-control {
-                bottom: 130px; /* Above zoom controls */
-                top: auto;
+                bottom: 140px; /* Above zoom controls */
                 right: 15px;
-                left: auto;
-                z-index: 1001;
             }
 
-            .map-search-container {
-                right: 0;
-                width: auto;
-                justify-content: flex-end;
-            }
-
-            .map-search-btn {
-                width: 48px;
-                height: 48px;
-                background: #f8e849;
-                flex-shrink: 0;
-            }
-
-            .map-search-btn svg {
-                width: 22px;
-                height: 22px;
-            }
-
-            /* Mobile search expands to full width of map */
+            /* Mobile search input expands to left of button */
             .map-search-input.expanded {
-                width: calc(100vw - 95px); /* Full width minus button, gap, and padding */
+                width: calc(100vw - 95px); /* Expand to fill available space */
                 padding: 0 16px;
                 font-size: 1rem;
-                position: absolute;
-                right: 56px; /* Button width + gap */
-                top: auto;
-                bottom: 0;
+                /* Keep position: absolute like desktop, just wider */
             }
 
-            /* Full-width search results on mobile - fixed position for proper alignment */
+            /* Search results on mobile - wider to match input */
             .map-search-results {
-                position: fixed;
-                left: 15px;
-                right: 15px;
-                width: auto;
-                max-height: calc(50vh - 200px); /* Fit within mobile map height */
-                bottom: calc(50vh - 130px + 58px); /* Position above search input */
+                width: calc(100vw - 95px);
+                right: 56px;
+                max-height: 200px;
             }
         }
 
@@ -1455,8 +1422,7 @@
             }
 
             .map-search-input.expanded {
-                width: calc(100vw - 78px);
-                right: 56px;
+                width: calc(100vw - 85px); /* Slightly narrower margins */
             }
 
             .map-search-results {
@@ -2620,11 +2586,16 @@
             opacity: 0;
             transform: scale(0.8);
             transition: opacity 0.5s ease, transform 0.5s ease;
+            /* Position absolutely so it doesn't take up space when hidden */
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
         }
 
         .password-overlay .welcome-text.visible {
             opacity: 1;
-            transform: scale(1);
+            transform: translate(-50%, -50%) scale(1);
         }
 
         .password-input-container {
@@ -3048,6 +3019,14 @@
 
         // Track authentication state for email timer
         window.siteRevealed = false;
+
+        // Early search state declaration (needed before route toggle code)
+        // Full search functionality is defined later in the file
+        let searchExpanded = false;
+        window.collapseSearch = function() {
+            // Will be redefined later with full implementation
+            searchExpanded = false;
+        };
 
         // Update Safari theme-color to white (for after password page)
         function updateThemeColorToWhite() {
@@ -5303,11 +5282,40 @@
             refreshUnifiedCluster();
         });
 
+        // Make entire filter item row clickable to toggle checkbox
+        document.querySelectorAll('.filter-item').forEach(filterItem => {
+            filterItem.addEventListener('click', function(e) {
+                // Don't double-toggle if clicking on checkbox, label, or anything inside label
+                // (clicking inside label already triggers native checkbox toggle via for attribute)
+                if (e.target.tagName === 'INPUT' || e.target.closest('label')) {
+                    return;
+                }
+                const checkbox = this.querySelector('input[type="checkbox"]');
+                if (checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change'));
+                }
+            });
+        });
+
         // Store user's map location for location-aware zooming
         let userMapLocation = null;
 
         // Add zoom control to bottom-right
         L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+        // Move search control into Leaflet control container (anchored to zoom buttons)
+        const searchControl = document.getElementById('map-search-control');
+        const leafletControlContainer = document.querySelector('.leaflet-bottom.leaflet-right');
+        if (searchControl && leafletControlContainer) {
+            // Insert search control before the zoom control
+            const zoomControl = leafletControlContainer.querySelector('.leaflet-control-zoom');
+            if (zoomControl) {
+                leafletControlContainer.insertBefore(searchControl, zoomControl);
+            } else {
+                leafletControlContainer.appendChild(searchControl);
+            }
+        }
 
         // Request geolocation immediately on page load for location-aware zooming
         if (navigator.geolocation) {
@@ -5517,19 +5525,40 @@
                 };
             }
 
-            // Center map on popup with offset to account for popup height
+            // Center map to show both pin AND entire popup card
             if (e.popup && e.popup._latlng) {
-                const popupLatLng = e.popup._latlng;
-                // Offset slightly north to account for popup appearing above marker
-                const offset = map.getZoom() > 12 ? 0.002 : 0.01;
-                const adjustedLatLng = [popupLatLng.lat + offset, popupLatLng.lng];
+                // Wait a moment for popup to render so we can measure it
+                setTimeout(() => {
+                    const popupEl = e.popup.getElement();
+                    if (!popupEl) return;
 
-                // Use sidebar-aware centering when sidebar floats over map (>768px)
-                if (window.innerWidth > 768) {
-                    panToWithOffset(adjustedLatLng, { animate: true, duration: 0.3 });
-                } else {
-                    map.panTo(adjustedLatLng, { animate: true, duration: 0.3 });
-                }
+                    const popupRect = popupEl.getBoundingClientRect();
+                    const mapContainer = document.getElementById('map');
+                    const mapRect = mapContainer.getBoundingClientRect();
+
+                    // Calculate how much of popup is outside the visible map area
+                    const popupTop = popupRect.top;
+                    const mapTop = mapRect.top;
+                    const padding = 20; // Minimum padding from edge
+
+                    // If popup top is above visible map area, we need to pan up
+                    if (popupTop < mapTop + padding) {
+                        const pixelsToShift = (mapTop + padding) - popupTop + 50; // Extra 50px for breathing room
+
+                        // Convert pixels to lat offset at current zoom
+                        const center = map.getCenter();
+                        const point = map.latLngToContainerPoint(center);
+                        const newPoint = L.point(point.x, point.y - pixelsToShift);
+                        const newLatLng = map.containerPointToLatLng(newPoint);
+
+                        // Use sidebar-aware centering when sidebar floats over map (>768px)
+                        if (window.innerWidth > 768) {
+                            panToWithOffset(newLatLng, { animate: true, duration: 0.3 });
+                        } else {
+                            map.panTo(newLatLng, { animate: true, duration: 0.3 });
+                        }
+                    }
+                }, 50); // Small delay to ensure popup is rendered
             }
         });
 
@@ -6132,9 +6161,41 @@
         });
 
         // Load route immediately since checkbox is checked by default in HTML
-        // Trigger the change event to initialize route display
+        // Directly add route layers and show legend (more reliable than triggering change event)
         if (routeToggle && routeToggle.checked) {
-            routeToggle.dispatchEvent(new Event('change'));
+            map.addLayer(routeLayers);
+            routeLegend.style.display = 'flex';
+
+            // Enable chargers since route is shown
+            visibleCategories.charger = true;
+            chargerFilter.checked = true;
+            chargerFilter.disabled = false;
+            chargerFilterItem.style.opacity = '1';
+            chargerFilterItem.title = '';
+            refreshUnifiedCluster();
+
+            // Hide zoom hint
+            const zoomHintEl = document.getElementById('zoom-hint');
+            if (zoomHintEl) zoomHintEl.style.display = 'none';
+
+            // Fit bounds to show full route AND all markers
+            const fullRoute = [
+                ...blueRidgeParkway,
+                ...skylineDrive,
+                ...connectorRoute,
+                ...route100Vermont
+            ];
+
+            // Include all spot locations in the bounds
+            const allSpotLocations = sunshineSpots.map(s => [s.lat, s.lng]);
+            const combinedBounds = L.latLngBounds([...fullRoute, ...allSpotLocations]);
+
+            // Use sidebar-aware fitBounds for proper safe area
+            fitBoundsWithSidebarOffset(combinedBounds, {
+                animate: false,
+                maxZoom: 7,  // Don't zoom in too much on initial load
+                padding: [20, 20]
+            });
         }
 
         // ============================================
@@ -6587,7 +6648,7 @@
 
         // For dynamically created popup buttons, use event delegation
         document.addEventListener('mouseenter', (e) => {
-            if (e.target.classList.contains('popup-btn')) {
+            if (e.target && e.target.classList && e.target.classList.contains('popup-btn')) {
                 if (!e.target._originalText) {
                     e.target._originalText = e.target.textContent;
                 }
@@ -6598,7 +6659,7 @@
         }, true);
 
         document.addEventListener('mouseleave', (e) => {
-            if (e.target.classList.contains('popup-btn') && e.target._originalText) {
+            if (e.target && e.target.classList && e.target.classList.contains('popup-btn') && e.target._originalText) {
                 resetWaveAnimation(e.target, e.target._originalText);
             }
         }, true);
@@ -6610,7 +6671,7 @@
         const mapSearchBtn = document.getElementById('map-search-btn');
         const mapSearchInput = document.getElementById('map-search-input');
         const mapSearchResults = document.getElementById('map-search-results');
-        let searchExpanded = false;
+        // searchExpanded is defined globally at the top of the script
 
         // Helper function to collapse search (closes input and results)
         // This is called when user interacts with other UI elements
@@ -6639,26 +6700,7 @@
         });
 
         if (mapSearchBtn && mapSearchInput && mapSearchResults) {
-            // Handle keyboard appearing on mobile - ensure search stays visible
-            if (window.visualViewport) {
-                window.visualViewport.addEventListener('resize', () => {
-                    if (searchExpanded && document.activeElement === mapSearchInput) {
-                        // Keyboard appeared - scroll search into view
-                        setTimeout(() => {
-                            mapSearchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }, 100);
-                    }
-                });
-            }
-
-            // Also handle focus to scroll into view on mobile
-            mapSearchInput.addEventListener('focus', () => {
-                if (window.innerWidth <= 768) {
-                    setTimeout(() => {
-                        mapSearchInput.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 300);
-                }
-            });
+            // Note: Removed auto-scroll behaviors - search should not scroll the page
 
             // Toggle search input expansion
             mapSearchBtn.addEventListener('click', () => {
@@ -7722,7 +7764,8 @@
             // JS runs regardless of viewport - CSS handles visibility via display:none on desktop
             function updateScrollIndicator() {
                 const scrollY = window.scrollY || window.pageYOffset;
-                const pageHeight = document.documentElement.scrollHeight - window.innerHeight;
+                // Use body.scrollHeight for actual content height (documentElement can be wrong on mobile)
+                const pageHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) - window.innerHeight;
                 const halfwayPoint = pageHeight / 2;
 
                 // Update direction
