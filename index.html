@@ -371,19 +371,24 @@
             height: 100vh;
             background: linear-gradient(
                 180deg,
-                rgba(200, 230, 255, 0.25) 0%,
-                rgba(173, 216, 230, 0.15) 50%,
-                rgba(135, 206, 250, 0.1) 100%
+                rgba(180, 210, 255, 0.32) 0%,
+                rgba(150, 200, 240, 0.22) 50%,
+                rgba(120, 190, 250, 0.15) 100%
             );
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.8s ease-out;
+            transition: opacity 2.5s ease-out; /* Slow fade-in matching snowflake fall time */
             z-index: 9998;
         }
 
         .freeze-overlay.active {
             opacity: 1;
-            transition: opacity 0.5s ease;
+            transition: opacity 2.5s ease-out; /* Fade in as first snowflakes fall */
+        }
+
+        .freeze-overlay.instant-off {
+            opacity: 0;
+            transition: opacity 0.8s ease-out;
         }
 
         /* Snowflake styles */
@@ -403,6 +408,7 @@
         }
 
         /* Snowfall animation - constant speed fall */
+        /* Wind effect is applied separately via JavaScript left position adjustment */
         @keyframes snowfall {
             0% {
                 transform: translateY(-20px) rotate(0deg) translateX(0);
@@ -2211,18 +2217,39 @@
             position: absolute;
             top: 15px;
             right: 15px;
-            background: none;
+            background: rgba(61, 43, 31, 0.1);
             border: none;
-            font-size: 1.8rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.5rem;
             color: var(--deep-brown);
             cursor: pointer;
-            opacity: 0.6;
-            transition: opacity 0.2s;
+            opacity: 0.8;
+            transition: opacity 0.2s, background-color 0.2s, transform 0.2s;
             line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .email-modal-close:hover {
             opacity: 1;
+            background: rgba(61, 43, 31, 0.15);
+        }
+
+        .email-modal-close:active {
+            transform: scale(0.95);
+        }
+
+        @media (max-width: 768px) {
+            .email-modal-close {
+                width: 44px;
+                height: 44px;
+                font-size: 1.8rem;
+                top: 12px;
+                right: 12px;
+            }
         }
 
         .email-modal-sun {
@@ -2427,8 +2454,8 @@
                 position: fixed;
                 bottom: 20px;
                 right: 15px;
-                width: 48px;
-                height: 48px;
+                width: 52px;
+                height: 52px;
                 background: #f8e849;
                 border: none;
                 border-radius: 10px;
@@ -2437,7 +2464,13 @@
                 justify-content: center;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.25);
                 z-index: 9997; /* Below sun rays (9999) and snow (9998) */
-                transition: transform 0.3s ease;
+                transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+            }
+
+            /* Adapt color when over yellow backgrounds (Live Impact section) */
+            .scroll-indicator.over-yellow {
+                background: rgba(255, 255, 255, 0.85);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             }
 
             .scroll-indicator:active {
@@ -2445,8 +2478,8 @@
             }
 
             .scroll-indicator svg {
-                width: 24px;
-                height: 24px;
+                width: 28px;
+                height: 28px;
                 fill: none;
                 stroke: var(--deep-brown);
                 stroke-width: 2.5px;
@@ -2458,14 +2491,16 @@
                 transform: rotate(180deg);
             }
 
-            /* Bounce animation to draw attention */
+            /* Bounce animation to draw attention - larger and more noticeable */
             @keyframes scrollBounce {
                 0%, 100% { transform: translateY(0); }
-                50% { transform: translateY(-6px); }
+                25% { transform: translateY(-12px); }
+                50% { transform: translateY(-8px); }
+                75% { transform: translateY(-14px); }
             }
 
             .scroll-indicator.bounce {
-                animation: scrollBounce 1s ease-in-out;
+                animation: scrollBounce 1.2s ease-in-out;
             }
         }
 
@@ -2479,9 +2514,174 @@
                 transform: scale(1.05);
             }
         }
+
+        /* Password Protection Overlay - presentation gate */
+        .password-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #f7e949;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        .password-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .password-overlay-content {
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .password-overlay h1 {
+            font-family: 'new-spirit', serif;
+            font-weight: 800;
+            font-size: 2.5rem;
+            color: var(--deep-brown);
+            margin-bottom: 1.5rem;
+        }
+
+        .password-overlay .welcome-text {
+            font-family: 'new-spirit', serif;
+            font-weight: 800;
+            font-size: 3rem;
+            color: var(--deep-brown);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .password-overlay .welcome-text.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .password-input-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border: 2px solid var(--deep-brown);
+            border-radius: 10px;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 1rem;
+            background: #FFFDF7;
+            color: var(--deep-brown);
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .password-input::placeholder {
+            color: rgba(61, 43, 31, 0.5);
+            letter-spacing: normal;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: var(--deep-brown);
+            box-shadow: 0 0 0 3px rgba(61, 43, 31, 0.1);
+        }
+
+        .password-submit {
+            width: 100%;
+            padding: 0.9rem 1.5rem;
+            background: var(--deep-brown);
+            color: #f7e949;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
+
+        .password-submit:hover {
+            transform: scale(1.02);
+        }
+
+        .password-submit:active {
+            transform: scale(0.98);
+        }
+
+        .password-error {
+            color: #c0392b;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .password-error.visible {
+            opacity: 1;
+        }
+
+        .password-footer {
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 0 2rem;
+        }
+
+        .password-footer p {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.85rem;
+            color: var(--deep-brown);
+            opacity: 0.7;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .password-overlay h1 {
+                font-size: 2rem;
+            }
+            .password-overlay .welcome-text {
+                font-size: 2.5rem;
+            }
+            .password-footer {
+                bottom: 1.5rem;
+            }
+            .password-footer p {
+                font-size: 0.75rem;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Password Protection Overlay - presentation gate -->
+    <div class="password-overlay" id="password-overlay">
+        <div class="password-overlay-content" id="password-content">
+            <h1>The Sunshine Trail</h1>
+            <div class="password-input-container">
+                <input type="password" class="password-input" id="password-input" placeholder="Enter password" autocomplete="off">
+            </div>
+            <button class="password-submit" id="password-submit">Enter</button>
+            <div class="password-error" id="password-error">Incorrect password</div>
+        </div>
+        <div class="welcome-text" id="welcome-text">Welcome</div>
+        <div class="password-footer">
+            <p>This is a demonstration project and is not operated by or affiliated with Lawson's Finest Liquids.<br>© 2026 Ames Consulting LLC. All rights reserved.</p>
+        </div>
+    </div>
+
     <!-- Freeze overlay for cold beer hover effect -->
     <div class="freeze-overlay" id="freeze-overlay"></div>
     <button class="snow-close-button" id="snow-close-button" aria-label="Stop snow effect"></button>
@@ -2771,6 +2971,71 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js" crossorigin="anonymous"></script>
     <script>
+        // ============================================
+        // PASSWORD PROTECTION OVERLAY
+        // Simple presentation gate (not for security)
+        // ============================================
+        const passwordOverlay = document.getElementById('password-overlay');
+        const passwordInput = document.getElementById('password-input');
+        const passwordSubmit = document.getElementById('password-submit');
+        const passwordError = document.getElementById('password-error');
+        const passwordContent = document.getElementById('password-content');
+        const welcomeText = document.getElementById('welcome-text');
+        const correctPassword = 'hireme';
+
+        // Check if already authenticated this session
+        const isAuthenticated = sessionStorage.getItem('sunshineTrailAuth') === 'true';
+        if (isAuthenticated && passwordOverlay) {
+            passwordOverlay.classList.add('hidden');
+        }
+
+        function handlePasswordSubmit() {
+            const enteredPassword = passwordInput.value.toLowerCase().trim();
+            if (enteredPassword === correctPassword) {
+                // Correct password - show welcome and fade out
+                passwordContent.style.opacity = '0';
+                passwordContent.style.transform = 'scale(0.9)';
+                passwordContent.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+
+                setTimeout(() => {
+                    passwordContent.style.display = 'none';
+                    welcomeText.classList.add('visible');
+                }, 300);
+
+                setTimeout(() => {
+                    passwordOverlay.classList.add('hidden');
+                    sessionStorage.setItem('sunshineTrailAuth', 'true');
+                }, 1500);
+            } else {
+                // Incorrect password - show error
+                passwordError.classList.add('visible');
+                passwordInput.value = '';
+                passwordInput.focus();
+
+                // Hide error after 2 seconds
+                setTimeout(() => {
+                    passwordError.classList.remove('visible');
+                }, 2000);
+            }
+        }
+
+        if (passwordSubmit) {
+            passwordSubmit.addEventListener('click', handlePasswordSubmit);
+        }
+
+        if (passwordInput) {
+            passwordInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handlePasswordSubmit();
+                }
+            });
+            // Focus password input on load if not authenticated
+            if (!isAuthenticated) {
+                setTimeout(() => passwordInput.focus(), 100);
+            }
+        }
+
         // Initialize the map with smooth scrolling and animations
         const map = L.map('map', {
             center: [39.5, -77.5],
@@ -4519,8 +4784,8 @@
             showCoverageOnHover: false,
             spiderfyOnMaxZoom: true,  // Spider out only when can't zoom any further
             zoomToBoundsOnClick: false,  // We'll handle this manually with sidebar padding
-            disableClusteringAtZoom: 17,  // Separate markers at zoom 17+
-            maxClusterRadius: 160,  // Larger radius to prevent overlapping pill clusters
+            disableClusteringAtZoom: 15,  // Separate markers at zoom 15+ (lowered for Philadelphia visibility)
+            maxClusterRadius: 120,  // Reduced radius for better city-level visibility
             iconCreateFunction: createUnifiedClusterIcon,
             spiderLegPolylineOptions: { weight: 2, color: '#ffc72d', opacity: 0.6 },
             spiderfyDistanceMultiplier: 1.8,  // More spread out spider
@@ -4966,6 +5231,15 @@
                     zoom: map.getZoom()
                 };
             }
+
+            // Center map on popup with offset to account for popup height
+            if (e.popup && e.popup._latlng) {
+                const popupLatLng = e.popup._latlng;
+                // Offset slightly north to account for popup appearing above marker
+                const offset = map.getZoom() > 12 ? 0.002 : 0.01;
+                const adjustedLat = popupLatLng.lat + offset;
+                map.panTo([adjustedLat, popupLatLng.lng], { animate: true, duration: 0.3 });
+            }
         });
 
         map.on('popupclose', function(e) {
@@ -5051,15 +5325,28 @@
                     }
 
                     // Get ALL markers in the selected state (not just community partners)
-                    const stateMarkers = sunshineSpots.filter(s => s.state === state);
+                    // Check both explicit state property and parse from location string
+                    const stateMarkers = sunshineSpots.filter(s => {
+                        // Check explicit state property
+                        if (s.state === state) return true;
+                        // Parse state from location string (e.g., "Philadelphia, PA" -> "PA")
+                        if (s.location) {
+                            const stateMatch = s.location.match(/,\s*([A-Z]{2})(?:\s|$)/);
+                            if (stateMatch && stateMatch[1] === state) return true;
+                        }
+                        return false;
+                    });
                     if (stateMarkers.length > 0) {
                         const bounds = stateMarkers.map(s => [s.lat, s.lng]);
+                        // Responsive padding - less on mobile for better map utilization
+                        const isMobile = window.innerWidth <= 768;
+                        const paddingValue = isMobile ? 40 : 80;
                         // Zoom to fit all markers in the state - let bounds determine appropriate zoom
                         fitBoundsWithSidebarOffset(bounds, {
                             animate: true,
                             duration: 0.8,
-                            maxZoom: 13,
-                            padding: [80, 80]
+                            maxZoom: isMobile ? 12 : 13,  // Slightly lower max zoom on mobile to show more context
+                            padding: [paddingValue, paddingValue]
                         });
                     }
 
@@ -5401,19 +5688,56 @@
 
         // Email modal timer variables (defined here so they're available in the handler)
         let emailModalTimer = null;
+        let emailModalStartTime = null;
+        let emailModalElapsedTime = 0;
+        const emailModalDelay = 30000; // 30 seconds
         const emailModalShownKey = 'sunshineTrailEmailModalShown';
         let emailModalShownEarly = localStorage.getItem(emailModalShownKey) === 'true';
 
-        // Start email modal timer from page load (30 seconds after page loads)
+        // Start email modal timer from page load (30 seconds of ACTIVE viewing)
+        // Uses visibility API to pause timer when tab is in background
         if (!emailModalShownEarly) {
             const emailModalEl = document.getElementById('email-modal');
-            emailModalTimer = setTimeout(() => {
-                if (emailModalEl && !emailModalShownEarly) {
-                    emailModalEl.classList.add('visible');
-                    emailModalShownEarly = true;
-                    localStorage.setItem(emailModalShownKey, 'true');
+
+            function startEmailTimer() {
+                if (emailModalShownEarly || emailModalTimer) return;
+                emailModalStartTime = Date.now();
+                const remainingTime = emailModalDelay - emailModalElapsedTime;
+                emailModalTimer = setTimeout(() => {
+                    if (emailModalEl && !emailModalShownEarly && !document.hidden) {
+                        emailModalEl.classList.add('visible');
+                        emailModalShownEarly = true;
+                        localStorage.setItem(emailModalShownKey, 'true');
+                    }
+                }, remainingTime);
+            }
+
+            function pauseEmailTimer() {
+                if (emailModalTimer) {
+                    clearTimeout(emailModalTimer);
+                    emailModalTimer = null;
+                    // Calculate elapsed time
+                    if (emailModalStartTime) {
+                        emailModalElapsedTime += Date.now() - emailModalStartTime;
+                        emailModalStartTime = null;
+                    }
                 }
-            }, 30000);
+            }
+
+            // Handle visibility changes (tab switching, minimizing)
+            document.addEventListener('visibilitychange', () => {
+                if (emailModalShownEarly) return;
+                if (document.hidden) {
+                    pauseEmailTimer();
+                } else {
+                    startEmailTimer();
+                }
+            });
+
+            // Start timer if page is visible
+            if (!document.hidden) {
+                startEmailTimer();
+            }
         }
 
         routeToggle.addEventListener('change', function() {
@@ -6017,6 +6341,27 @@
         });
 
         if (mapSearchBtn && mapSearchInput && mapSearchResults) {
+            // Handle keyboard appearing on mobile - ensure search stays visible
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', () => {
+                    if (searchExpanded && document.activeElement === mapSearchInput) {
+                        // Keyboard appeared - scroll search into view
+                        setTimeout(() => {
+                            mapSearchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 100);
+                    }
+                });
+            }
+
+            // Also handle focus to scroll into view on mobile
+            mapSearchInput.addEventListener('focus', () => {
+                if (window.innerWidth <= 768) {
+                    setTimeout(() => {
+                        mapSearchInput.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 300);
+                }
+            });
+
             // Toggle search input expansion
             mapSearchBtn.addEventListener('click', () => {
                 if (!searchExpanded) {
@@ -6408,7 +6753,7 @@
             document.addEventListener('touchmove', drag, { passive: false });
             document.addEventListener('touchend', endDrag);
 
-            // Emoji burst on click
+            // Emoji burst on click/tap
             const emojis = ['😊', '😁', '🍺', '🍻', '☀️', '🧊', '🌈'];
             let clickStartTime = 0;
             let clickStartPos = { x: 0, y: 0 };
@@ -6429,6 +6774,29 @@
                     burstEmojis(e);
                 }
             });
+
+            // Touch events for iPad/tablet - emoji burst on tap
+            fidgetContainer.addEventListener('touchstart', (e) => {
+                clickStartTime = Date.now();
+                if (e.touches && e.touches.length > 0) {
+                    clickStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+            }, { passive: true });
+
+            fidgetContainer.addEventListener('touchend', (e) => {
+                const elapsed = Date.now() - clickStartTime;
+                const endPos = e.changedTouches && e.changedTouches.length > 0
+                    ? { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY }
+                    : clickStartPos;
+                const moved = Math.sqrt(
+                    Math.pow(endPos.x - clickStartPos.x, 2) +
+                    Math.pow(endPos.y - clickStartPos.y, 2)
+                );
+                // Only burst if it was a quick tap without much drag
+                if (elapsed < 300 && moved < 30) {
+                    burstEmojis({ clientX: endPos.x, clientY: endPos.y });
+                }
+            }, { passive: true });
 
             function burstEmojis(e) {
                 const rect = fidgetSun.getBoundingClientRect();
@@ -6719,10 +7087,13 @@
         let snowInterval = null;
         let isSnowing = false;
 
+        // Use only text characters for snowflakes (no emoji) for consistent rendering
+        const snowflakeChars = ['❄', '❅', '❆', '✻', '✼'];
+
         function createSnowflake() {
             const snowflake = document.createElement('div');
             snowflake.className = 'snowflake';
-            snowflake.textContent = ['❄', '❅', '❆', '✻', '✼', '❄', '❅'][Math.floor(Math.random() * 7)];
+            snowflake.textContent = snowflakeChars[Math.floor(Math.random() * snowflakeChars.length)];
             snowflake.style.left = Math.random() * 100 + 'vw';
 
             // Bigger snowflakes with more size variation
@@ -6763,7 +7134,7 @@
         function createSnowflakeAtProgress(progress) {
             const snowflake = document.createElement('div');
             snowflake.className = 'snowflake';
-            snowflake.textContent = ['❄', '❅', '❆', '✻', '✼', '❄', '❅'][Math.floor(Math.random() * 7)];
+            snowflake.textContent = snowflakeChars[Math.floor(Math.random() * snowflakeChars.length)];
             snowflake.style.left = Math.random() * 100 + 'vw';
 
             const size = 1.2 + Math.random() * 1.3;
@@ -6960,8 +7331,13 @@
                         // Calculate drift
                         const windEffect = windOffset * weightFactor;
 
-                        // Apply as marginLeft (works alongside CSS animation transform)
-                        flake.style.marginLeft = windEffect + 'px';
+                        // Store original left position (in vw) if not already stored
+                        if (flake.dataset.originalLeft === undefined) {
+                            flake.dataset.originalLeft = flake.style.left;
+                        }
+
+                        // Apply wind using calc() to combine vw base with px offset
+                        flake.style.left = `calc(${flake.dataset.originalLeft} + ${windEffect}px)`;
                     }
                 });
             }
@@ -7044,21 +7420,49 @@
         let scrollBounceInterval = null;
 
         if (scrollIndicator && window.innerWidth <= 768) {
-            // Update arrow direction based on scroll position
+            // Update arrow direction and color based on scroll position
             function updateScrollIndicator() {
                 const scrollY = window.scrollY || window.pageYOffset;
                 const pageHeight = document.documentElement.scrollHeight - window.innerHeight;
                 const halfwayPoint = pageHeight / 2;
 
+                // Update direction
                 if (scrollY >= halfwayPoint) {
                     scrollIndicator.classList.add('up');
                 } else {
                     scrollIndicator.classList.remove('up');
                 }
+
+                // Check if button is over yellow background (Live Impact section)
+                const buttonRect = scrollIndicator.getBoundingClientRect();
+                const buttonCenterX = buttonRect.left + buttonRect.width / 2;
+                const buttonCenterY = buttonRect.top + buttonRect.height / 2;
+
+                // Check elements at button position
+                const elementsAtPoint = document.elementsFromPoint(buttonCenterX, buttonCenterY);
+                let isOverYellow = false;
+
+                for (const el of elementsAtPoint) {
+                    if (el === scrollIndicator) continue;
+                    // Check if over Live Impact widget or its components
+                    if (el.classList.contains('impact-widget') ||
+                        el.classList.contains('metric-link') ||
+                        el.closest('.impact-widget')) {
+                        isOverYellow = true;
+                        break;
+                    }
+                }
+
+                if (isOverYellow) {
+                    scrollIndicator.classList.add('over-yellow');
+                } else {
+                    scrollIndicator.classList.remove('over-yellow');
+                }
             }
 
-            // Click handler - scroll up or down
-            scrollIndicator.addEventListener('click', function() {
+            // Scroll handler - scroll up or down
+            function handleScrollClick(e) {
+                e.preventDefault();
                 const isUp = scrollIndicator.classList.contains('up');
                 if (isUp) {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -7066,7 +7470,14 @@
                     const pageHeight = document.documentElement.scrollHeight - window.innerHeight;
                     window.scrollTo({ top: pageHeight, behavior: 'smooth' });
                 }
-            });
+            }
+
+            // Add both click and touch events for reliable mobile interaction
+            scrollIndicator.addEventListener('click', handleScrollClick);
+            scrollIndicator.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                handleScrollClick(e);
+            }, { passive: false });
 
             // Update on scroll
             window.addEventListener('scroll', updateScrollIndicator, { passive: true });
@@ -7079,8 +7490,8 @@
                 scrollIndicator.classList.add('bounce');
                 setTimeout(() => {
                     scrollIndicator.classList.remove('bounce');
-                }, 1000);
-            }, 8000); // Bounce every 8 seconds
+                }, 1200);
+            }, 6000); // Bounce every 6 seconds (more frequent)
         }
 
         // ============================================

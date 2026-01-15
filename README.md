@@ -321,6 +321,38 @@ This is a demonstration project for a job interview—not operated by or affilia
 
 ---
 
+## Known Issues & Planned Improvements
+
+### Map Interactions
+- **Pin click centering** — Clicking a single pin should center the map on both the pin and its popup
+- **State button zoom levels** — Zoom levels need testing across all screen sizes to ensure all pins within each state are visible regardless of viewport
+- **Philadelphia locations** — Some Philadelphia locations not visible at current zoom levels; needs zoom adjustment
+
+### Mobile-Specific Issues
+- **Scroll indicator** — Button not flipping direction at page halfway point; tap action not functioning on some devices
+- **Keyboard coverage** — Search field sometimes covered by keyboard or cut off by sidebar on mobile
+- **Zoom/search button issues** — Loading state issues on phone at certain zoom levels
+- **Arrow animation visibility** — Bounce animation too subtle; needs to be larger and more noticeable
+- **Scroll button color adaptation** — When positioned over same-color elements (like Impact metrics), button should switch to white/transparent background with smooth animation between states
+
+### Email Popup
+- **Background tab detection** — Popup may not trigger correctly when browser tab is in background; needs visibility-aware timing
+- **Close button size** — Mobile close button needs to be larger and match the styling of other buttons elsewhere on site
+
+### Easter Egg Issues
+- **iPad spinning sun** — Tap interaction not working on iPad
+- **Accelerometer wind** — Device motion "wind" effect for snowflakes not functioning
+- **Emoji snowflakes** — Emoji snowflakes appearing on mobile but not desktop; should be removed from mobile for consistency
+
+### Snowfall Effect Enhancements
+- **Blue filter opacity** — Filter should be slightly less transparent (more blue effect visible)
+- **Blue filter fade-in** — Add gradual fade animation; filter should reach full opacity when first snowflake hits viewport bottom
+
+### Planned Features
+- **Presentation overlay** — Password-protected overlay using `#f7e949` background with password entry field; entering "hireme" shows "Welcome" in Lawson's font before fading to reveal site; includes sidebar footer verbiage at bottom; designed for controlled presentation access
+
+---
+
 ## About This Project
 
 Built by [Oliver Ames](https://github.com/oliverames) as a demonstration of campaign thinking, brand alignment, and technical execution for the Digital Marketing Manager position at Lawson's Finest Liquids.
