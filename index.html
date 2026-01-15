@@ -1296,6 +1296,7 @@
 
         .map-search-input {
             width: 0;
+            height: 48px; /* Match search button height */
             padding: 0;
             border: none;
             border-radius: 10px;
@@ -1306,11 +1307,12 @@
             transition: width 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
             opacity: 0;
             outline: none;
+            box-sizing: border-box;
         }
 
         .map-search-input.expanded {
             width: 320px;
-            padding: 12px 16px;
+            padding: 0 16px; /* Horizontal padding only - height handles vertical */
             opacity: 1;
         }
 
@@ -1413,7 +1415,7 @@
             /* Mobile search expands to full width of map */
             .map-search-input.expanded {
                 width: calc(100vw - 95px); /* Full width minus button, gap, and padding */
-                padding: 12px 16px;
+                padding: 0 16px; /* Horizontal padding only - height handles vertical */
                 font-size: 1rem;
                 position: absolute;
                 right: 56px; /* Button width + gap */
@@ -6153,19 +6155,45 @@
                 }, 300);
             });
 
-            // Handle Enter key for immediate search
+            // Handle Enter key for immediate search or auto-select single result
             mapSearchInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     const query = mapSearchInput.value.trim();
                     if (query.length >= 2) {
-                        // Trigger search immediately
-                        clearTimeout(searchTimeout);
-                        (async () => {
-                            const listingResults = searchListings(query);
-                            const locationResults = await geocodeLocation(query);
-                            renderSearchResults(listingResults, locationResults);
-                        })();
+                        // Check if we already have results displayed
+                        const listingResults = searchListings(query);
+
+                        // If there's exactly one listing (pin) result, auto-select it
+                        if (listingResults.length === 1) {
+                            const spot = listingResults[0];
+                            collapseSearch();
+
+                            // Find and navigate to the marker
+                            let targetMarker = null;
+                            unifiedCluster.eachLayer(layer => {
+                                if (layer.getLatLng &&
+                                    Math.abs(layer.getLatLng().lat - spot.lat) < 0.0001 &&
+                                    Math.abs(layer.getLatLng().lng - spot.lng) < 0.0001) {
+                                    targetMarker = layer;
+                                }
+                            });
+
+                            if (targetMarker) {
+                                unifiedCluster.zoomToShowLayer(targetMarker, () => {
+                                    setTimeout(() => targetMarker.openPopup(), 100);
+                                });
+                            } else {
+                                flyToWithOffset(L.latLng(spot.lat, spot.lng), 17);
+                            }
+                        } else {
+                            // Multiple or no results - trigger search immediately
+                            clearTimeout(searchTimeout);
+                            (async () => {
+                                const locationResults = await geocodeLocation(query);
+                                renderSearchResults(listingResults, locationResults);
+                            })();
+                        }
                     }
                 }
                 // Note: Escape key is handled by the global document keydown listener
