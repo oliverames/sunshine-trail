@@ -2574,12 +2574,13 @@
         }
 
         .fidget-sun-password {
-            width: 80px;
-            height: 80px;
+            width: 120px;
+            height: 120px;
             cursor: grab;
             user-select: none;
             -webkit-user-drag: none;
             transition: transform 0.05s linear;
+            pointer-events: none;
         }
 
         .fidget-sun-password.spinning {
@@ -2592,8 +2593,8 @@
 
         .password-overlay h1 {
             font-family: 'new-spirit', serif;
-            font-weight: 800;
-            font-size: 1.75rem;
+            font-weight: 700;
+            font-size: 3rem;
             color: var(--deep-brown);
             margin-bottom: 0.75rem;
         }
@@ -2627,7 +2628,6 @@
             font-family: 'Open Sans', sans-serif;
             transition: box-shadow 0.2s;
             background: #ffffff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             color: var(--deep-brown);
             text-align: center;
             letter-spacing: 2px;
@@ -2640,10 +2640,9 @@
 
         .password-input:focus {
             outline: none;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
         }
 
-        /* Gold pill button to match email modal */
+        /* Gold pill button to match email modal - wave animation only */
         .password-submit {
             width: 100%;
             padding: 1.1rem 2rem;
@@ -2657,34 +2656,13 @@
             cursor: pointer;
             position: relative;
             overflow: hidden;
-            transition: transform 0.2s ease;
         }
 
-        /* Ripple effect for submit button */
-        .password-submit::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.4s ease, height 0.4s ease;
-        }
-
-        .password-submit:active::after {
-            width: 300px;
-            height: 300px;
-        }
-
-        .password-submit:hover {
-            transform: scale(1.02);
-        }
-
-        .password-submit:active {
-            transform: scale(0.98);
+        /* Wave text animation support for password submit */
+        .password-submit.wave-text span {
+            display: inline-block;
+            animation: letterWave 0.4s ease-in-out;
+            animation-fill-mode: both;
         }
 
         .password-error {
@@ -2719,7 +2697,7 @@
 
         @media (max-width: 768px) {
             .password-overlay h1 {
-                font-size: 1.4rem;
+                font-size: 1.8rem;
             }
             .password-overlay .welcome-text {
                 font-size: 2.5rem;
@@ -3123,7 +3101,7 @@
 
         // ============================================
         // FIDGET SUN SPINNER FOR PASSWORD MODAL
-        // Same physics as header fidget sun
+        // Same physics as header fidget sun with idle spin and emoji burst
         // ============================================
         const fidgetSunPassword = document.getElementById('fidget-sun-password');
         const passwordSunContainer = document.querySelector('.password-sun');
@@ -3132,15 +3110,17 @@
             let passwordSunRotation = 0;
             let passwordSunVelocity = 0;
             let passwordSunLastAngle = 0;
+            let passwordSunLastTime = 0;
             let passwordSunIsDragging = false;
             let passwordSunAnimationFrame = null;
+            let passwordIdleRotation = 0;
 
             function getPasswordSunAngle(e, rect) {
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                 const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                return Math.atan2(clientY - centerY, clientX - centerX) * (180 / Math.PI);
+                return Math.atan2(clientY - centerY, clientX - centerX);
             }
 
             function startPasswordSunDrag(e) {
@@ -3149,6 +3129,8 @@
                 fidgetSunPassword.classList.add('spinning');
                 const rect = fidgetSunPassword.getBoundingClientRect();
                 passwordSunLastAngle = getPasswordSunAngle(e, rect);
+                passwordSunLastTime = Date.now();
+                passwordSunVelocity = 0;
                 if (passwordSunAnimationFrame) cancelAnimationFrame(passwordSunAnimationFrame);
             }
 
@@ -3157,29 +3139,38 @@
                 e.preventDefault();
                 const rect = fidgetSunPassword.getBoundingClientRect();
                 const currentAngle = getPasswordSunAngle(e, rect);
-                let delta = currentAngle - passwordSunLastAngle;
-                if (delta > 180) delta -= 360;
-                if (delta < -180) delta += 360;
-                passwordSunRotation += delta;
-                passwordSunVelocity = delta * 0.8;
-                passwordSunLastAngle = currentAngle;
+                const now = Date.now();
+                const dt = Math.max(now - passwordSunLastTime, 1);
+
+                let deltaAngle = currentAngle - passwordSunLastAngle;
+                // Handle angle wrap-around
+                if (deltaAngle > Math.PI) deltaAngle -= 2 * Math.PI;
+                if (deltaAngle < -Math.PI) deltaAngle += 2 * Math.PI;
+
+                passwordSunRotation += deltaAngle * (180 / Math.PI);
+                passwordSunVelocity = (deltaAngle * (180 / Math.PI)) / dt * 35;
+
                 fidgetSunPassword.style.transform = `rotate(${passwordSunRotation}deg)`;
+                passwordSunLastAngle = currentAngle;
+                passwordSunLastTime = now;
             }
 
             function endPasswordSunDrag() {
                 if (!passwordSunIsDragging) return;
                 passwordSunIsDragging = false;
                 fidgetSunPassword.classList.remove('spinning');
+                animatePasswordMomentum();
+            }
 
-                function spinDown() {
-                    if (Math.abs(passwordSunVelocity) > 0.1) {
-                        passwordSunRotation += passwordSunVelocity;
-                        passwordSunVelocity *= 0.97;
-                        fidgetSunPassword.style.transform = `rotate(${passwordSunRotation}deg)`;
-                        passwordSunAnimationFrame = requestAnimationFrame(spinDown);
-                    }
+            function animatePasswordMomentum() {
+                if (Math.abs(passwordSunVelocity) < 0.005) {
+                    passwordSunVelocity = 0;
+                    return;
                 }
-                spinDown();
+                passwordSunRotation += passwordSunVelocity;
+                passwordSunVelocity *= 0.9995;
+                fidgetSunPassword.style.transform = `rotate(${passwordSunRotation}deg)`;
+                passwordSunAnimationFrame = requestAnimationFrame(animatePasswordMomentum);
             }
 
             // Mouse events
@@ -3191,6 +3182,115 @@
             passwordSunContainer.addEventListener('touchstart', startPasswordSunDrag, { passive: false });
             document.addEventListener('touchmove', movePasswordSunDrag, { passive: false });
             document.addEventListener('touchend', endPasswordSunDrag);
+
+            // Emoji burst on click/tap
+            const passwordEmojis = ['😊', '😁', '🍺', '🍻', '☀️', '🧊', '🌈'];
+            let passwordClickStartTime = 0;
+            let passwordClickStartPos = { x: 0, y: 0 };
+
+            passwordSunContainer.addEventListener('mousedown', (e) => {
+                passwordClickStartTime = Date.now();
+                passwordClickStartPos = { x: e.clientX, y: e.clientY };
+            });
+
+            passwordSunContainer.addEventListener('mouseup', (e) => {
+                const elapsed = Date.now() - passwordClickStartTime;
+                const moved = Math.sqrt(
+                    Math.pow(e.clientX - passwordClickStartPos.x, 2) +
+                    Math.pow(e.clientY - passwordClickStartPos.y, 2)
+                );
+                if (elapsed < 200 && moved < 10) {
+                    burstPasswordEmojis(e);
+                }
+            });
+
+            passwordSunContainer.addEventListener('touchstart', (e) => {
+                passwordClickStartTime = Date.now();
+                if (e.touches && e.touches.length > 0) {
+                    passwordClickStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+            }, { passive: true });
+
+            passwordSunContainer.addEventListener('touchend', (e) => {
+                const elapsed = Date.now() - passwordClickStartTime;
+                const endPos = e.changedTouches && e.changedTouches.length > 0
+                    ? { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY }
+                    : passwordClickStartPos;
+                const moved = Math.sqrt(
+                    Math.pow(endPos.x - passwordClickStartPos.x, 2) +
+                    Math.pow(endPos.y - passwordClickStartPos.y, 2)
+                );
+                if (elapsed < 300 && moved < 30) {
+                    burstPasswordEmojis({ clientX: endPos.x, clientY: endPos.y });
+                }
+            }, { passive: true });
+
+            function burstPasswordEmojis(e) {
+                const rect = fidgetSunPassword.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                const shuffled = [...passwordEmojis].sort(() => Math.random() - 0.5);
+                const selectedEmojis = shuffled.slice(0, 3);
+
+                const burstCount = 20;
+                for (let i = 0; i < burstCount; i++) {
+                    const emoji = document.createElement('div');
+                    emoji.textContent = selectedEmojis[Math.floor(Math.random() * selectedEmojis.length)];
+                    const size = 24 + Math.random() * 20;
+                    emoji.style.cssText = `
+                        position: fixed;
+                        left: ${centerX}px;
+                        top: ${centerY}px;
+                        font-size: ${size}px;
+                        pointer-events: none;
+                        z-index: 100000;
+                        transform: translate(-50%, -50%);
+                        will-change: transform, opacity, left, top;
+                    `;
+                    document.body.appendChild(emoji);
+
+                    const angle = (Math.PI * 2 * i / burstCount) + (Math.random() - 0.5) * 0.6;
+                    const speed = 250 + Math.random() * 200;
+                    const vx = Math.cos(angle) * speed;
+                    const vy = Math.sin(angle) * speed;
+                    const gravity = 400;
+                    const startTime = performance.now();
+                    const spinDirection = Math.random() > 0.5 ? 1 : -1;
+                    const spinSpeed = 180 + Math.random() * 180;
+
+                    function animateEmoji(currentTime) {
+                        const t = (currentTime - startTime) / 1000;
+                        const x = centerX + vx * t;
+                        const y = centerY + vy * t + 0.5 * gravity * t * t;
+                        const opacity = Math.max(0, 1 - t * 0.9);
+                        const scale = 1 + t * 0.5;
+                        const spin = t * spinSpeed * spinDirection;
+
+                        emoji.style.left = `${x}px`;
+                        emoji.style.top = `${y}px`;
+                        emoji.style.opacity = opacity;
+                        emoji.style.transform = `translate(-50%, -50%) scale(${scale}) rotate(${spin}deg)`;
+
+                        if (opacity > 0) {
+                            requestAnimationFrame(animateEmoji);
+                        } else {
+                            emoji.remove();
+                        }
+                    }
+                    requestAnimationFrame(animateEmoji);
+                }
+            }
+
+            // Gentle idle spin
+            function passwordIdleSpin() {
+                if (!passwordSunIsDragging && Math.abs(passwordSunVelocity) < 0.1) {
+                    passwordIdleRotation += 0.1;
+                    fidgetSunPassword.style.transform = `rotate(${passwordSunRotation + passwordIdleRotation}deg)`;
+                }
+                requestAnimationFrame(passwordIdleSpin);
+            }
+            passwordIdleSpin();
         }
 
         // Initialize the map with smooth scrolling and animations
@@ -6447,7 +6547,7 @@
         }
 
         // Apply wave animation to buttons
-        document.querySelectorAll('.popup-btn, .beer-section-btn, .get-itinerary-btn, .email-submit, .state-btn').forEach(btn => {
+        document.querySelectorAll('.popup-btn, .beer-section-btn, .get-itinerary-btn, .email-submit, .state-btn, .password-submit').forEach(btn => {
             const originalText = btn.textContent;
             // Faster animation for short buttons (state buttons, email submit)
             const delay = (btn.classList.contains('email-submit') || btn.classList.contains('state-btn')) ? 0.02 : 0.03;
@@ -7607,23 +7707,32 @@
                     scrollIndicator.classList.remove('up');
                 }
 
-                // Check if button is over yellow background (Live Impact section)
+                // Check if button is over yellow background
                 const buttonRect = scrollIndicator.getBoundingClientRect();
                 const buttonCenterX = buttonRect.left + buttonRect.width / 2;
                 const buttonCenterY = buttonRect.top + buttonRect.height / 2;
 
-                // Check elements at button position
+                // Check elements at button position for yellow backgrounds
                 const elementsAtPoint = document.elementsFromPoint(buttonCenterX, buttonCenterY);
                 let isOverYellow = false;
 
                 for (const el of elementsAtPoint) {
                     if (el === scrollIndicator) continue;
-                    // Check if over Live Impact widget or its components
-                    if (el.classList.contains('impact-widget') ||
-                        el.classList.contains('metric-link') ||
-                        el.closest('.impact-widget')) {
-                        isOverYellow = true;
-                        break;
+                    // Check computed background color for yellow tones
+                    const bgColor = window.getComputedStyle(el).backgroundColor;
+                    if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
+                        // Parse RGB values
+                        const match = bgColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+                        if (match) {
+                            const r = parseInt(match[1]);
+                            const g = parseInt(match[2]);
+                            const b = parseInt(match[3]);
+                            // Yellow is high R, high G, low B (like #f8e849 = 248, 232, 73)
+                            if (r > 200 && g > 180 && b < 150) {
+                                isOverYellow = true;
+                                break;
+                            }
+                        }
                     }
                 }
 
@@ -7641,8 +7750,12 @@
                 if (isUp) {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else {
-                    const pageHeight = document.documentElement.scrollHeight - window.innerHeight;
-                    window.scrollTo({ top: pageHeight, behavior: 'smooth' });
+                    // Scroll to "The Sunshine Trail Route" section
+                    const routeSection = document.querySelector('.route-toggle-section');
+                    if (routeSection) {
+                        const sectionTop = routeSection.getBoundingClientRect().top + window.scrollY;
+                        window.scrollTo({ top: sectionTop - 20, behavior: 'smooth' });
+                    }
                 }
             }
 
