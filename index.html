@@ -2810,7 +2810,7 @@
                 <h3>The Sunshine Trail Route</h3>
                 <p class="route-info">The ultimate road trip from Asheville, NC to Waitsfield, VT via America's most scenic mountain roads.</p>
                 <div class="route-toggle" id="route-toggle-container">
-                    <input type="checkbox" id="toggle-scenic-route">
+                    <input type="checkbox" id="toggle-scenic-route" checked>
                     <label for="toggle-scenic-route">Show Route on Map</label>
                     <span class="route-spinner"></span>
                 </div>
@@ -6117,14 +6117,11 @@
             }
         });
 
-        // Show route by default on page load
-        // Small delay to ensure map is fully initialized
-        setTimeout(() => {
-            if (routeToggle && !routeToggle.checked) {
-                routeToggle.checked = true;
-                routeToggle.dispatchEvent(new Event('change'));
-            }
-        }, 500);
+        // Load route immediately since checkbox is checked by default in HTML
+        // Trigger the change event to initialize route display
+        if (routeToggle && routeToggle.checked) {
+            routeToggle.dispatchEvent(new Event('change'));
+        }
 
         // ============================================
         // EMAIL SIGNUP MODAL
@@ -7706,8 +7703,9 @@
         const scrollIndicator = document.getElementById('scroll-indicator');
         let scrollBounceInterval = null;
 
-        if (scrollIndicator && window.innerWidth <= 768) {
+        if (scrollIndicator) {
             // Update arrow direction and color based on scroll position
+            // JS runs regardless of viewport - CSS handles visibility via display:none on desktop
             function updateScrollIndicator() {
                 const scrollY = window.scrollY || window.pageYOffset;
                 const pageHeight = document.documentElement.scrollHeight - window.innerHeight;
