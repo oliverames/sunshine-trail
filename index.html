@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Sunshine Trail | Lawson's Finest Liquids</title>
     <meta name="description" content="Explore Sunshine Spots from Waitsfield, VT to Asheville, NC. Interactive map of retailers, hiking trails, river put-ins, and community partners along the Appalachian corridor.">
-    <meta name="theme-color" content="#ffffff">
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#f8e849" id="theme-color-default">
+    <meta name="theme-color" content="#f8e849" media="(prefers-color-scheme: light)" id="theme-color-light">
+    <meta name="theme-color" content="#f8e849" media="(prefers-color-scheme: dark)" id="theme-color-dark">
     <meta name="color-scheme" content="light">
     <meta name="supported-color-schemes" content="light">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -1393,16 +1393,16 @@
 
         @media (max-width: 768px) {
             .map-search-control {
-                bottom: auto;
-                top: 10px;
+                bottom: 130px; /* Above zoom controls */
+                top: auto;
                 right: 15px;
-                left: 15px;
+                left: auto;
                 z-index: 1001;
             }
 
             .map-search-container {
                 right: 0;
-                width: 100%;
+                width: auto;
                 justify-content: flex-end;
             }
 
@@ -1425,23 +1425,23 @@
                 font-size: 1rem;
                 position: absolute;
                 right: 56px; /* Button width + gap */
-                top: 0;
+                top: auto;
+                bottom: 0;
             }
 
             .map-search-results {
                 width: calc(100vw - 30px); /* Full map width with padding */
-                max-height: calc(50vh - 80px); /* Fit within mobile map height */
-                top: 58px; /* Below the search input */
-                bottom: auto;
-                left: 0;
-                right: 0;
+                max-height: calc(50vh - 200px); /* Fit within mobile map height */
+                bottom: 58px; /* Above the search input */
+                top: auto;
+                left: -200px; /* Align to left edge of map */
+                right: auto;
             }
         }
 
         /* Extra narrow mobile viewports */
         @media (max-width: 420px) {
             .map-search-control {
-                left: 10px;
                 right: 10px;
             }
 
@@ -1452,8 +1452,7 @@
 
             .map-search-results {
                 width: calc(100vw - 20px);
-                left: 0;
-                right: 0;
+                left: -185px;
             }
         }
 
@@ -3036,12 +3035,24 @@
         // Track authentication state for email timer
         window.siteRevealed = false;
 
+        // Update Safari theme-color to white (for after password page)
+        function updateThemeColorToWhite() {
+            const themeColorDefault = document.getElementById('theme-color-default');
+            const themeColorLight = document.getElementById('theme-color-light');
+            const themeColorDark = document.getElementById('theme-color-dark');
+            if (themeColorDefault) themeColorDefault.content = '#ffffff';
+            if (themeColorLight) themeColorLight.content = '#ffffff';
+            if (themeColorDark) themeColorDark.content = '#ffffff';
+        }
+
         // Check if already authenticated (persistent with localStorage)
         const isAuthenticated = localStorage.getItem('sunshineTrailAuth') === 'true';
         if (isAuthenticated && passwordOverlay) {
             // Hide immediately - no flash, no transition
             passwordOverlay.classList.add('instant-hidden');
             window.siteRevealed = true;
+            // Update theme color to white for main page
+            updateThemeColorToWhite();
         }
 
         function completeAuthentication() {
@@ -3051,6 +3062,8 @@
             // Signal that site is revealed (for email timer)
             window.siteRevealed = true;
             window.dispatchEvent(new CustomEvent('siteRevealed'));
+            // Update theme color to white for main page
+            updateThemeColorToWhite();
         }
 
         function handlePasswordSubmit() {
