@@ -75,7 +75,7 @@ Hovering generates dynamic, full-viewport god rays that follow the cursor.
 - Click to trigger emoji bursts (sun, beer, ice cube, smiley faces, rainbow—the rainbow intentionally included for DEI/LGBTQ+ support)
 
 **Cold Beer Text**
-Hovering triggers a light blue filter and snowfall effect, connecting to Lawson's "chain of freshness" promise.
+Hovering triggers a light blue filter and snowfall effect, connecting to Lawson's "chain of freshness" promise. On mobile devices, tilting the phone creates a "wind" effect that blows the snowflakes—smaller flakes drift more than larger ones, creating a playful physics simulation.
 
 ### Map Interface
 
@@ -254,6 +254,8 @@ Copy protection via CSS and JavaScript protects brand assets while allowing form
 - Zoom hint persists until user interacts with zoom/search
 - Auto-scroll on mobile when selecting state filters
 - Single popup at a time with auto-close
+- Map centers on both pin and popup when clicked, with smart offset for popup visibility
+- State filters find all locations by parsing state from address strings, not just tagged data
 - Standardized hover states across all CTAs
 
 ### Mobile-First UX Improvements
@@ -272,11 +274,12 @@ A floating arrow button appears in the lower-right corner on mobile devices:
 - Points down when in the top half of the page (scrolls to bottom)
 - Flips to point up when past the halfway point (scrolls to top)
 - Bounces periodically to draw attention
+- Adapts color when over yellow backgrounds (Live Impact section) for visibility
 - Styled consistently with the search button
 - Z-indexed below sun rays and snowfall effects
 
 **Email Popup Timing**
-The email capture modal now triggers 30 seconds after page load (rather than after route interaction), following inbound marketing best practices for engagement without being intrusive.
+The email capture modal triggers 30 seconds after page load, following inbound marketing best practices for engagement without being intrusive. The timer is visibility-aware—it pauses when the browser tab is in the background and resumes when the user returns, ensuring the popup appears at the right moment in the user's actual experience.
 
 **Full-Viewport Email Modal (Mobile)**
 On mobile devices, the email signup modal covers the full viewport for a focused, distraction-free signup experience.
@@ -319,40 +322,9 @@ This is a demonstration project for a job interview—not operated by or affilia
 - Additional verified locations from Lawson's distribution database
 - Content approval workflow for impact stories
 
----
+### Presentation Mode
 
-## Recent Fixes
-
-### Map Interactions (Fixed)
-- **Pin click centering** — Map now centers on both pin and popup when clicked
-- **State button zoom levels** — State buttons now find all locations by parsing state from location strings (e.g., "Philadelphia, PA" → PA), with responsive padding (40px mobile, 80px desktop)
-- **Philadelphia locations** — Cluster settings adjusted (`disableClusteringAtZoom`: 17→15, `maxClusterRadius`: 160→120) for better city-level visibility
-
-### Mobile-Specific (Fixed)
-- **Scroll indicator** — Now flips direction at page halfway point, larger size (52px), bigger bounce animation, and color adaptation over yellow backgrounds
-- **Keyboard coverage** — Search field uses visualViewport API and scrollIntoView for proper keyboard handling
-- **Arrow animation visibility** — Bounce animation enlarged and more noticeable
-
-### Email Popup (Fixed)
-- **Background tab detection** — Uses Page Visibility API to pause/resume timer when tab is in background
-- **Close button size** — Mobile close button enlarged to 44px with consistent styling
-
-### Easter Eggs (Fixed)
-- **iPad spinning sun** — Added dedicated touch event handlers for emoji burst
-- **Accelerometer wind** — Fixed using `calc()` to combine original vw position with pixel-based wind offset
-- **Emoji snowflakes** — Removed emoji snowflakes, now using only text characters (❄, ❅, ❆, ✻, ✼)
-
-### Snowfall Effect (Fixed)
-- **Blue filter opacity** — Increased blue effect visibility with adjusted rgba values
-- **Blue filter fade-in** — Added 2.5s fade-in animation
-
-### Features Implemented
-- **Presentation overlay** — Password-protected overlay with `#f7e949` background; entering "hireme" shows "Welcome" message before fading to reveal site; uses sessionStorage for persistence
-
-## Known Issues
-
-### Mobile-Specific
-- **Zoom/search button issues** — Minor loading state issues on phone at certain zoom levels (low priority)
+For controlled demonstrations, the site includes a password-protected overlay. Visitors see the Lawson's yellow (`#f7e949`) branded gate with a password field. Entering the correct password triggers a "Welcome" animation before revealing the full experience. Authentication persists for the session, so refreshing doesn't require re-entry.
 
 ---
 
