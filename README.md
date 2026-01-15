@@ -256,8 +256,56 @@ Copy protection via CSS and JavaScript protects brand assets while allowing form
 - Single popup at a time with auto-close
 - Standardized hover states across all CTAs
 
+### Mobile-First UX Improvements
+
+**Route Display by Default**
+The scenic road trip route now displays automatically on page load, giving users immediate context about the Sunshine Trail journey from Asheville, NC to Waitsfield, VT. The route properly ends at Lawson's HQ in Waitsfield (not Stowe), emphasizing the destination.
+
+**Half-Viewport Map (Mobile)**
+On mobile devices, the map occupies exactly 50% of the viewport height, creating a balanced split between the interactive map and scrollable content below. This ensures users see both the map and the filter/content sidebar without excessive scrolling.
+
+**Full-Width Search Expansion (Mobile)**
+When activated on mobile, the search input expands to cover the full width of the map area, making it much easier to type and view search results on smaller screens. Results display in a dropdown that fits within the map height.
+
+**Floating Scroll Indicator (Mobile)**
+A floating arrow button appears in the lower-right corner on mobile devices:
+- Points down when in the top half of the page (scrolls to bottom)
+- Flips to point up when past the halfway point (scrolls to top)
+- Bounces periodically to draw attention
+- Styled consistently with the search button
+- Z-indexed below sun rays and snowfall effects
+
+**Email Popup Timing**
+The email capture modal now triggers 30 seconds after page load (rather than after route interaction), following inbound marketing best practices for engagement without being intrusive.
+
+**Full-Viewport Email Modal (Mobile)**
+On mobile devices, the email signup modal covers the full viewport for a focused, distraction-free signup experience.
+
+**Touch-Optimized Hover States (Mobile)**
+Live Impact metric buttons no longer have hover states on touch devices, preventing false triggers during scroll. Active states provide feedback on actual taps instead.
+
+**Beer Section Image Animation (Mobile)**
+The beer cans image automatically animates to its "hover" state when fully visible in the viewport, and returns to normal when scrolling away. This brings attention to the CTA without requiring hover interaction.
+
+**Snowfall Animation Stability**
+Fixed an issue where hovering in/out of "Cold beer" quickly could cause the snowfall animation to crash and restart. The animation now handles rapid hover transitions smoothly by properly managing cleanup timeouts and thawing snowflake states.
+
 ### Quality Assurance
-Playwright test suite covers zoom hints, search, map views, and copy protection.
+Playwright test suite covers zoom hints, search, map views, copy protection, and all UX improvements across nine viewport breakpoints:
+
+| Category | Size | Width |
+|----------|------|-------|
+| Mobile | Small | 320px |
+| Mobile | Medium | 375px |
+| Mobile | Large | 428px |
+| Tablet | Small | 768px |
+| Tablet | Medium | 820px |
+| Tablet | Large | 1024px |
+| Desktop | Small | 1280px |
+| Desktop | Medium | 1440px |
+| Desktop | Large | 1920px |
+
+Tests verify route display, scroll indicator behavior, search expansion, hover states, snowflake animation smoothness, and email popup timing across all breakpoints.
 
 ---
 

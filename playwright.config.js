@@ -14,70 +14,70 @@ module.exports = defineConfig({
     trace: 'on-first-retry',
   },
   projects: [
-    // Desktop sizes
+    // Mobile sizes
     {
-      name: 'desktop-large',
+      name: 'mobile-small',
       use: {
         ...devices['Desktop Chrome'],
-        viewport: { width: 1920, height: 1080 },
+        viewport: { width: 320, height: 568 },
       },
     },
     {
-      name: 'desktop-medium',
-      use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1280, height: 800 },
-      },
-    },
-    {
-      name: 'desktop-narrow',
-      use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1024, height: 768 },
-      },
-    },
-    // Tablet sizes
-    {
-      name: 'tablet-portrait',
-      use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 768, height: 1024 },
-      },
-    },
-    {
-      name: 'tablet-landscape',
-      use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1024, height: 768 },
-      },
-    },
-    // iPhone sizes
-    {
-      name: 'iphone-se',
+      name: 'mobile-medium',
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 375, height: 667 },
       },
     },
     {
-      name: 'iphone-12',
+      name: 'mobile-large',
       use: {
         ...devices['Desktop Chrome'],
-        viewport: { width: 390, height: 844 },
+        viewport: { width: 428, height: 926 },
+      },
+    },
+    // Tablet sizes
+    {
+      name: 'tablet-small',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 768, height: 1024 },
       },
     },
     {
-      name: 'iphone-14-pro',
+      name: 'tablet-medium',
       use: {
         ...devices['Desktop Chrome'],
-        viewport: { width: 393, height: 852 },
+        viewport: { width: 820, height: 1180 },
       },
     },
     {
-      name: 'iphone-14-pro-max',
+      name: 'tablet-large',
       use: {
         ...devices['Desktop Chrome'],
-        viewport: { width: 430, height: 932 },
+        viewport: { width: 1024, height: 768 },
+      },
+    },
+    // Desktop sizes
+    {
+      name: 'desktop-small',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1280, height: 800 },
+      },
+    },
+    {
+      name: 'desktop-medium',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1440, height: 900 },
+      },
+    },
+    {
+      name: 'desktop-large',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1920, height: 1080 },
       },
     },
   ],

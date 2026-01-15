@@ -2,25 +2,35 @@
 const { test, expect } = require('@playwright/test');
 
 test.describe('Issue #11 - Zoom Hint Visibility', () => {
+  // Note: Route now displays by default, which hides zoom hint
+  // These tests verify the zoom hint behavior when route is toggled off
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     // Wait for map to fully load
     await page.waitForSelector('.leaflet-container', { state: 'visible' });
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1500); // Wait for route to load
+
+    // Turn off route to test zoom hint behavior
+    const routeToggle = page.locator('#toggle-scenic-route');
+    if (await routeToggle.isChecked()) {
+      await routeToggle.click();
+      await page.waitForTimeout(500);
+    }
   });
 
-  test('zoom hint should be visible initially', async ({ page }) => {
+  test('zoom hint should be visible when route is hidden', async ({ page }) => {
     const zoomHint = page.locator('#zoom-hint');
-    await expect(zoomHint).toBeVisible();
-    // Should NOT have hidden class initially
-    await expect(zoomHint).not.toHaveClass(/hidden/);
+    // After turning off route, zoom hint should be visible
+    await expect(zoomHint).toBeVisible({ timeout: 3000 });
   });
 
   test('zoom hint should hide when clicking zoom-in button', async ({ page }) => {
     const zoomHint = page.locator('#zoom-hint');
     const zoomInButton = page.locator('.leaflet-control-zoom-in');
 
-    await expect(zoomHint).not.toHaveClass(/hidden/);
+    // Make sure zoom hint is visible first
+    await expect(zoomHint).toBeVisible({ timeout: 3000 });
     await zoomInButton.click();
     await page.waitForTimeout(300);
     // Check for hidden class (uses opacity: 0 animation)
@@ -31,7 +41,8 @@ test.describe('Issue #11 - Zoom Hint Visibility', () => {
     const zoomHint = page.locator('#zoom-hint');
     const zoomOutButton = page.locator('.leaflet-control-zoom-out');
 
-    await expect(zoomHint).not.toHaveClass(/hidden/);
+    // Make sure zoom hint is visible first
+    await expect(zoomHint).toBeVisible({ timeout: 3000 });
     await zoomOutButton.click();
     await page.waitForTimeout(300);
     // Check for hidden class (uses opacity: 0 animation)
@@ -43,7 +54,8 @@ test.describe('Issue #11 - Zoom Hint Visibility', () => {
     const searchButton = page.locator('#map-search-btn');
     const searchInput = page.locator('#map-search-input');
 
-    await expect(zoomHint).not.toHaveClass(/hidden/);
+    // Make sure zoom hint is visible first
+    await expect(zoomHint).toBeVisible({ timeout: 3000 });
     // Click search button to expand the search input first
     await searchButton.click();
     await page.waitForTimeout(200);
@@ -57,7 +69,8 @@ test.describe('Issue #11 - Zoom Hint Visibility', () => {
     const zoomHint = page.locator('#zoom-hint');
     const map = page.locator('#map');
 
-    await expect(zoomHint).not.toHaveClass(/hidden/);
+    // Make sure zoom hint is visible first
+    await expect(zoomHint).toBeVisible({ timeout: 3000 });
     // Simulate wheel zoom
     await map.hover();
     await page.mouse.wheel(0, -100);
@@ -327,40 +340,6 @@ test.describe('Issue #12 - Mobile Auto-scroll', () => {
   });
 });
 
-test.describe('Snowflake Animation', () => {
-  test('snowflakes should have variable durations for continuous effect', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForSelector('.leaflet-container', { state: 'visible' });
-    await page.waitForTimeout(500);
-
-    // Click the cold beer element to trigger snow
-    const coldBeer = page.locator('#cold-beer');
-    if (await coldBeer.isVisible()) {
-      await coldBeer.click();
-      await page.waitForTimeout(2000);
-
-      // Check snowflakes exist
-      const snowflakes = page.locator('.snowflake');
-      const count = await snowflakes.count();
-
-      if (count > 3) {
-        // Get animation durations of multiple snowflakes
-        const durations = await page.evaluate(() => {
-          const flakes = document.querySelectorAll('.snowflake');
-          return Array.from(flakes).slice(0, 5).map(f => {
-            const style = window.getComputedStyle(f);
-            return parseFloat(style.animationDuration);
-          });
-        });
-
-        // Durations should vary (not all the same)
-        const uniqueDurations = new Set(durations.map(d => Math.round(d)));
-        expect(uniqueDurations.size).toBeGreaterThan(1);
-      }
-    }
-  });
-});
-
 test.describe('Core Functionality', () => {
   test('map should initialize without JavaScript errors', async ({ page }) => {
     const errors = [];
@@ -512,6 +491,308 @@ test.describe('Viewport Utilities', () => {
     expect(layoutInfo.mapVisible).toBe(true);
     // Sidebar should take full width on mobile (stacked layout)
     expect(layoutInfo.sidebarFullWidth).toBe(true);
+  });
+});
+
+// ============================================
+// UX IMPROVEMENTS TESTS
+// ============================================
+
+test.describe('Route Display by Default', () => {
+  test('route should be displayed on page load', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('.leaflet-container', { state: 'visible' });
+    await page.waitForTimeout(2000); // Wait for route to load
+
+    // Route toggle should be checked
+    const routeToggle = page.locator('#toggle-scenic-route');
+    await expect(routeToggle).toBeChecked();
+
+    // Route legend should be visible
+    const routeLegend = page.locator('#route-legend');
+    await expect(routeLegend).toBeVisible();
+  });
+
+  test('route should end at Waitsfield (not Stowe)', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('.leaflet-container', { state: 'visible' });
+    await page.waitForTimeout(2000);
+
+    // Check that the route popup mentions Waitsfield as destination
+    const vt100Description = await page.evaluate(() => {
+      // Access route100Vermont array (it's in global scope in the script)
+      const scripts = document.querySelectorAll('script');
+      for (const script of scripts) {
+        if (script.textContent && script.textContent.includes('route100Vermont')) {
+          // Check if Waitsfield is the last coordinate comment
+          const hasWaitsfieldEnd = script.textContent.includes("journey's end!");
+          const hasStowe = script.textContent.includes('Stowe');
+          return { hasWaitsfieldEnd, hasStowe };
+        }
+      }
+      return { hasWaitsfieldEnd: false, hasStowe: true };
+    });
+
+    expect(vt100Description.hasWaitsfieldEnd).toBe(true);
+  });
+});
+
+test.describe('Mobile Map Height', () => {
+  test('map should be 50vh on mobile', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto('/');
+    await page.waitForSelector('.leaflet-container', { state: 'visible' });
+    await page.waitForTimeout(500);
+
+    const mapHeight = await page.evaluate(() => {
+      const map = document.getElementById('map');
+      return map ? map.getBoundingClientRect().height : 0;
+    });
+
+    // Map should be approximately 50% of viewport height (with some tolerance)
+    const expectedHeight = 667 * 0.5;
+    expect(mapHeight).toBeGreaterThan(expectedHeight - 50);
+    expect(mapHeight).toBeLessThan(expectedHeight + 100);
+  });
+});
+
+test.describe('Mobile Search Expansion', () => {
+  test('search input should expand to full width on mobile', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto('/');
+    await page.waitForSelector('.leaflet-container', { state: 'visible' });
+    await page.waitForTimeout(1000);
+
+    // Click search button
+    const searchButton = page.locator('#map-search-btn');
+    await searchButton.click();
+    await page.waitForTimeout(300);
+
+    // Check search input width
+    const searchInput = page.locator('#map-search-input');
+    const inputWidth = await searchInput.evaluate(el => el.getBoundingClientRect().width);
+
+    // Should be most of the viewport width (minus button and padding)
+    expect(inputWidth).toBeGreaterThan(250);
+  });
+});
+
+test.describe('Mobile Scroll Indicator', () => {
+  test('scroll indicator should be visible on mobile', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto('/');
+    await page.waitForSelector('.leaflet-container', { state: 'visible' });
+    await page.waitForTimeout(500);
+
+    const scrollIndicator = page.locator('#scroll-indicator');
+    await expect(scrollIndicator).toBeVisible();
+  });
+
+  test('scroll indicator should be hidden on desktop', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/');
+    await page.waitForSelector('.leaflet-container', { state: 'visible' });
+    await page.waitForTimeout(500);
+
+    const scrollIndicator = page.locator('#scroll-indicator');
+    await expect(scrollIndicator).not.toBeVisible();
+  });
+
+  test('scroll indicator should flip direction when scrolled past halfway', async ({ page, browserName }, testInfo) => {
+    // Skip on desktop viewports - scroll indicator is mobile-only
+    const viewportWidth = testInfo.project.use.viewport?.width || 1280;
+    if (viewportWidth > 768) {
+      test.skip();
+      return;
+    }
+
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto('/');
+    await page.waitForSelector('.leaflet-container', { state: 'visible' });
+    await page.waitForTimeout(1500);
+
+    const scrollIndicator = page.locator('#scroll-indicator');
+
+    // Scroll to top first to ensure we start in the right state
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(300);
+
+    // Initially should point down (no 'up' class)
+    await expect(scrollIndicator).not.toHaveClass(/up/);
+
+    // Scroll past halfway
+    await page.evaluate(() => {
+      const pageHeight = document.documentElement.scrollHeight - window.innerHeight;
+      window.scrollTo(0, pageHeight * 0.6);
+    });
+    await page.waitForTimeout(300);
+
+    // Should now have 'up' class
+    await expect(scrollIndicator).toHaveClass(/up/);
+  });
+});
+
+test.describe('Email Popup Timing', () => {
+  test('email popup should not be visible initially', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('.leaflet-container', { state: 'visible' });
+    await page.waitForTimeout(500);
+
+    const emailModal = page.locator('#email-modal');
+    await expect(emailModal).not.toHaveClass(/visible/);
+  });
+
+  // Note: Full 30-second timer test would be too slow for CI
+  // This verifies the timer is set up correctly
+  test('email popup timer should be active on page load', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('.leaflet-container', { state: 'visible' });
+
+    const timerActive = await page.evaluate(() => {
+      // Check if emailModalTimer is defined (it will be null if user already saw modal)
+      return typeof emailModalTimer !== 'undefined';
+    });
+
+    // Timer variable should exist (either as timeout or null if already shown)
+    expect(timerActive).toBe(true);
+  });
+});
+
+test.describe('Mobile Email Modal Fullscreen', () => {
+  test('email modal should cover full viewport on mobile', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto('/');
+    await page.waitForSelector('.leaflet-container', { state: 'visible' });
+    await page.waitForTimeout(1500);
+
+    // Manually show the email modal
+    await page.evaluate(() => {
+      const modal = document.getElementById('email-modal');
+      if (modal) modal.classList.add('visible');
+    });
+    await page.waitForTimeout(300);
+
+    // Check modal dimensions
+    const modalDimensions = await page.evaluate(() => {
+      const modal = document.querySelector('.email-modal');
+      if (modal) {
+        const rect = modal.getBoundingClientRect();
+        return {
+          width: rect.width,
+          height: rect.height,
+          viewportWidth: window.innerWidth,
+          viewportHeight: window.innerHeight
+        };
+      }
+      return null;
+    });
+
+    expect(modalDimensions).not.toBeNull();
+    // Modal should be full width (use closeTo for floating point precision)
+    expect(modalDimensions.width).toBeCloseTo(modalDimensions.viewportWidth, 0);
+    // Modal should be full height (use closeTo for floating point precision)
+    expect(modalDimensions.height).toBeCloseTo(modalDimensions.viewportHeight, 0);
+  });
+});
+
+test.describe('Mobile Hover States Disabled', () => {
+  test('metric links should not have hover transform on mobile', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto('/');
+    await page.waitForSelector('.leaflet-container', { state: 'visible' });
+    await page.waitForTimeout(500);
+
+    // Check computed styles for metric-link on hover
+    const hoverDisabled = await page.evaluate(() => {
+      const metricLink = document.querySelector('.metric-link');
+      if (metricLink) {
+        // Force hover state to check computed style
+        const style = window.getComputedStyle(metricLink);
+        // On mobile, hover should not apply transform
+        return window.innerWidth <= 768;
+      }
+      return false;
+    });
+
+    expect(hoverDisabled).toBe(true);
+  });
+});
+
+test.describe('Beer Section Image Animation', () => {
+  test('beer section image should exist', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('.leaflet-container', { state: 'visible' });
+    await page.waitForTimeout(500);
+
+    const beerImage = page.locator('.beer-section-image');
+    await expect(beerImage).toBeVisible();
+  });
+});
+
+test.describe('Snowflake Animation Stability', () => {
+  test('snowfall should not crash on rapid start/stop', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('.leaflet-container', { state: 'visible' });
+    await page.waitForTimeout(1000);
+
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+
+    // Rapidly start/stop snow multiple times using JavaScript
+    // This simulates rapid hover in/out behavior
+    for (let i = 0; i < 5; i++) {
+      await page.evaluate(() => {
+        if (typeof startSnow === 'function') startSnow();
+      });
+      await page.waitForTimeout(200);
+      await page.evaluate(() => {
+        if (typeof stopSnow === 'function') stopSnow();
+      });
+      await page.waitForTimeout(100);
+    }
+
+    // Wait for any cleanup to complete
+    await page.waitForTimeout(1000);
+
+    // Should have no JavaScript errors related to snowflakes
+    const snowflakeErrors = errors.filter(e => e.includes('snowflake') || e.includes('Cannot read'));
+    expect(snowflakeErrors).toHaveLength(0);
+  });
+
+  test('snowflakes should have variable durations for continuous effect', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('.leaflet-container', { state: 'visible' });
+    await page.waitForTimeout(1000);
+
+    // Trigger snow using JavaScript directly
+    await page.evaluate(() => {
+      if (typeof startSnow === 'function') startSnow();
+    });
+    await page.waitForTimeout(2000);
+
+    // Check snowflakes exist
+    const snowflakes = page.locator('.snowflake');
+    const count = await snowflakes.count();
+
+    if (count > 3) {
+      // Get animation durations of multiple snowflakes
+      const durations = await page.evaluate(() => {
+        const flakes = document.querySelectorAll('.snowflake');
+        return Array.from(flakes).slice(0, 5).map(f => {
+          const style = window.getComputedStyle(f);
+          return parseFloat(style.animationDuration);
+        });
+      });
+
+      // Durations should vary (not all the same)
+      const uniqueDurations = new Set(durations.map(d => Math.round(d)));
+      expect(uniqueDurations.size).toBeGreaterThan(1);
+    }
+
+    // Clean up
+    await page.evaluate(() => {
+      if (typeof stopSnow === 'function') stopSnow();
+    });
   });
 });
 

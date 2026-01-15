@@ -1012,9 +1012,9 @@
 
             #map {
                 position: relative;
-                height: 65vh;
-                min-height: 400px;
-                max-height: 550px;
+                height: 50vh;
+                min-height: 300px;
+                max-height: 450px;
                 order: 1;
                 flex-shrink: 0;
                 width: 100%;
@@ -1385,18 +1385,24 @@
 
         @media (max-width: 768px) {
             .map-search-control {
-                bottom: 140px;
-                right: 15px; /* Align with Leaflet zoom controls */
+                bottom: auto;
+                top: 10px;
+                right: 15px;
+                left: 15px;
+                z-index: 1001;
             }
 
             .map-search-container {
                 right: 0;
+                width: 100%;
+                justify-content: flex-end;
             }
 
             .map-search-btn {
-                width: 48px; /* Match Leaflet zoom button width */
-                height: 48px; /* Match Leaflet zoom button height */
+                width: 48px;
+                height: 48px;
                 background: #f8e849;
+                flex-shrink: 0;
             }
 
             .map-search-btn svg {
@@ -1404,34 +1410,42 @@
                 height: 22px;
             }
 
+            /* Mobile search expands to full width of map */
             .map-search-input.expanded {
-                width: 260px;
-                padding: 10px 14px;
-                font-size: 0.9rem;
+                width: calc(100vw - 95px); /* Full width minus button, gap, and padding */
+                padding: 12px 16px;
+                font-size: 1rem;
+                position: absolute;
+                right: 56px; /* Button width + gap */
+                top: 0;
             }
 
             .map-search-results {
-                width: 260px; /* Match mobile input width */
-                bottom: 56px; /* Account for larger button */
-                right: 56px; /* 48px button + 8px gap (no extra right margin on mobile) */
+                width: calc(100vw - 30px); /* Full map width with padding */
+                max-height: calc(50vh - 80px); /* Fit within mobile map height */
+                top: 58px; /* Below the search input */
+                bottom: auto;
+                left: 0;
+                right: 0;
             }
         }
 
         /* Extra narrow mobile viewports */
         @media (max-width: 420px) {
             .map-search-control {
-                right: 15px; /* Keep aligned with zoom controls */
+                left: 10px;
+                right: 10px;
             }
 
             .map-search-input.expanded {
-                width: calc(100vw - 90px);
-                min-width: 220px;
+                width: calc(100vw - 85px);
+                right: 56px;
             }
 
             .map-search-results {
-                width: calc(100vw - 90px); /* Match input width on narrow screens */
-                min-width: 220px;
-                right: 56px; /* Position above input */
+                width: calc(100vw - 20px);
+                left: 0;
+                right: 0;
             }
         }
 
@@ -2371,7 +2385,14 @@
         @media (max-width: 768px) {
             .email-modal {
                 padding: 2rem 1.5rem;
-                margin: 1rem;
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+                border-radius: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
             }
 
             .email-modal h2 {
@@ -2381,6 +2402,80 @@
             .email-modal p {
                 font-size: 0.9rem;
             }
+
+            /* Disable hover states on Live Impact buttons - prevents scroll trigger issues */
+            .metric-link:hover {
+                transform: none;
+                box-shadow: none;
+            }
+
+            .metric-link:active {
+                transform: scale(0.98);
+            }
+        }
+
+        /* Mobile Scroll Indicator - floating button that scrolls up/down */
+        .scroll-indicator {
+            display: none; /* Hidden on desktop */
+        }
+
+        @media (max-width: 768px) {
+            .scroll-indicator {
+                display: flex;
+                position: fixed;
+                bottom: 20px;
+                right: 15px;
+                width: 48px;
+                height: 48px;
+                background: #f8e849;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+                z-index: 9997; /* Below sun rays (9999) and snow (9998) */
+                transition: transform 0.3s ease;
+            }
+
+            .scroll-indicator:active {
+                transform: scale(0.95);
+            }
+
+            .scroll-indicator svg {
+                width: 24px;
+                height: 24px;
+                fill: none;
+                stroke: var(--deep-brown);
+                stroke-width: 2.5px;
+                transition: transform 0.3s ease;
+            }
+
+            /* Flip arrow when pointing up */
+            .scroll-indicator.up svg {
+                transform: rotate(180deg);
+            }
+
+            /* Bounce animation to draw attention */
+            @keyframes scrollBounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-6px); }
+            }
+
+            .scroll-indicator.bounce {
+                animation: scrollBounce 1s ease-in-out;
+            }
+        }
+
+        /* Beer section image - viewport-based animation on mobile */
+        @media (max-width: 768px) {
+            .beer-section-image img {
+                transition: transform 0.5s ease;
+            }
+
+            .beer-section-image.in-view img {
+                transform: scale(1.05);
+            }
         }
     </style>
 </head>
@@ -2388,6 +2483,13 @@
     <!-- Freeze overlay for cold beer hover effect -->
     <div class="freeze-overlay" id="freeze-overlay"></div>
     <button class="snow-close-button" id="snow-close-button" aria-label="Stop snow effect"></button>
+
+    <!-- Mobile scroll indicator - floats above content, below effects -->
+    <button class="scroll-indicator" id="scroll-indicator" aria-label="Scroll page">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 4v16m0 0l-6-6m6 6l6-6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </button>
 
     <!-- God rays glow overlay - fixed position, highest z-index -->
     <div id="god-rays-glow">
@@ -2761,13 +2863,8 @@
             const iconUrl = markerIcons[category];
             const pillStyle = 'display:flex;align-items:center;justify-content:center;width:46px;height:46px;background:#FFFDF7;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.25);border:2px solid #ffc72d;position:relative;';
 
-            // Adjust icon size based on aspect ratio for visual balance
-            let iconSize = '28px';
-            if (category === 'river') {
-                iconSize = '36px';  // Larger - wide aspect ratio
-            } else if (category === 'trail') {
-                iconSize = '26px';  // Slightly smaller - tall aspect ratio
-            }
+            // Standard icon size for all categories (all icons are now square)
+            const iconSize = '28px';
             const imgStyle = 'width:' + iconSize + ';height:' + iconSize + ';object-fit:contain;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);';
 
             return L.divIcon({
@@ -5162,7 +5259,7 @@
             [42.8800, -73.2000],  // Bennington, VT
         ];
 
-        // Vermont Route 100: Wilmington to Waitsfield
+        // Vermont Route 100: Wilmington to Waitsfield (Lawson's HQ - the destination!)
         const route100Vermont = [
             [42.8800, -73.2000],  // Bennington (connector)
             [42.8678, -72.8711],  // Wilmington
@@ -5176,9 +5273,7 @@
             [43.8800, -72.8400],  // Rochester / Hancock
             [43.9700, -72.8400],  // Granville (Moss Glen Falls)
             [44.0800, -72.8200],  // Warren
-            [44.1852, -72.8288],  // Waitsfield (Lawson's HQ!)
-            [44.3856, -72.7469],  // Waterbury (Cold Hollow)
-            [44.4654, -72.6874],  // Stowe
+            [44.1852, -72.8288],  // Waitsfield (Lawson's HQ - journey's end!)
         ];
 
         // Create route layers
@@ -5239,6 +5334,18 @@
         const emailModalShownKey = 'sunshineTrailEmailModalShown';
         let emailModalShownEarly = localStorage.getItem(emailModalShownKey) === 'true';
 
+        // Start email modal timer from page load (30 seconds after page loads)
+        if (!emailModalShownEarly) {
+            const emailModalEl = document.getElementById('email-modal');
+            emailModalTimer = setTimeout(() => {
+                if (emailModalEl && !emailModalShownEarly) {
+                    emailModalEl.classList.add('visible');
+                    emailModalShownEarly = true;
+                    localStorage.setItem(emailModalShownKey, 'true');
+                }
+            }, 30000);
+        }
+
         routeToggle.addEventListener('change', function() {
             const zoomHintEl = document.getElementById('zoom-hint');
             const routeToggleContainer = document.getElementById('route-toggle-container');
@@ -5249,18 +5356,6 @@
             if (this.checked) {
                 // Show loading spinner FIRST - let it render before heavy operations
                 routeToggleContainer.classList.add('loading');
-
-                // Start email modal timer (30 seconds after route is shown)
-                if (!emailModalShownEarly) {
-                    const emailModal = document.getElementById('email-modal');
-                    emailModalTimer = setTimeout(() => {
-                        if (emailModal && !emailModalShownEarly) {
-                            emailModal.classList.add('visible');
-                            emailModalShownEarly = true;
-                            localStorage.setItem(emailModalShownKey, 'true');
-                        }
-                    }, 30000);
-                }
 
                 // Use requestAnimationFrame + setTimeout to ensure spinner renders before heavy operations
                 requestAnimationFrame(() => {
@@ -5311,11 +5406,6 @@
                     }, 16); // One frame delay after rAF ensures paint happens first
                 });
             } else {
-                // Clear email modal timer if route is hidden
-                if (emailModalTimer) {
-                    clearTimeout(emailModalTimer);
-                    emailModalTimer = null;
-                }
 
                 // Show loading spinner FIRST - let it render before heavy operations
                 routeToggleContainer.classList.add('loading');
@@ -5346,9 +5436,18 @@
             }
         });
 
+        // Show route by default on page load
+        // Small delay to ensure map is fully initialized
+        setTimeout(() => {
+            if (routeToggle && !routeToggle.checked) {
+                routeToggle.checked = true;
+                routeToggle.dispatchEvent(new Event('change'));
+            }
+        }, 500);
+
         // ============================================
         // EMAIL SIGNUP MODAL
-        // Timer logic is handled in the routeToggle listener above
+        // Timer starts 30 seconds from page load (defined above)
         // ============================================
         const emailModal = document.getElementById('email-modal');
         const emailModalClose = document.getElementById('email-modal-close');
@@ -6600,8 +6699,27 @@
             }, remainingTime * 1000);
         }
 
+        // Track cleanup timeout to prevent animation conflicts
+        let snowCleanupTimeout = null;
+
         function startSnow() {
+            // Clear any pending cleanup to prevent conflicts
+            if (snowCleanupTimeout) {
+                clearTimeout(snowCleanupTimeout);
+                snowCleanupTimeout = null;
+            }
+
+            // If already snowing, just ensure we're active
             if (isSnowing) return;
+
+            // Clean up any leftover thawing snowflakes immediately
+            snowflakes.forEach(flake => {
+                if (flake.classList.contains('thawing')) {
+                    if (flake.parentNode) flake.remove();
+                }
+            });
+            snowflakes = snowflakes.filter(s => !s.classList.contains('thawing'));
+
             isSnowing = true;
             freezeOverlay.classList.add('active');
 
@@ -6617,6 +6735,8 @@
         }
 
         function stopSnow() {
+            if (!isSnowing) return; // Prevent multiple stop calls
+
             isSnowing = false;
             freezeOverlay.classList.remove('active');
 
@@ -6632,11 +6752,14 @@
             });
 
             // Clean up after slow thaw completes
-            setTimeout(() => {
-                snowflakes.forEach(flake => {
+            snowCleanupTimeout = setTimeout(() => {
+                // Only clean up thawing flakes (in case snow restarted)
+                const thawingFlakes = snowflakes.filter(s => s.classList.contains('thawing'));
+                thawingFlakes.forEach(flake => {
                     if (flake.parentNode) flake.remove();
                 });
-                snowflakes = [];
+                snowflakes = snowflakes.filter(s => !s.classList.contains('thawing'));
+                snowCleanupTimeout = null;
             }, 2600);
         }
 
@@ -6818,10 +6941,86 @@
         });
 
         // ============================================
+        // MOBILE SCROLL INDICATOR
+        // Floating button that scrolls up/down based on position
+        // ============================================
+        const scrollIndicator = document.getElementById('scroll-indicator');
+        let scrollBounceInterval = null;
+
+        if (scrollIndicator && window.innerWidth <= 768) {
+            // Update arrow direction based on scroll position
+            function updateScrollIndicator() {
+                const scrollY = window.scrollY || window.pageYOffset;
+                const pageHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const halfwayPoint = pageHeight / 2;
+
+                if (scrollY >= halfwayPoint) {
+                    scrollIndicator.classList.add('up');
+                } else {
+                    scrollIndicator.classList.remove('up');
+                }
+            }
+
+            // Click handler - scroll up or down
+            scrollIndicator.addEventListener('click', function() {
+                const isUp = scrollIndicator.classList.contains('up');
+                if (isUp) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    const pageHeight = document.documentElement.scrollHeight - window.innerHeight;
+                    window.scrollTo({ top: pageHeight, behavior: 'smooth' });
+                }
+            });
+
+            // Update on scroll
+            window.addEventListener('scroll', updateScrollIndicator, { passive: true });
+
+            // Initial state
+            updateScrollIndicator();
+
+            // Periodic bounce animation to draw attention
+            scrollBounceInterval = setInterval(() => {
+                scrollIndicator.classList.add('bounce');
+                setTimeout(() => {
+                    scrollIndicator.classList.remove('bounce');
+                }, 1000);
+            }, 8000); // Bounce every 8 seconds
+        }
+
+        // ============================================
+        // BEER SECTION IMAGE VIEWPORT ANIMATION (MOBILE)
+        // Animate to hover state when fully visible
+        // ============================================
+        if (window.innerWidth <= 768) {
+            const beerSectionImage = document.querySelector('.beer-section-image');
+            if (beerSectionImage) {
+                const beerImageObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting && entry.intersectionRatio >= 0.9) {
+                            beerSectionImage.classList.add('in-view');
+                        } else {
+                            beerSectionImage.classList.remove('in-view');
+                        }
+                    });
+                }, {
+                    threshold: [0.1, 0.9, 1.0],
+                    rootMargin: '-10% 0px -10% 0px'
+                });
+
+                beerImageObserver.observe(beerSectionImage);
+            }
+        }
+
+        // ============================================
         // CLEANUP ON PAGE UNLOAD
         // Prevents memory leaks from intervals and event listeners
         // ============================================
         window.addEventListener('beforeunload', function() {
+            // Clear scroll bounce interval
+            if (scrollBounceInterval) {
+                clearInterval(scrollBounceInterval);
+                scrollBounceInterval = null;
+            }
             // Clear intervals
             if (tickerInterval) {
                 clearInterval(tickerInterval);
@@ -6830,6 +7029,10 @@
             if (snowInterval) {
                 clearInterval(snowInterval);
                 snowInterval = null;
+            }
+            if (snowCleanupTimeout) {
+                clearTimeout(snowCleanupTimeout);
+                snowCleanupTimeout = null;
             }
             if (emailModalTimer) {
                 clearTimeout(emailModalTimer);
