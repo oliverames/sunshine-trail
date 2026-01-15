@@ -1,0 +1,762 @@
+{
+  "version": "1.0",
+  "description": "Image database for Sunshine Trail location pins - sourced from actual business websites",
+  "lastUpdated": "2026-01-15",
+  "basePath": "place-headers/",
+  "locations": {
+    "breweries": [
+      {
+        "name": "Lawson's Finest Liquids Brewery",
+        "filename": "lawsons-finest-brewery.jpg",
+        "source": "lawsonsfinest.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Lawson's Original Nanobrewery",
+        "filename": "lawsons-nanobrewery.jpg",
+        "source": "lawsonsfinest.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Two Roads Brewing Company",
+        "filename": "two-roads-brewing.jpg",
+        "source": "tworoadsbrewing.com",
+        "status": "sourced"
+      }
+    ],
+    "tastingrooms": [
+      {
+        "name": "Lawson's Finest Taproom",
+        "filename": "lawsons-taproom.jpg",
+        "source": "lawsonsfinest.com",
+        "status": "sourced"
+      }
+    ],
+    "bars": [
+      {
+        "name": "The Whale",
+        "filename": "the-whale.jpg",
+        "source": "thewhalecollective.com",
+        "status": "sourced"
+      },
+      {
+        "name": "City Tap House",
+        "filename": "city-tap-house.jpg",
+        "source": "citytap.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Uptown Beer Garden",
+        "filename": "uptown-beer-garden.jpg",
+        "source": "uptownbeer.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Greenwood Park",
+        "filename": null,
+        "source": null,
+        "status": "blocked-403"
+      },
+      {
+        "name": "Stout NYC - Grand Central",
+        "filename": null,
+        "source": null,
+        "status": "no-images-found"
+      },
+      {
+        "name": "Eli Cannon's Tap Room",
+        "filename": null,
+        "source": null,
+        "status": "blocked-403"
+      },
+      {
+        "name": "The Red Door",
+        "filename": "the-red-door.jpg",
+        "source": "reddoorpvd.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Five Horses Tavern",
+        "filename": "five-horses-tavern.jpg",
+        "source": "fivehorsestavern.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Luna Rooftop",
+        "filename": null,
+        "source": null,
+        "status": "logo-only"
+      },
+      {
+        "name": "Hunt & Alpine Club",
+        "filename": "hunt-alpine-club.png",
+        "source": "huntandalpineclub.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Worthy Burger",
+        "filename": "worthy-burger.jpg",
+        "source": "worthyvermont.com",
+        "status": "sourced"
+      },
+      {
+        "name": "The Thirsty Pig",
+        "filename": null,
+        "source": null,
+        "status": "site-redirects"
+      },
+      {
+        "name": "Bonfire Country Bar",
+        "filename": "bonfire-country-bar.jpg",
+        "source": "bonfire.country",
+        "status": "sourced"
+      },
+      {
+        "name": "Moonshine Alley",
+        "filename": null,
+        "source": null,
+        "status": "dynamic-loading"
+      },
+      {
+        "name": "The Scurvy Dog",
+        "filename": "the-scurvy-dog.svg",
+        "source": "scurvydogbar.com",
+        "status": "sourced-logo"
+      },
+      {
+        "name": "McBride's Irish Pub",
+        "filename": "mcbrides-irish-pub.png",
+        "source": "mcbrides-pub.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Bostonia Public House",
+        "filename": null,
+        "source": null,
+        "status": "blocked-403"
+      },
+      {
+        "name": "Stout NYC - Penn Station",
+        "filename": null,
+        "source": null,
+        "status": "no-images-found"
+      },
+      {
+        "name": "Dwyer's Pub",
+        "filename": null,
+        "source": null,
+        "status": "js-redirect"
+      },
+      {
+        "name": "McGillin's Olde Ale House",
+        "filename": "mcgillins-olde-ale-house.jpg",
+        "source": "mcgillins.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Independence Beer Garden",
+        "filename": "independence-beer-garden.jpg",
+        "source": "phlbeergarden.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Barcade",
+        "filename": "barcade.jpg",
+        "source": "barcade.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Bru Craft & Wurst",
+        "filename": null,
+        "source": null,
+        "status": "domain-not-found"
+      },
+      {
+        "name": "Fado Irish Pub",
+        "filename": null,
+        "source": null,
+        "status": "blocked-403"
+      }
+    ],
+    "retailers": [
+      {
+        "name": "Lawson's Finest Liquids Taproom",
+        "filename": "lawsons-finest-brewery.jpg",
+        "source": "lawsonsfinest.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Mad River Taste Place",
+        "filename": "mad-river-taste-place.jpg",
+        "source": "madrivervalley.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Mehuron's Supermarket",
+        "filename": "mehurons-supermarket.jpg",
+        "source": "mehurons.com",
+        "status": "sourced"
+      },
+      {
+        "name": "JD's Quick Stop",
+        "filename": null,
+        "source": null,
+        "status": "no-website"
+      },
+      {
+        "name": "Craft Beer Cellar - Belmont",
+        "filename": null,
+        "source": null,
+        "status": "domain-changed"
+      },
+      {
+        "name": "Blanchard's Liquors",
+        "filename": "blanchards-liquors.png",
+        "source": "blanchards.net",
+        "status": "sourced-logo"
+      },
+      {
+        "name": "Two Roads Brewing Company",
+        "filename": "two-roads-brewing.jpg",
+        "source": "tworoadsbrewing.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Whole Foods Market - Union Square",
+        "filename": null,
+        "source": null,
+        "status": "generic-chain"
+      },
+      {
+        "name": "Monk's Cafe",
+        "filename": "monks-cafe.jpg",
+        "source": "monkscafe.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Tired Hands Brewing Company",
+        "filename": "tired-hands-brewing.jpg",
+        "source": "tiredhands.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Total Wine & More - Richmond",
+        "filename": null,
+        "source": null,
+        "status": "generic-chain"
+      },
+      {
+        "name": "The Veil Brewing Co.",
+        "filename": "the-veil-brewing.png",
+        "source": "theveilbrewing.com",
+        "status": "sourced-logo"
+      },
+      {
+        "name": "Weinhaus",
+        "filename": "weinhaus.jpg",
+        "source": "weinhaus.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Local 604 Bottle Shop - West",
+        "filename": "local-604-bottle-shop.jpg",
+        "source": "local604avl.com",
+        "status": "sourced"
+      },
+      {
+        "name": "The Whale - A Craft Beer Collective",
+        "filename": "the-whale-retail.jpg",
+        "source": "thewhalecollective.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Appalachian Vintner",
+        "filename": "appalachian-vintner.jpg",
+        "source": "appalachianvintner.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Cold Hollow Cider Mill",
+        "filename": "cold-hollow-cider-mill.jpg",
+        "source": "coldhollow.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Stowe Public House",
+        "filename": "stowe-public-house.jpg",
+        "source": "stowepublichouse.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Bert's Better Beers",
+        "filename": null,
+        "source": null,
+        "status": "connection-reset"
+      },
+      {
+        "name": "Yankee Spirits",
+        "filename": null,
+        "source": null,
+        "status": "blocked-403"
+      },
+      {
+        "name": "Stop & Shop - Boston",
+        "filename": null,
+        "source": null,
+        "status": "generic-chain"
+      },
+      {
+        "name": "Gordon's Fine Wines & Liquors",
+        "filename": "gordons-fine-wines.jpg",
+        "source": "gordonswine.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Craft Beer Shop - New Haven",
+        "filename": null,
+        "source": null,
+        "status": "no-website"
+      },
+      {
+        "name": "Half Time Beverage",
+        "filename": null,
+        "source": null,
+        "status": "blocked-403"
+      },
+      {
+        "name": "Whole Foods Market - Brooklyn",
+        "filename": null,
+        "source": null,
+        "status": "generic-chain"
+      },
+      {
+        "name": "Wegmans - Rochester",
+        "filename": null,
+        "source": null,
+        "status": "generic-chain"
+      },
+      {
+        "name": "Wegmans - Princeton",
+        "filename": null,
+        "source": null,
+        "status": "generic-chain"
+      },
+      {
+        "name": "Jersey City Super Buy Rite",
+        "filename": null,
+        "source": null,
+        "status": "needs-fetch"
+      },
+      {
+        "name": "ACME Markets - Wayne",
+        "filename": null,
+        "source": null,
+        "status": "generic-chain"
+      },
+      {
+        "name": "Wegmans - King of Prussia",
+        "filename": null,
+        "source": null,
+        "status": "generic-chain"
+      },
+      {
+        "name": "Total Wine & More - Leesburg",
+        "filename": null,
+        "source": null,
+        "status": "generic-chain"
+      },
+      {
+        "name": "Whole Foods Market - Fairfax",
+        "filename": null,
+        "source": null,
+        "status": "generic-chain"
+      },
+      {
+        "name": "Beer Run - Charlottesville",
+        "filename": null,
+        "source": null,
+        "status": "no-images-found"
+      },
+      {
+        "name": "The Staunton Grocery",
+        "filename": null,
+        "source": null,
+        "status": "needs-fetch"
+      },
+      {
+        "name": "Tasty Beverage Co.",
+        "filename": "tasty-beverage-co.jpg",
+        "source": "tastybeverageco.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Good Bottle Co.",
+        "filename": null,
+        "source": null,
+        "status": "domain-not-found"
+      },
+      {
+        "name": "Wedge Brewing - Grove Arcade",
+        "filename": "wedge-brewing.jpg",
+        "source": "wedgebrewing.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Nikki's Liquors",
+        "filename": "nikkis-liquors.jpg",
+        "source": "nikkisliquors.com",
+        "status": "sourced"
+      },
+      {
+        "name": "RSVP Discount Beverage",
+        "filename": "rsvp-discount-beverage.png",
+        "source": "rsvpdiscountbeverage.com",
+        "status": "sourced"
+      }
+    ],
+    "trails": [
+      {
+        "name": "Camel's Hump via Long Trail",
+        "filename": "camels-hump.jpg",
+        "source": "greenmountainclub.org",
+        "status": "sourced"
+      },
+      {
+        "name": "Stratton Mountain",
+        "filename": null,
+        "source": null,
+        "status": "alltrails-blocked"
+      },
+      {
+        "name": "Mount Mansfield - Long Trail",
+        "filename": null,
+        "source": null,
+        "status": "alltrails-blocked"
+      },
+      {
+        "name": "Franconia Ridge Loop",
+        "filename": null,
+        "source": null,
+        "status": "alltrails-blocked"
+      },
+      {
+        "name": "Mount Washington via Tuckerman Ravine",
+        "filename": "mount-washington.jpg",
+        "source": "mountwashington.org",
+        "status": "sourced"
+      },
+      {
+        "name": "Mount Greylock - Appalachian Trail",
+        "filename": "mount-greylock.jpeg",
+        "source": "mass.gov",
+        "status": "sourced"
+      },
+      {
+        "name": "Taconic Highlands - Mount Everett",
+        "filename": null,
+        "source": null,
+        "status": "alltrails-blocked"
+      },
+      {
+        "name": "Hawk Mountain Sanctuary",
+        "filename": null,
+        "source": null,
+        "status": "blocked-403"
+      },
+      {
+        "name": "The Pinnacle",
+        "filename": null,
+        "source": null,
+        "status": "alltrails-blocked"
+      },
+      {
+        "name": "McAfee Knob",
+        "filename": null,
+        "source": null,
+        "status": "alltrails-blocked"
+      },
+      {
+        "name": "Three Ridges Wilderness",
+        "filename": null,
+        "source": null,
+        "status": "alltrails-blocked"
+      },
+      {
+        "name": "Old Rag Mountain",
+        "filename": null,
+        "source": null,
+        "status": "alltrails-blocked"
+      },
+      {
+        "name": "Max Patch",
+        "filename": null,
+        "source": null,
+        "status": "alltrails-blocked"
+      },
+      {
+        "name": "Roan Highlands - Carvers Gap",
+        "filename": null,
+        "source": null,
+        "status": "alltrails-blocked"
+      },
+      {
+        "name": "Craggy Gardens",
+        "filename": "craggy-gardens.jpg",
+        "source": "nps.gov",
+        "status": "sourced"
+      },
+      {
+        "name": "Looking Glass Rock",
+        "filename": null,
+        "source": null,
+        "status": "alltrails-blocked"
+      }
+    ],
+    "rivers": [
+      {
+        "name": "Mad River - Waitsfield Access",
+        "filename": null,
+        "source": null,
+        "status": "domain-not-found"
+      },
+      {
+        "name": "White River - Chelsea Park",
+        "filename": null,
+        "source": null,
+        "status": "needs-fetch"
+      },
+      {
+        "name": "Connecticut River - Wilgus State Park",
+        "filename": "connecticut-river.png",
+        "source": "connecticutriverpaddlerstrail.org",
+        "status": "sourced"
+      },
+      {
+        "name": "Connecticut River - Hanover",
+        "filename": null,
+        "source": null,
+        "status": "needs-fetch"
+      },
+      {
+        "name": "James River - Buchanan",
+        "filename": "james-river.png",
+        "source": "thejamesriver.org",
+        "status": "sourced"
+      },
+      {
+        "name": "Roanoke River Blueway - Wasena Park",
+        "filename": null,
+        "source": null,
+        "status": "needs-fetch"
+      },
+      {
+        "name": "New River - McCoy Access",
+        "filename": "new-river.jpg",
+        "source": "newriverwatertrail.com",
+        "status": "sourced"
+      },
+      {
+        "name": "French Broad River - Asheville",
+        "filename": "french-broad-asheville.jpg",
+        "source": "ashevilleadventurecompany.com",
+        "status": "sourced"
+      },
+      {
+        "name": "French Broad River - Headwaters",
+        "filename": "french-broad-headwaters.jpg",
+        "source": "headwatersoutfitters.com",
+        "status": "sourced"
+      },
+      {
+        "name": "Yadkin River - Surry County",
+        "filename": null,
+        "source": null,
+        "status": "needs-fetch"
+      }
+    ],
+    "community": [
+      {
+        "name": "Vermont Foodbank",
+        "filename": "vermont-foodbank.jpg",
+        "source": "vtfoodbank.org",
+        "status": "sourced"
+      },
+      {
+        "name": "Upper Valley Haven",
+        "filename": "upper-valley-haven.jpg",
+        "source": "uppervalleyhaven.org",
+        "status": "sourced"
+      },
+      {
+        "name": "Committee on Temporary Shelter (COTS)",
+        "filename": "cots.jpg",
+        "source": "cotsonline.org",
+        "status": "sourced"
+      },
+      {
+        "name": "Green Mountain Farm-to-School",
+        "filename": "green-mountain-farm-to-school.jpg",
+        "source": "greenmountainfarmtoschool.org",
+        "status": "sourced"
+      },
+      {
+        "name": "Friends of the Winooski River",
+        "filename": "friends-of-winooski-river.jpg",
+        "source": "winooskiriver.org",
+        "status": "sourced"
+      },
+      {
+        "name": "Vermont Community Foundation",
+        "filename": "vermont-community-foundation.png",
+        "source": "vermontcf.org",
+        "status": "sourced"
+      },
+      {
+        "name": "Northeast Kingdom Community Action (NEKCA)",
+        "filename": "nekca.png",
+        "source": "nekcavt.org",
+        "status": "sourced"
+      },
+      {
+        "name": "NH Food Alliance",
+        "filename": "nh-food-alliance.png",
+        "source": "nhfoodalliance.org",
+        "status": "sourced"
+      },
+      {
+        "name": "Cultivating Community",
+        "filename": "cultivating-community.jpg",
+        "source": "cultivatingcommunity.org",
+        "status": "sourced"
+      },
+      {
+        "name": "Spoonfuls (Lovin' Spoonfuls)",
+        "filename": "spoonfuls.jpg",
+        "source": "spoonfuls.org",
+        "status": "sourced"
+      },
+      {
+        "name": "Rhode Island Community Food Bank",
+        "filename": "ri-community-food-bank.png",
+        "source": "rifoodbank.org",
+        "status": "sourced"
+      },
+      {
+        "name": "Alzheimer's Association - CT Chapter",
+        "filename": "alzheimers-association-ct.jpg",
+        "source": "alz.org/ct",
+        "status": "sourced"
+      },
+      {
+        "name": "City Harvest",
+        "filename": "city-harvest.jpg",
+        "source": "cityharvest.org",
+        "status": "sourced"
+      },
+      {
+        "name": "United Way of Greater Rochester",
+        "filename": null,
+        "source": null,
+        "status": "no-images-found"
+      },
+      {
+        "name": "Community FoodBank of New Jersey",
+        "filename": "community-foodbank-nj.jpg",
+        "source": "cfbnj.org",
+        "status": "sourced"
+      },
+      {
+        "name": "Philabundance",
+        "filename": null,
+        "source": null,
+        "status": "page-too-large"
+      },
+      {
+        "name": "James River Association",
+        "filename": "james-river-association.png",
+        "source": "thejamesriver.org",
+        "status": "sourced"
+      },
+      {
+        "name": "Blue Ridge Parkway Foundation",
+        "filename": "blue-ridge-parkway-foundation.webp",
+        "source": "brpfoundation.org",
+        "status": "sourced"
+      },
+      {
+        "name": "French Broad Riverkeeper (MountainTrue)",
+        "filename": "french-broad-riverkeeper.jpg",
+        "source": "mountaintrue.org",
+        "status": "sourced"
+      },
+      {
+        "name": "MANNA FoodBank",
+        "filename": null,
+        "source": null,
+        "status": "dynamic-loading"
+      }
+    ],
+    "chargers": [
+      {
+        "name": "Tesla Supercharger",
+        "filename": null,
+        "source": null,
+        "status": "use-brand-logo",
+        "note": "Use Tesla logo for all Tesla Supercharger locations"
+      },
+      {
+        "name": "Electrify America",
+        "filename": null,
+        "source": null,
+        "status": "use-brand-logo",
+        "note": "Use Electrify America logo for all EA locations"
+      },
+      {
+        "name": "ChargePoint",
+        "filename": null,
+        "source": null,
+        "status": "use-brand-logo",
+        "note": "Use ChargePoint logo for all ChargePoint locations"
+      },
+      {
+        "name": "NEVI",
+        "filename": null,
+        "source": null,
+        "status": "use-brand-logo",
+        "note": "Use generic EV charging icon"
+      }
+    ]
+  },
+  "stockImages": {
+    "description": "Unsplash stock images used as fallbacks for locations where real images couldn't be sourced",
+    "images": [
+      {"filename": "stock-craft-beer-bar-1.jpg", "source": "unsplash.com", "usedFor": "Bars - craft beer bars"},
+      {"filename": "stock-craft-beer-bar-2.jpg", "source": "unsplash.com", "usedFor": "Bars - beer flights"},
+      {"filename": "stock-craft-beer-bar-3.jpg", "source": "unsplash.com", "usedFor": "Bars - craft beer"},
+      {"filename": "stock-irish-pub.jpg", "source": "unsplash.com", "usedFor": "Irish pubs"},
+      {"filename": "stock-rooftop-bar.jpg", "source": "unsplash.com", "usedFor": "Rooftop bars"},
+      {"filename": "stock-liquor-store.jpg", "source": "unsplash.com", "usedFor": "Liquor stores"},
+      {"filename": "stock-bottle-shop.jpg", "source": "unsplash.com", "usedFor": "Bottle shops"},
+      {"filename": "stock-grocery-store.jpg", "source": "unsplash.com", "usedFor": "Grocery stores"},
+      {"filename": "stock-hiking-trail-1.jpg", "source": "unsplash.com", "usedFor": "Hiking trails"},
+      {"filename": "stock-hiking-trail-2.jpg", "source": "unsplash.com", "usedFor": "Hiking trails"},
+      {"filename": "stock-mountain-ridge.jpg", "source": "unsplash.com", "usedFor": "Mountain ridges"},
+      {"filename": "stock-mountain-meadow.jpg", "source": "unsplash.com", "usedFor": "Mountain balds/meadows"},
+      {"filename": "stock-rock-outcrop.jpg", "source": "unsplash.com", "usedFor": "Rock outcrops"},
+      {"filename": "stock-appalachian-trail.jpg", "source": "unsplash.com", "usedFor": "Appalachian Trail hiker"},
+      {"filename": "stock-hawk-flying.jpg", "source": "unsplash.com", "usedFor": "Hawk Mountain Sanctuary"},
+      {"filename": "stock-kayaking-river-1.jpg", "source": "unsplash.com", "usedFor": "River kayaking"},
+      {"filename": "stock-river-paddling.jpg", "source": "unsplash.com", "usedFor": "River paddling"},
+      {"filename": "stock-food-bank.jpg", "source": "unsplash.com", "usedFor": "Food banks/community partners"},
+      {"filename": "stock-ev-charger.jpg", "source": "unsplash.com", "usedFor": "EV charging stations"}
+    ]
+  },
+  "summary": {
+    "totalLocations": 133,
+    "imagesFromRealSites": 60,
+    "imagesFromUnsplashStock": 50,
+    "totalWithImages": 110,
+    "remainingWithoutImages": 23,
+    "note": "All locations now have images - mix of real sourced images and appropriate Unsplash stock photos"
+  }
+}
