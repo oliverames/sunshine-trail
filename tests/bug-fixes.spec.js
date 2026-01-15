@@ -5,7 +5,7 @@ const { test, expect } = require('@playwright/test');
 test.beforeEach(async ({ page }) => {
   // Set authentication before page loads to skip password overlay
   await page.addInitScript(() => {
-    sessionStorage.setItem('sunshineTrailAuth', 'true');
+    localStorage.setItem('sunshineTrailAuth', 'true');
   });
 });
 
