@@ -472,19 +472,26 @@ The map collapses back when the popup closes or search is dismissed. The scroll 
 
 ### Quality Assurance
 
-Playwright test suite with 180+ passing tests covers zoom hints, search, map views, copy protection, and all UX improvements across nine viewport breakpoints:
+Comprehensive Playwright E2E test suite covering all major features across 15 viewport configurations:
 
-| Category | Size | Width |
-|----------|------|-------|
-| Mobile | Small | 320px |
-| Mobile | Medium | 375px |
-| Mobile | Large | 428px |
-| Tablet | Small | 768px |
-| Tablet | Medium | 820px |
-| Tablet | Large | 1024px |
-| Desktop | Small | 1280px |
-| Desktop | Medium | 1440px |
-| Desktop | Large | 1920px |
+**Test Coverage Areas:**
+- **Password protection** — Authentication flow, fidget sun interaction
+- **Easter eggs** — God rays, snowfall, emoji burst, fidget sun spinning
+- **Map interactions** — Initialization, clustering, zoom, markers, route display
+- **Popup centering** — Popup fully visible when clicked (Issue #27)
+- **Search** — Input, results, navigation, accessibility
+- **Filters** — Category filters, state filters, marker updates
+- **Email modal** — Form validation, auto-popup timer, location field
+- **Live metrics** — Animated counters, B Corp score, links
+- **Responsiveness** — Layout adaptation across all viewport sizes
+
+**15 Viewport Configurations:**
+
+| Type | Viewports |
+|------|-----------|
+| Mobile (5) | iPhone SE (320×568), Android Small (360×640), iPhone 14 (390×844), Pixel 7 (412×915), iPhone 14 Pro Max (430×932) |
+| Tablet (4) | iPad Mini (768×1024), Android Tablet (800×1280), iPad Air (820×1180), iPad Pro (1024×1366) |
+| Desktop (6) | Small (1024×768), HD (1366×768), HD+ (1440×900), FHD (1920×1080), QHD (2560×1440), Ultrawide (3440×1440) |
 
 Tests verify route display, scroll indicator behavior, search expansion, hover states, snowflake animation smoothness, and email popup timing across all breakpoints.
 
