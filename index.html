@@ -68,6 +68,11 @@
             background-color: #ffffff;
         }
 
+        /* When authenticated, body should also be white for Safari color sampling */
+        html.authenticated body {
+            background-color: #ffffff;
+        }
+
         body {
             font-family: 'Open Sans', sans-serif;
             background-color: var(--light-gold);
@@ -599,6 +604,31 @@
             accent-color: var(--sunshine-gold);
         }
 
+        /* Hide checkbox when filter is loading, show spinner in its place */
+        .filter-item.loading input[type="checkbox"] {
+            display: none;
+        }
+
+        /* Filter spinner - replaces checkbox when loading */
+        .filter-item .filter-spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--light-gold);
+            border-top-color: var(--sunshine-gold);
+            border-radius: 50%;
+            animation: filterSpinner 0.6s linear infinite;
+            flex-shrink: 0;
+        }
+
+        .filter-item.loading .filter-spinner {
+            display: block;
+        }
+
+        @keyframes filterSpinner {
+            to { transform: rotate(360deg); }
+        }
+
         .filter-item label {
             cursor: pointer;
             font-family: 'Open Sans', sans-serif;
@@ -997,6 +1027,8 @@
         /* Mobile responsive */
         @media (max-width: 768px) {
             html, body {
+                height: auto;
+                min-height: 100%;
                 overflow-x: hidden;
                 overflow-y: auto;
             }
@@ -1267,6 +1299,7 @@
         .map-search-control {
             margin-bottom: 10px; /* Gap between search and zoom buttons */
             margin-right: 15px; /* Same as zoom controls */
+            pointer-events: auto !important; /* Override Leaflet's pointer-events: none on .leaflet-bottom */
         }
 
         .map-search-btn {
@@ -1280,11 +1313,19 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            transition: background 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            pointer-events: auto !important; /* Ensure clickable */
+            -webkit-tap-highlight-color: transparent;
         }
 
         .map-search-btn:hover {
-            background: #e6d63e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+
+        .map-search-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
         .map-search-btn svg {
@@ -1293,12 +1334,14 @@
             fill: none;
             stroke: var(--deep-brown);
             stroke-width: 2px;
+            pointer-events: none; /* Clicks should go through to button */
         }
 
         .map-search-container {
             display: flex;
             align-items: center;
             gap: 8px;
+            pointer-events: auto !important; /* Override Leaflet's pointer-events: none */
         }
 
         .map-search-input {
@@ -1916,11 +1959,17 @@
             text-decoration: none;
             cursor: pointer;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .metric-link:hover {
-            transform: scale(1.03);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .metric-link:active {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
         }
 
         .metric-number {
@@ -2419,14 +2468,15 @@
                 font-size: 0.9rem;
             }
 
-            /* Disable hover states on Live Impact buttons - prevents scroll trigger issues */
+            /* Mobile touch feedback for Live Impact buttons - raise effect on active */
             .metric-link:hover {
                 transform: none;
-                box-shadow: none;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
 
             .metric-link:active {
-                transform: scale(0.98);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
             }
         }
 
@@ -2443,7 +2493,7 @@
                 right: 15px;
                 width: 52px;
                 height: 52px;
-                background: #f8e849;
+                background: rgba(255, 255, 255, 0.88);
                 border: none;
                 border-radius: 10px;
                 cursor: pointer;
@@ -2451,13 +2501,24 @@
                 justify-content: center;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.25);
                 z-index: 9997; /* Below sun rays (9999) and snow (9998) */
-                transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                -webkit-tap-highlight-color: transparent;
+                pointer-events: auto !important;
             }
 
-            /* Adapt color when over yellow backgrounds (Live Impact section) */
+            /* Hover state - lift and add shadow, don't change color */
+            @media (hover: hover) {
+                .scroll-indicator:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 6px 16px rgba(0,0,0,0.30);
+                }
+            }
+
+            /* When over yellow backgrounds, use fully opaque white with subtle border for better contrast */
             .scroll-indicator.over-yellow {
-                background: rgba(255, 255, 255, 0.85);
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                background: rgba(255, 255, 255, 0.98);
+                border: 1px solid rgba(45, 42, 38, 0.12);
+                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
             }
 
             .scroll-indicator:active {
@@ -2471,6 +2532,7 @@
                 stroke: var(--deep-brown);
                 stroke-width: 2.5px;
                 transition: transform 0.3s ease;
+                pointer-events: none;
             }
 
             /* Flip arrow when pointing up */
@@ -2568,6 +2630,27 @@
 
         .password-sun:active {
             cursor: grabbing;
+        }
+
+        /* Make password sun bigger on mobile for better touch interaction */
+        @media (max-width: 768px) {
+            .fidget-sun-password {
+                width: 160px;
+                height: 160px;
+            }
+
+            .password-sun {
+                padding: 20px;
+                margin: -10px;
+            }
+        }
+
+        /* Even bigger on larger phones for better prominence */
+        @media (max-width: 768px) and (min-width: 390px) {
+            .fidget-sun-password {
+                width: 180px;
+                height: 180px;
+            }
         }
 
         .password-overlay h1 {
@@ -2828,6 +2911,7 @@
                 <div class="filter-group">
                     <div class="filter-item">
                         <input type="checkbox" id="filter-breweries" checked>
+                        <span class="filter-spinner"></span>
                         <label for="filter-breweries">
                             <img src="assets/images/marker-brewery.svg" alt="" class="filter-icon">
                             Breweries
@@ -2836,6 +2920,7 @@
                     </div>
                     <div class="filter-item">
                         <input type="checkbox" id="filter-tastingrooms" checked>
+                        <span class="filter-spinner"></span>
                         <label for="filter-tastingrooms">
                             <img src="assets/images/marker-tastingroom.svg" alt="" class="filter-icon">
                             Tasting Rooms
@@ -2844,6 +2929,7 @@
                     </div>
                     <div class="filter-item">
                         <input type="checkbox" id="filter-retailers" checked>
+                        <span class="filter-spinner"></span>
                         <label for="filter-retailers">
                             <img src="assets/images/marker-retailer.svg" alt="" class="filter-icon">
                             Retailers
@@ -2852,6 +2938,7 @@
                     </div>
                     <div class="filter-item">
                         <input type="checkbox" id="filter-bars" checked>
+                        <span class="filter-spinner"></span>
                         <label for="filter-bars">
                             <img src="assets/images/marker-bar.svg" alt="" class="filter-icon">
                             Bars & Restaurants
@@ -2860,6 +2947,7 @@
                     </div>
                     <div class="filter-item">
                         <input type="checkbox" id="filter-trails" checked>
+                        <span class="filter-spinner"></span>
                         <label for="filter-trails">
                             <img src="assets/images/marker-trail.svg?v=2" alt="" class="filter-icon">
                             Trails
@@ -2868,6 +2956,7 @@
                     </div>
                     <div class="filter-item">
                         <input type="checkbox" id="filter-rivers" checked>
+                        <span class="filter-spinner"></span>
                         <label for="filter-rivers">
                             <img src="assets/images/marker-river.svg?v=2" alt="" class="filter-icon">
                             River Put-ins
@@ -2876,6 +2965,7 @@
                     </div>
                     <div class="filter-item">
                         <input type="checkbox" id="filter-community" checked>
+                        <span class="filter-spinner"></span>
                         <label for="filter-community">
                             <img src="assets/images/marker-community.svg" alt="" class="filter-icon">
                             Community Partners
@@ -2884,6 +2974,7 @@
                     </div>
                     <div class="filter-item">
                         <input type="checkbox" id="filter-chargers">
+                        <span class="filter-spinner"></span>
                         <label for="filter-chargers">
                             <img src="assets/images/marker-charger.svg" alt="" class="filter-icon">
                             DC Fast Chargers
@@ -5028,8 +5119,9 @@
 
                 const numIcons = Math.min(uniqueCategories.length, 4);
                 // Calculate dimensions based on content - generous sizing to contain pill
-                const width = (numIcons * 35) + 80;
-                const height = 55;
+                // Added extra buffer to ensure all icons fit within the container
+                const width = (numIcons * 40) + 100;
+                const height = 60;
 
                 // Use inline styles to guarantee rendering - absolutely positioned to center in container
                 const pillStyle = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:5px;padding:8px 12px;background:#FFFDF7;border-radius:23px;box-shadow:0 2px 8px rgba(0,0,0,0.25);border:2px solid #ffc72d;white-space:nowrap;';
@@ -5049,7 +5141,7 @@
             spiderfyOnMaxZoom: true,  // Spider out only when can't zoom any further
             zoomToBoundsOnClick: false,  // We'll handle this manually with sidebar padding
             disableClusteringAtZoom: 15,  // Separate markers at zoom 15+ (lowered for Philadelphia visibility)
-            maxClusterRadius: 120,  // Reduced radius for better city-level visibility
+            maxClusterRadius: 120,  // Standard radius for city-level visibility
             iconCreateFunction: createUnifiedClusterIcon,
             spiderLegPolylineOptions: { weight: 2, color: '#ffc72d', opacity: 0.6 },
             spiderfyDistanceMultiplier: 1.8,  // More spread out spider
@@ -5230,56 +5322,86 @@
         }
         updateCounts();
 
+        // Helper function to handle filter changes with loading spinner
+        function handleFilterChange(checkbox, categoryKey) {
+            const filterItem = checkbox.closest('.filter-item');
+
+            // Show loading spinner
+            filterItem.classList.add('loading');
+
+            // Use requestAnimationFrame + setTimeout to ensure spinner renders before heavy operations
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    visibleCategories[categoryKey] = checkbox.checked;
+                    refreshUnifiedCluster();
+
+                    // Hide spinner after cluster refresh
+                    requestAnimationFrame(() => {
+                        filterItem.classList.remove('loading');
+                    });
+                }, 10);
+            });
+        }
+
         // Filter functionality - using unified cluster
         document.getElementById('filter-breweries').addEventListener('change', function() {
-            visibleCategories.brewery = this.checked;
-            refreshUnifiedCluster();
+            handleFilterChange(this, 'brewery');
         });
 
         document.getElementById('filter-tastingrooms').addEventListener('change', function() {
-            visibleCategories.tastingroom = this.checked;
-            refreshUnifiedCluster();
+            handleFilterChange(this, 'tastingroom');
         });
 
         document.getElementById('filter-retailers').addEventListener('change', function() {
-            visibleCategories.retailer = this.checked;
-            refreshUnifiedCluster();
+            handleFilterChange(this, 'retailer');
         });
 
         document.getElementById('filter-bars').addEventListener('change', function() {
-            visibleCategories.bar = this.checked;
-            refreshUnifiedCluster();
+            handleFilterChange(this, 'bar');
         });
 
         document.getElementById('filter-trails').addEventListener('change', function() {
-            visibleCategories.trail = this.checked;
-            refreshUnifiedCluster();
+            handleFilterChange(this, 'trail');
         });
 
         document.getElementById('filter-rivers').addEventListener('change', function() {
-            visibleCategories.river = this.checked;
-            refreshUnifiedCluster();
+            handleFilterChange(this, 'river');
         });
 
         document.getElementById('filter-community').addEventListener('change', function() {
-            visibleCategories.community = this.checked;
-            refreshUnifiedCluster();
+            handleFilterChange(this, 'community');
         });
 
         document.getElementById('filter-chargers').addEventListener('change', function() {
-            visibleCategories.charger = this.checked;
+            const filterItem = this.closest('.filter-item');
+            const checkbox = this;
 
-            // If user tries to enable chargers, also enable the route (chargers are only relevant along the route)
-            if (this.checked) {
-                const routeCheckbox = document.getElementById('toggle-scenic-route');
-                if (routeCheckbox && !routeCheckbox.checked) {
-                    routeCheckbox.checked = true;
-                    // Trigger the change event to load the route
-                    routeCheckbox.dispatchEvent(new Event('change'));
-                }
-            }
+            // Show loading spinner
+            filterItem.classList.add('loading');
 
-            refreshUnifiedCluster();
+            // Use requestAnimationFrame + setTimeout to ensure spinner renders before heavy operations
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    visibleCategories.charger = checkbox.checked;
+
+                    // If user tries to enable chargers, also enable the route (chargers are only relevant along the route)
+                    if (checkbox.checked) {
+                        const routeCheckbox = document.getElementById('toggle-scenic-route');
+                        if (routeCheckbox && !routeCheckbox.checked) {
+                            routeCheckbox.checked = true;
+                            // Trigger the change event to load the route
+                            routeCheckbox.dispatchEvent(new Event('change'));
+                        }
+                    }
+
+                    refreshUnifiedCluster();
+
+                    // Hide spinner after cluster refresh
+                    requestAnimationFrame(() => {
+                        filterItem.classList.remove('loading');
+                    });
+                }, 10);
+            });
         });
 
         // Make entire filter item row clickable to toggle checkbox
@@ -5515,8 +5637,17 @@
 
         // Save map position before popup opens, restore on close (mobile only)
         let savedMapState = null;
+        let popupJustOpened = false; // Prevent immediate close on mobile touch
 
         map.on('popupopen', function(e) {
+            // Set protection flag on mobile to prevent immediate close from touch event bubbling
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                popupJustOpened = true;
+                setTimeout(() => {
+                    popupJustOpened = false;
+                }, 300); // 300ms protection window
+            }
+
             // Only save state on mobile/tablet
             if (window.innerWidth <= 1200) {
                 savedMapState = {
@@ -5536,19 +5667,51 @@
                     const mapContainer = document.getElementById('map');
                     const mapRect = mapContainer.getBoundingClientRect();
 
-                    // Calculate how much of popup is outside the visible map area
-                    const popupTop = popupRect.top;
-                    const mapTop = mapRect.top;
+                    // Calculate visible map area (accounting for sidebar on desktop)
                     const padding = 20; // Minimum padding from edge
+                    let visibleLeft = mapRect.left + padding;
+                    let visibleRight = mapRect.right - padding;
+                    const visibleTop = mapRect.top + padding;
+                    const visibleBottom = mapRect.bottom - padding;
 
-                    // If popup top is above visible map area, we need to pan up
-                    if (popupTop < mapTop + padding) {
-                        const pixelsToShift = (mapTop + padding) - popupTop + 50; // Extra 50px for breathing room
+                    // On desktop, account for sidebar overlay
+                    if (window.innerWidth > 768) {
+                        const sidebar = document.querySelector('.sidebar');
+                        if (sidebar) {
+                            const sidebarWidth = sidebar.offsetWidth;
+                            visibleLeft = mapRect.left + sidebarWidth + padding;
+                        }
+                    }
 
-                        // Convert pixels to lat offset at current zoom
+                    // Calculate how much we need to pan in each direction
+                    let xShift = 0;
+                    let yShift = 0;
+
+                    // Check top edge (most common case - popups open above markers)
+                    if (popupRect.top < visibleTop) {
+                        yShift = (visibleTop - popupRect.top) + 50; // Extra 50px breathing room
+                    }
+
+                    // Check bottom edge (rare, but for completeness)
+                    if (popupRect.bottom > visibleBottom) {
+                        yShift = -(popupRect.bottom - visibleBottom + 20);
+                    }
+
+                    // Check left edge
+                    if (popupRect.left < visibleLeft) {
+                        xShift = -(visibleLeft - popupRect.left + 20);
+                    }
+
+                    // Check right edge
+                    if (popupRect.right > visibleRight) {
+                        xShift = popupRect.right - visibleRight + 20;
+                    }
+
+                    // Only pan if we need to adjust
+                    if (xShift !== 0 || yShift !== 0) {
                         const center = map.getCenter();
                         const point = map.latLngToContainerPoint(center);
-                        const newPoint = L.point(point.x, point.y - pixelsToShift);
+                        const newPoint = L.point(point.x + xShift, point.y - yShift);
                         const newLatLng = map.containerPointToLatLng(newPoint);
 
                         // Use sidebar-aware centering when sidebar floats over map (>768px)
@@ -5559,6 +5722,15 @@
                         }
                     }
                 }, 50); // Small delay to ensure popup is rendered
+            }
+        });
+
+        // Prevent popup from closing immediately after opening on touch devices
+        map.on('click', function(e) {
+            if (popupJustOpened) {
+                // Prevent this click from closing the popup
+                e.originalEvent.stopPropagation();
+                return false;
             }
         });
 
@@ -6190,12 +6362,26 @@
             const allSpotLocations = sunshineSpots.map(s => [s.lat, s.lng]);
             const combinedBounds = L.latLngBounds([...fullRoute, ...allSpotLocations]);
 
+            // Calculate appropriate zoom based on viewport
+            // Mobile needs to zoom in more since map area is smaller
+            const isMobile = window.innerWidth <= 768;
+            const minZoom = isMobile ? 5 : 5;  // Minimum zoom to keep focus on east coast
+            const maxZoom = isMobile ? 6 : 7;  // Maximum zoom
+
             // Use sidebar-aware fitBounds for proper safe area
             fitBoundsWithSidebarOffset(combinedBounds, {
                 animate: false,
-                maxZoom: 7,  // Don't zoom in too much on initial load
-                padding: [20, 20]
+                maxZoom: maxZoom,
+                padding: isMobile ? [30, 20] : [40, 40]
             });
+
+            // Ensure we don't zoom out too far (keep focus on east coast US)
+            setTimeout(() => {
+                if (map.getZoom() < minZoom) {
+                    const center = combinedBounds.getCenter();
+                    map.setView(center, minZoom, { animate: false });
+                }
+            }, 100);
         }
 
         // ============================================
@@ -6702,8 +6888,9 @@
         if (mapSearchBtn && mapSearchInput && mapSearchResults) {
             // Note: Removed auto-scroll behaviors - search should not scroll the page
 
-            // Toggle search input expansion
-            mapSearchBtn.addEventListener('click', () => {
+            // Toggle search input expansion - handler function
+            function toggleSearch(e) {
+                e.preventDefault();
                 if (!searchExpanded) {
                     // Expand search
                     searchExpanded = true;
@@ -6718,7 +6905,11 @@
                     // Collapse search - use helper function for consistency
                     collapseSearch();
                 }
-            });
+            }
+
+            // Add both click and touchend for mobile compatibility
+            mapSearchBtn.addEventListener('click', toggleSearch);
+            mapSearchBtn.addEventListener('touchend', toggleSearch, { passive: false });
 
             // Close search when clicking outside search control
             // Check both searchExpanded state AND if results are visible (handles edge cases)
@@ -7758,18 +7949,26 @@
         // ============================================
         const scrollIndicator = document.getElementById('scroll-indicator');
         let scrollBounceInterval = null;
+        let scrollUpdatePending = false;
 
         if (scrollIndicator) {
             // Update arrow direction and color based on scroll position
             // JS runs regardless of viewport - CSS handles visibility via display:none on desktop
             function updateScrollIndicator() {
-                const scrollY = window.scrollY || window.pageYOffset;
-                // Use body.scrollHeight for actual content height (documentElement can be wrong on mobile)
-                const pageHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) - window.innerHeight;
-                const halfwayPoint = pageHeight / 2;
+                scrollUpdatePending = false;
+                const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+                // Use documentElement for most accurate page height
+                const docHeight = Math.max(
+                    document.body.scrollHeight,
+                    document.documentElement.scrollHeight,
+                    document.body.offsetHeight,
+                    document.documentElement.offsetHeight
+                );
+                const pageHeight = docHeight - window.innerHeight;
+                const halfwayPoint = Math.max(pageHeight / 2, 100); // Minimum 100px to avoid edge cases
 
                 // Update direction
-                if (scrollY >= halfwayPoint) {
+                if (scrollY >= halfwayPoint && pageHeight > 0) {
                     scrollIndicator.classList.add('up');
                 } else {
                     scrollIndicator.classList.remove('up');
@@ -7811,9 +8010,18 @@
                 }
             }
 
+            // Throttled scroll update using requestAnimationFrame
+            function requestScrollUpdate() {
+                if (!scrollUpdatePending) {
+                    scrollUpdatePending = true;
+                    requestAnimationFrame(updateScrollIndicator);
+                }
+            }
+
             // Scroll handler - scroll up or down
             function handleScrollClick(e) {
                 e.preventDefault();
+                e.stopPropagation();
                 const isUp = scrollIndicator.classList.contains('up');
                 if (isUp) {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -7821,24 +8029,35 @@
                     // Scroll to "The Sunshine Trail Route" section
                     const routeSection = document.querySelector('.route-toggle-section');
                     if (routeSection) {
-                        const sectionTop = routeSection.getBoundingClientRect().top + window.scrollY;
+                        const sectionTop = routeSection.getBoundingClientRect().top + (window.scrollY || window.pageYOffset || 0);
                         window.scrollTo({ top: sectionTop - 20, behavior: 'smooth' });
                     }
                 }
             }
 
+            // Prevent touchstart from interfering
+            scrollIndicator.addEventListener('touchstart', function(e) {
+                e.stopPropagation();
+            }, { passive: true });
+
             // Add both click and touch events for reliable mobile interaction
             scrollIndicator.addEventListener('click', handleScrollClick);
             scrollIndicator.addEventListener('touchend', function(e) {
                 e.preventDefault();
+                e.stopPropagation();
                 handleScrollClick(e);
             }, { passive: false });
 
-            // Update on scroll
-            window.addEventListener('scroll', updateScrollIndicator, { passive: true });
+            // Update on scroll - listen to multiple sources for cross-browser compatibility
+            window.addEventListener('scroll', requestScrollUpdate, { passive: true });
+            document.addEventListener('scroll', requestScrollUpdate, { passive: true });
 
-            // Initial state
-            updateScrollIndicator();
+            // Also update on touchmove for smoother mobile experience
+            document.addEventListener('touchmove', requestScrollUpdate, { passive: true });
+
+            // Initial state after short delay to ensure page is fully rendered
+            setTimeout(updateScrollIndicator, 100);
+            setTimeout(updateScrollIndicator, 500); // Second check after layout stabilizes
 
             // Periodic bounce animation to draw attention
             scrollBounceInterval = setInterval(() => {
