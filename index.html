@@ -5688,7 +5688,7 @@
                 };
             }
 
-            // Center map to show both pin AND entire popup card
+            // Center map to show pin+popup as a unit within the safe area
             if (e.popup && e.popup._latlng) {
                 // Wait a moment for popup to render so we can measure it
                 setTimeout(() => {
@@ -5699,51 +5699,68 @@
                     const mapContainer = document.getElementById('map');
                     const mapRect = mapContainer.getBoundingClientRect();
 
-                    // Calculate visible map area (accounting for sidebar on desktop)
-                    const padding = 20; // Minimum padding from edge
-                    let visibleLeft = mapRect.left + padding;
-                    let visibleRight = mapRect.right - padding;
-                    const visibleTop = mapRect.top + padding;
-                    const visibleBottom = mapRect.bottom - padding;
+                    // Get marker position on screen
+                    const markerPoint = map.latLngToContainerPoint(e.popup._latlng);
+                    const markerScreenY = mapRect.top + markerPoint.y;
+                    const markerScreenX = mapRect.left + markerPoint.x;
+
+                    // Calculate combined bounding box of popup + marker pin
+                    // Popup is above the marker, pin extends ~20px below the popup anchor
+                    const pinHeight = 35; // Approximate marker pin height
+                    const combinedTop = popupRect.top;
+                    const combinedBottom = markerScreenY + pinHeight;
+                    const combinedLeft = Math.min(popupRect.left, markerScreenX - 20);
+                    const combinedRight = Math.max(popupRect.right, markerScreenX + 20);
+                    const combinedHeight = combinedBottom - combinedTop;
+                    const combinedWidth = combinedRight - combinedLeft;
+                    const combinedCenterX = combinedLeft + combinedWidth / 2;
+                    const combinedCenterY = combinedTop + combinedHeight / 2;
+
+                    // Calculate visible safe area (accounting for sidebar on desktop)
+                    const padding = 30; // Padding from edges
+                    let safeLeft = mapRect.left + padding;
+                    let safeRight = mapRect.right - padding;
+                    const safeTop = mapRect.top + padding;
+                    const safeBottom = mapRect.bottom - padding;
 
                     // On desktop, account for sidebar overlay
                     if (window.innerWidth > 768) {
                         const sidebar = document.querySelector('.sidebar');
                         if (sidebar) {
                             const sidebarWidth = sidebar.offsetWidth;
-                            visibleLeft = mapRect.left + sidebarWidth + padding;
+                            safeLeft = mapRect.left + sidebarWidth + padding;
                         }
                     }
 
-                    // Calculate how much we need to pan in each direction
-                    let xShift = 0;
-                    let yShift = 0;
+                    // Calculate center of the safe area
+                    const safeCenterX = (safeLeft + safeRight) / 2;
+                    const safeCenterY = (safeTop + safeBottom) / 2;
 
-                    // Check top edge (most common case - popups open above markers)
-                    if (popupRect.top < visibleTop) {
-                        yShift = (visibleTop - popupRect.top) + 50; // Extra 50px breathing room
+                    // Calculate shift needed to center the popup+pin unit in safe area
+                    let xShift = combinedCenterX - safeCenterX;
+                    let yShift = safeCenterY - combinedCenterY;
+
+                    // Check if combined unit fits within safe area, if not just ensure it's visible
+                    const safeWidth = safeRight - safeLeft;
+                    const safeHeight = safeBottom - safeTop;
+
+                    // If popup+pin is taller than safe area, prioritize showing top of popup
+                    if (combinedHeight > safeHeight) {
+                        yShift = safeTop - combinedTop + 20; // Show popup top with some padding
                     }
 
-                    // Check bottom edge (rare, but for completeness)
-                    if (popupRect.bottom > visibleBottom) {
-                        yShift = -(popupRect.bottom - visibleBottom + 20);
+                    // If popup+pin is wider than safe area, center it as best we can
+                    if (combinedWidth > safeWidth) {
+                        xShift = combinedCenterX - safeCenterX;
                     }
 
-                    // Check left edge
-                    if (popupRect.left < visibleLeft) {
-                        xShift = -(visibleLeft - popupRect.left + 20);
-                    }
-
-                    // Check right edge
-                    if (popupRect.right > visibleRight) {
-                        xShift = popupRect.right - visibleRight + 20;
-                    }
-
-                    // Only pan if we need to adjust
-                    if (xShift !== 0 || yShift !== 0) {
+                    // Only pan if we need to adjust significantly (avoid jitter)
+                    if (Math.abs(xShift) > 10 || Math.abs(yShift) > 10) {
                         const center = map.getCenter();
                         const point = map.latLngToContainerPoint(center);
-                        const newPoint = L.point(point.x + xShift, point.y - yShift);
+                        // Subtract xShift to move popup toward center (if popup is right, pan left)
+                        // Add yShift to move popup toward center (if popup is high, pan down)
+                        const newPoint = L.point(point.x - xShift, point.y + yShift);
                         const newLatLng = map.containerPointToLatLng(newPoint);
 
                         // Use sidebar-aware centering when sidebar floats over map (>768px)
