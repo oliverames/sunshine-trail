@@ -121,8 +121,8 @@ export const selectors = {
     searchButton: '#map-search-btn',
     searchResults: '#map-search-results',
     // Leaflet elements
-    markerCluster: '.marker-cluster',
-    marker: '.leaflet-marker-icon',
+    markerCluster: '.marker-cluster-pill',
+    marker: '.leaflet-marker-icon:not(.marker-cluster-pill)',
     popup: '.leaflet-popup',
     popupContent: '.leaflet-popup-content',
     popupCloseButton: '.leaflet-popup-close-button',

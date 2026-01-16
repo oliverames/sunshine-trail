@@ -230,8 +230,8 @@ The Sunshine Trail Route is basically a road trip I put together from Asheville,
 
 There's a little key that pops down showing the different sections of the trip with mileage.
 
-**Route Accuracy**
-The route uses 85 carefully placed waypoints to ensure the polyline follows the actual scenic roads rather than cutting corners. The Blue Ridge Parkway and Skyline Drive sections are particularly detailed to capture the winding mountain roads accurately. Vermont Route 100 waypoints ensure the route follows this iconic scenic byway through the Green Mountains rather than defaulting to faster highways.
+**Making the Route Actually Follow the Roads**
+I put in about 85 waypoints along the route so the line actually follows the scenic roads rather than cutting straight across the mountains. The Blue Ridge Parkway and Skyline Drive sections needed the most detail because they're so windy. And Vermont Route 100—I made sure the route follows that iconic scenic byway through the Green Mountains rather than defaulting to I-89 or something faster but boring.
 
 **UX Consideration**
 One of the things I was having trouble with is that when you click "show route on map," it takes a second for it to load. It feels like the page hangs during that time.
@@ -340,19 +340,11 @@ So we're showing the impact. What's the beer tie-in? Well, clean drinking water,
 ### Privacy
 None of your location data is being passed back to us unless you explicitly give it to us in that signup form. The location detection is completely private.
 
-### SEO & Social Sharing
+### Making It Look Good When You Share It
 
-**Structured Data (JSON-LD)**
-The site includes TouristAttraction schema markup providing search engines with rich context about the Sunshine Trail—its geographic scope, creator, and purpose. This structured data helps search engines understand the page is an interactive map experience connecting Vermont to North Carolina.
+I wanted the site to preview nicely when someone shares the link on social media. So I added all the Open Graph and Twitter Card meta tags—the title, description, and a preview image with the Sip of Sunshine branding. When you share it on LinkedIn, Facebook, or Twitter, it shows up with a proper preview rather than just a boring URL.
 
-**Open Graph & Twitter Cards**
-Meta tags ensure the site previews beautifully when shared on social platforms:
-- Title: "The Sunshine Trail | Lawson's Finest Liquids"
-- Description highlighting the 791-mile journey and discoverable content
-- Preview image featuring the Sip of Sunshine branding
-- Proper locale, URL, and site name attribution
-
-These optimizations ensure that when someone shares the link on LinkedIn, Facebook, or Twitter, it displays a compelling preview that drives clicks.
+I also added some structured data (JSON-LD) that helps search engines understand what the site is—basically telling them it's an interactive map experience connecting Vermont to North Carolina. Whether that actually helps with SEO, who knows, but it felt like the right thing to do.
 
 ### Hosting
 - **GitHub Pages** with custom domain (thesunshinetrail.com)
@@ -405,88 +397,72 @@ The location capture enables geo-targeted content:
 
 ---
 
-## Strategic Decision Points
+## Additional Details Worth Mentioning
 
-Throughout development, several strategic decisions were made to enhance the user experience and protect the brand:
+There are a bunch of smaller decisions I made throughout building this that I think show attention to detail:
 
-### Content Protection
-Copy protection via CSS `user-select: none` and JavaScript event prevention protects brand assets, impact stories, and curated content while still allowing users to copy text they enter into form fields.
+### Protecting the Content
+Since I'm pulling in brand assets, impact stories, and curated content, I wanted to make sure people couldn't just copy everything off the page. So I added some light copy protection—but I made sure it still lets users copy text they're typing into form fields, because that would be annoying otherwise.
 
-### Animation & Performance
-- **Continuous snowflake effect** — Snowflakes use variable fall durations (6-12 seconds) to create a natural, continuous falling pattern rather than synchronized "waves"
-- **GPU-accelerated animations** — CSS transforms use `will-change` and `backface-visibility: hidden` for smooth 60fps animations
-- **Snowfall animation stability** — Fixed an issue where hovering in/out of "Cold beer" quickly could cause the animation to crash and restart; now handles rapid transitions smoothly
+### Making the Animations Feel Right
+The snowfall effect took some tweaking to get right. I wanted it to feel like continuous, natural snowfall rather than waves of snowflakes all falling at the same time. So each snowflake has its own random fall duration. I also had an issue where if you hovered in and out of "Cold Beer" really quickly, the animation would kind of crash and restart—that's fixed now, it handles rapid transitions smoothly.
 
-### Button Behavior Consistency
-All yellow CTA buttons (Get Itinerary, Send My Itinerary, Our Beers) use only the wave text animation on hover—no transform, box-shadow, or color changes. This creates brand consistency across the experience.
+### Keeping Buttons Consistent
+All the yellow call-to-action buttons (Get Itinerary, Send My Itinerary, Our Beers) use only that wave text animation on hover—no other effects. I wanted them to feel consistent with each other and with the Lawson's website, so I kept the behavior identical across all of them.
 
-### UX Guardrails
-- **Zoom hint persistence** — The "Zoom for detail" button remains visible until the user actively interacts with zoom controls, search, or pinch gestures—not during automatic map adjustments
-- **Auto-scroll on mobile** — When selecting a state filter on mobile, the page automatically scrolls to bring the map into view
-- **Popup auto-close** — Only one location popup can be open at a time; selecting a new location automatically closes any existing popup
-- **Smart popup positioning** — Map centers on both pin and popup when clicked, with smart offset for popup visibility
-- **State filter intelligence** — Filters find all locations by parsing state from address strings, not just tagged data
+### Little UX Things That Matter
+- The "Zoom for detail" button stays visible until you actually interact with the zoom controls yourself—it doesn't disappear just because the map moved automatically
+- On mobile, when you select a state filter, the page automatically scrolls up so you can see the map—otherwise you'd click something and nothing would seem to happen
+- Only one popup can be open at a time, and when you close it, the map goes back to where you were before
+- When you click a pin, the map centers on both the pin and the popup together, so you can actually see both
 
-### Mobile-First UX Improvements
+### Making Mobile Actually Work Well
 
-**Route Display by Default**
-The scenic road trip route now displays automatically on page load, giving users immediate context about the Sunshine Trail journey from Asheville, NC to Waitsfield, VT.
+I put a lot of effort into making the mobile experience feel native and intuitive rather than just "the desktop site shrunk down."
 
-**Half-Viewport Map (Mobile)**
-On mobile devices, the map occupies exactly 50% of the viewport height, creating a balanced split between the interactive map and scrollable content below. This ensures users see both the map and the filter/content sidebar without excessive scrolling.
+**The Map Shows the Route Right Away**
+When you first load the page, the scenic road trip route is already displayed. I figured that's probably what most people are coming here for, so why make them hunt for it?
 
-**Full-Width Search Expansion (Mobile)**
-When activated on mobile, the search input expands to cover the full width of the map area, making it much easier to type and view search results on smaller screens.
+**Balanced Map and Content Split**
+On mobile, the map takes up exactly half the screen. This way you can see both the map and the sidebar content without having to scroll back and forth constantly. It's a small thing but it makes a big difference.
 
-**Floating Scroll Indicator (Mobile)**
-A floating arrow button appears in the lower-right corner on mobile devices:
-- Points down when in the top half of the page (scrolls to bottom)
-- Flips to point up when past the halfway point (scrolls to top)
-- Bounces periodically to draw attention
-- Adapts color when over yellow backgrounds (Live Impact section) for visibility
-- Styled consistently with the search button
-- Z-indexed below sun rays and snowfall effects
+**Search That Actually Works on a Phone**
+When you tap the search button on mobile, the search input expands to fill the whole width of the map area. Trying to type into a tiny search box on a phone is frustrating, so I made it bigger.
 
-**Full-Viewport Email Modal (Mobile)**
-On mobile devices, the email signup modal covers the full viewport for a focused, distraction-free signup experience.
+**A Little Floating Arrow to Help Navigate**
+There's a floating arrow button in the corner on mobile that helps you navigate the page. It points down when you're at the top (tap to scroll to content) and flips to point up when you're at the bottom (tap to scroll back to map). It even bounces a little to get your attention, and changes color when it's over the yellow Live Impact section so you can still see it.
 
-**Touch-Optimized Hover States (Mobile)**
-Live Impact metric buttons no longer have hover states on touch devices, preventing false triggers during scroll. Active states provide feedback on actual taps instead.
+**The Email Popup Goes Full Screen**
+On mobile, when the email signup modal appears, it covers the whole screen. This keeps you focused on signing up without distractions.
 
-**Beer Section Image Animation (Mobile)**
-The beer cans image automatically animates to its "hover" state when fully visible in the viewport, and returns to normal when scrolling away. This brings attention to the CTA without requiring hover interaction.
+**No Fake Hover States on Touch**
+On phones, I removed the hover effects from the Live Impact buttons because they would trigger accidentally while scrolling. Instead, they respond to actual taps.
 
-**Map Expansion on Interaction (Mobile)**
-On mobile, the map expands to fill the viewport below the header when:
-- A marker popup opens (giving room to see the full popup)
-- Search is activated (providing more space for results)
+**The Beer Cans Animate When You See Them**
+Since you can't hover on mobile, the beer cans image automatically does its little "come forward" animation when it scrolls into view. It's a nice way to draw attention to the CTA without requiring hover.
 
-The map collapses back when the popup closes or search is dismissed. The scroll indicator also collapses the expanded map and scrolls to the sidebar content—making it easy to navigate between map exploration and content browsing.
+**Map Expands When You Need More Room**
+This one's pretty cool—on mobile, when you tap a marker or open search, the map automatically expands to fill more of the screen so you have room to see the popup or search results. When you close the popup or dismiss search, it shrinks back down. The scroll indicator arrow also collapses the expanded map and scrolls you to the sidebar content, making it easy to go back and forth.
 
-### Technical Robustness
+### Some Technical Stuff Under the Hood
 
-- **Haversine formula** — Distance calculations use proper geographic math (Haversine formula) rather than simple Euclidean distance, ensuring accurate "nearest location" results regardless of where users are
-- **Memory management** — Event listeners, timers, and snowflake animations are properly cleaned up on page unload to prevent memory leaks
-- **Race condition prevention** — Debouncing and mutex guards on the state filter prevent double-firing and UI conflicts when users click quickly
-- **Marker clustering tuned for visibility** — Clustering parameters (disableClusteringAtZoom: 15, maxClusterRadius: 120) allow individual markers to appear at city-level zoom rather than requiring street-level zoom
+A few things that aren't visible but make the site work better:
 
-### Quality Assurance
+- **Getting distances right** — When the site finds "the nearest location to you," I'm using actual geographic math (the Haversine formula) rather than just treating lat/long like a flat grid. This matters because the Earth is round and Vermont is pretty far north.
 
-Playwright test suite with 180+ passing tests covers zoom hints, search, map views, copy protection, and all UX improvements across nine viewport breakpoints:
+- **Keeping things snappy** — I made sure all the animations, timers, and event listeners get cleaned up properly when you leave the page. Nobody wants a website that eats up their memory.
 
-| Category | Size | Width |
-|----------|------|-------|
-| Mobile | Small | 320px |
-| Mobile | Medium | 375px |
-| Mobile | Large | 428px |
-| Tablet | Small | 768px |
-| Tablet | Medium | 820px |
-| Tablet | Large | 1024px |
-| Desktop | Small | 1280px |
-| Desktop | Medium | 1440px |
-| Desktop | Large | 1920px |
+- **Handling fast clicks** — If you click the state filters really quickly, the site doesn't freak out. I added some guards to prevent things from firing twice or conflicting with each other.
 
-Tests verify route display, scroll indicator behavior, search expansion, hover states, snowflake animation smoothness, and email popup timing across all breakpoints.
+- **Marker clustering that makes sense** — I tuned the clustering so that individual markers start appearing at a reasonable zoom level (city-level) rather than making you zoom all the way to street level before you can see anything.
+
+### Testing
+
+I built out a pretty comprehensive test suite to make sure everything actually works. It covers all the main features—the password protection, the Easter eggs, map interactions, popups, search, filters, the email modal, the live metrics—basically everything.
+
+And because responsive design is such a big part of this, I test across 15 different screen sizes: five mobile sizes (from iPhone SE all the way up to iPhone 14 Pro Max), four tablet sizes (iPad Mini through iPad Pro), and six desktop sizes (from small laptops up to ultrawide monitors).
+
+The tests verify that things like the route display, scroll indicator, search expansion, and hover states all work correctly at every breakpoint. It's probably overkill for a demo project, but I wanted to make sure it actually worked well everywhere.
 
 ---
 
@@ -502,13 +478,11 @@ This is a demonstration project created for a job interview—not operated by or
 
 ### Presentation Mode
 
-For controlled demonstrations, the site includes a password-protected overlay. Visitors see the Lawson's yellow (`#f7e949`) branded gate with a password field. Entering the correct password triggers a "Welcome" animation before revealing the full experience. Authentication persists for the session, so refreshing doesn't require re-entry.
+For my interview demo, I added a password-protected overlay so I can control when people see the site. When you first visit, you see a Lawson's yellow branded gate with a password field. Enter the right password and you get a little "Welcome" animation before the full experience reveals itself. Once you're in, refreshing doesn't kick you out—it remembers for your session.
 
-**Fidget Sun Animation**
-The password page features the signature Lawson's sun with a clever sizing progression—on mobile, it starts small and grows progressively larger through tablet to desktop sizes, creating an appropriate visual presence for each screen size. The sun can be spun and clicked for emoji bursts, giving users something to interact with while they enter the password.
+The password page also has the spinning sun logo, and yes, you can spin it and click it for emojis even there. I thought it would be fun to give people something to fidget with while they enter the password. The sun is sized appropriately for each screen size—smaller on phones, bigger on desktops.
 
-**Scroll Prevention**
-The password overlay properly locks the page—no scrolling or touch-dragging behind the overlay. This prevents users from accidentally glimpsing content before authentication and keeps focus on the password entry experience.
+And I made sure the overlay actually locks the page properly—you can't scroll or drag behind it to sneak a peek at the content before you're authenticated.
 
 ---
 

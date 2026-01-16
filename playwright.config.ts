@@ -24,7 +24,7 @@ export default defineConfig({
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    video: 'on-first-retry',
+    video: 'on', // Always record video for animation testing
     actionTimeout: 15000,
   },
 

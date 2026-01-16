@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr" style="color-scheme: light;">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>The Sunshine Trail | Lawson's Finest Liquids</title>
     <meta name="description" content="Explore Sunshine Spots from Waitsfield, VT to Asheville, NC. Interactive map of retailers, hiking trails, river put-ins, and community partners along the Appalachian corridor.">
     <meta name="keywords" content="Lawson's Finest Liquids, Sip of Sunshine, craft beer, Vermont brewery, hiking trails, Blue Ridge Parkway, Skyline Drive, Route 100, Appalachian trail, beer finder, outdoor adventures">
@@ -915,6 +915,15 @@
         }
 
         /* Custom Leaflet popup styles */
+        /* Ensure popup pane is above the header (which has animation creating stacking context) */
+        .leaflet-pane.leaflet-popup-pane {
+            z-index: 10000 !important;
+        }
+
+        .leaflet-popup {
+            z-index: 10001 !important;
+        }
+
         .leaflet-popup-content-wrapper {
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
@@ -1197,18 +1206,26 @@
                 transition: height 0.3s ease, min-height 0.3s ease, max-height 0.3s ease;
             }
 
-            /* Expanded map state for mobile - fills viewport below header */
+            /* Expanded map state for mobile - fills safe area below header */
             #map.map-expanded {
-                height: calc(100vh - 85px); /* viewport minus header */
-                height: calc(100dvh - 85px); /* dynamic viewport for mobile browsers */
-                min-height: calc(100vh - 85px);
-                min-height: calc(100dvh - 85px);
+                /* Account for header (85px) + bottom safe area (home indicator on iPhone) */
+                height: calc(100vh - 85px - env(safe-area-inset-bottom, 0px));
+                height: calc(100dvh - 85px - env(safe-area-inset-bottom, 0px));
+                min-height: calc(100vh - 85px - env(safe-area-inset-bottom, 0px));
+                min-height: calc(100dvh - 85px - env(safe-area-inset-bottom, 0px));
                 max-height: none;
+                /* Add padding at bottom to prevent content from being under home indicator */
+                padding-bottom: env(safe-area-inset-bottom, 0px);
             }
 
             /* Hide sidebar content when map is expanded */
             #map.map-expanded ~ .sidebar {
                 display: none;
+            }
+
+            /* Hide scroll indicator when map is expanded to prevent overlap with map controls */
+            body:has(#map.map-expanded) .scroll-indicator {
+                display: none !important;
             }
 
             header {
@@ -2178,6 +2195,48 @@
             }
         }
 
+        /* Rotating metric carousel for solar display (Issue #15) */
+        .metric-value-rotating {
+            overflow: hidden;
+            position: relative;
+        }
+
+        .metric-carousel {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-slide {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 0.25rem;
+            position: absolute;
+            width: 100%;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+        }
+
+        .metric-slide.active {
+            position: relative;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .metric-slide.exiting {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+
+        /* Smaller prefix text for "Powers" */
+        .metric-slide .metric-prefix {
+            font-size: 0.7em;
+            font-weight: 500;
+            margin-right: 0.2rem;
+        }
+
         /* BCorp Section */
         .bcorp-section {
             margin-top: 1rem;
@@ -2647,7 +2706,7 @@
             .scroll-indicator {
                 display: flex;
                 position: fixed;
-                bottom: 20px;
+                bottom: calc(20px + env(safe-area-inset-bottom, 0px));
                 right: 15px;
                 width: 52px;
                 height: 52px;
@@ -3034,9 +3093,23 @@
                         <div class="metric-label">Dollars Raised</div>
                     </a>
                     <a href="https://www.lawsonsfinest.com/sip/green-is-grand/" target="_blank" rel="noopener noreferrer" class="metric-item metric-link">
-                        <div class="metric-value" id="metric-solar">
-                            <span class="metric-number" id="solar-counter">0</span>
-                            <span class="metric-suffix">kWh</span>
+                        <div class="metric-value metric-value-rotating" id="metric-solar">
+                            <!-- Rotating metric display (Issue #15) -->
+                            <div class="metric-carousel">
+                                <div class="metric-slide active" data-metric="kwh">
+                                    <span class="metric-number" id="solar-counter">0</span>
+                                    <span class="metric-suffix">kWh</span>
+                                </div>
+                                <div class="metric-slide" data-metric="evmiles">
+                                    <span class="metric-number" id="solar-evmiles">0</span>
+                                    <span class="metric-suffix">EV miles</span>
+                                </div>
+                                <div class="metric-slide" data-metric="homes">
+                                    <span class="metric-prefix">Powers</span>
+                                    <span class="metric-number" id="solar-homes">0</span>
+                                    <span class="metric-suffix">homes/yr</span>
+                                </div>
+                            </div>
                         </div>
                         <div class="metric-label">Solar Generated</div>
                     </a>
@@ -5675,6 +5748,16 @@
                     if (userMapLocation) {
                         e.stopPropagation();
                         e.preventDefault();
+
+                        // Hide zoom hint when user manually zooms (Issue #26)
+                        const zoomHintEl = document.getElementById('zoom-hint');
+                        if (zoomHintEl) {
+                            zoomHintEl.classList.add('hidden');
+                        }
+                        if (typeof userHasZoomed !== 'undefined') {
+                            window.userHasZoomed = true;
+                        }
+
                         const currentZoom = map.getZoom();
                         const currentCenter = map.getCenter();
 
@@ -5811,25 +5894,16 @@
             );
         });
 
-        // Track if user has interacted with zoom controls
+        // Track if user has explicitly interacted with zoom controls (Issue #26)
+        // Only hide zoom hint when user CLICKS zoom buttons, not on programmatic zooms
         let userHasZoomed = false;
-        window.isInitialLoad = true;  // Flag to prevent initial fitBounds from hiding zoom hint
+        window.isInitialLoad = true;  // Flag for initial load state
 
-        // Hide zoom hint on any zoom interaction (but not during initial load)
-        map.on('zoomstart', function() {
-            if (window.isInitialLoad) return;  // Don't hide during initial view fit
-            userHasZoomed = true;
-            zoomHint.classList.add('hidden');
-        });
+        // Note: We do NOT hide zoom hint on zoomstart/zoomend events because those
+        // fire for ALL zooms including programmatic ones (state filter, route toggle).
+        // Zoom hint should only hide when user explicitly clicks zoom buttons.
 
-        map.on('zoomend', function() {
-            // Keep hidden if user has interacted, otherwise show based on zoom level
-            if (userHasZoomed || map.getZoom() >= 9) {
-                zoomHint.classList.add('hidden');
-            }
-        });
-
-        // Hide zoom hint when Leaflet zoom buttons are clicked
+        // Hide zoom hint when Leaflet zoom buttons are explicitly clicked
         setTimeout(() => {
             const zoomInBtn = document.querySelector('.leaflet-control-zoom-in');
             const zoomOutBtn = document.querySelector('.leaflet-control-zoom-out');
@@ -5865,8 +5939,8 @@
                 const mapEl = document.getElementById('map');
                 if (mapEl && !mapEl.classList.contains('map-expanded')) {
                     mapEl.classList.add('map-expanded');
-                    // Scroll to top so map fills viewport
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    // Scroll map into view smoothly
+                    mapEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     // Tell Leaflet the container size changed
                     setTimeout(() => {
                         map.invalidateSize({ animate: true });
@@ -5884,7 +5958,13 @@
 
             // Center map to show pin+popup as a unit within the safe area
             if (e.popup && e.popup._latlng) {
-                // Wait a moment for popup to render so we can measure it
+                // On mobile, wait longer for map resize to complete (CSS transition + invalidateSize)
+                // On desktop, wait just for popup to render
+                const isMobile = window.innerWidth <= 768;
+                const mapEl = document.getElementById('map');
+                const isExpanding = isMobile && mapEl && mapEl.classList.contains('map-expanded');
+                const waitTime = isExpanding ? 450 : 100; // 450ms on mobile = 350ms invalidateSize + 100ms buffer
+
                 setTimeout(() => {
                     const popupEl = e.popup.getElement();
                     if (!popupEl) return;
@@ -5910,15 +5990,20 @@
                     const combinedCenterX = combinedLeft + combinedWidth / 2;
                     const combinedCenterY = combinedTop + combinedHeight / 2;
 
-                    // Calculate visible safe area (accounting for sidebar on desktop)
+                    // Calculate visible safe area (accounting for sidebar on desktop and header)
                     const padding = 30; // Padding from edges
                     let safeLeft = mapRect.left + padding;
                     let safeRight = mapRect.right - padding;
-                    const safeTop = mapRect.top + padding;
+
+                    // Account for sticky header that overlays the map
+                    // Header is approximately 85px on mobile, need to keep popup below it
+                    const header = document.querySelector('header');
+                    const headerHeight = header ? header.offsetHeight : 85;
+                    const safeTop = mapRect.top + headerHeight + padding;
                     const safeBottom = mapRect.bottom - padding;
 
                     // On desktop, account for sidebar overlay
-                    if (window.innerWidth > 768) {
+                    if (!isMobile) {
                         const sidebar = document.querySelector('.sidebar');
                         if (sidebar) {
                             const sidebarWidth = sidebar.offsetWidth;
@@ -5938,9 +6023,20 @@
                     const safeWidth = safeRight - safeLeft;
                     const safeHeight = safeBottom - safeTop;
 
+                    // CRITICAL: Always ensure popup top (close button) is below the header
+                    // The close button is at the very top of the popup, so we need padding there
+                    const closeButtonPadding = 15; // Extra padding to ensure close button is clickable
+                    const minTopRequired = safeTop + closeButtonPadding;
+
+                    // If popup top is above the safe area, shift down to make it visible
+                    if (combinedTop < minTopRequired) {
+                        const shiftNeeded = minTopRequired - combinedTop;
+                        yShift = -shiftNeeded; // Negative because we need to pan map UP (move popup down)
+                    }
+
                     // If popup+pin is taller than safe area, prioritize showing top of popup
                     if (combinedHeight > safeHeight) {
-                        yShift = safeTop - combinedTop + 20; // Show popup top with some padding
+                        yShift = -(minTopRequired - combinedTop); // Show popup top below header
                     }
 
                     // If popup+pin is wider than safe area, center it as best we can
@@ -5950,6 +6046,12 @@
 
                     // Only pan if we need to adjust significantly (avoid jitter)
                     if (Math.abs(xShift) > 10 || Math.abs(yShift) > 10) {
+                        // Bound shift values to prevent extreme jumps (COTS -> Montreal bug fix)
+                        // Max shift should be no more than half the map container size
+                        const maxShift = Math.min(mapRect.width, mapRect.height) / 2;
+                        xShift = Math.max(-maxShift, Math.min(maxShift, xShift));
+                        yShift = Math.max(-maxShift, Math.min(maxShift, yShift));
+
                         const center = map.getCenter();
                         const point = map.latLngToContainerPoint(center);
                         // Add xShift to move content left when popup is right of safe center
@@ -5957,10 +6059,26 @@
                         const newPoint = L.point(point.x + xShift, point.y - yShift);
                         const newLatLng = map.containerPointToLatLng(newPoint);
 
-                        // Use map.panTo directly since safe area calculation already accounts for sidebar
-                        map.panTo(newLatLng, { animate: true, duration: 0.3 });
+                        // Final sanity check: don't pan more than ~2 degrees from the marker location
+                        // This prevents jumping to completely different regions
+                        const markerLat = e.popup._latlng.lat;
+                        const markerLng = e.popup._latlng.lng;
+                        const latDiff = Math.abs(newLatLng.lat - markerLat);
+                        const lngDiff = Math.abs(newLatLng.lng - markerLng);
+
+                        if (latDiff < 2 && lngDiff < 2) {
+                            // Safe to pan - within reasonable distance of marker
+                            map.panTo(newLatLng, { animate: true, duration: 0.4 });
+                        } else {
+                            // Shift is too extreme - just center on marker with slight offset for popup
+                            const simpleOffset = map.getSize().y * 0.15; // 15% offset for popup above marker
+                            const offsetCenter = map.containerPointToLatLng(
+                                map.latLngToContainerPoint(e.popup._latlng).add([0, simpleOffset])
+                            );
+                            map.panTo(offsetCenter, { animate: true, duration: 0.4 });
+                        }
                     }
-                }, 100); // Wait for popup to fully render before measuring
+                }, waitTime);
             }
         });
 
@@ -6093,11 +6211,8 @@
                         });
                     }
 
-                    // Hide zoom hint when filtering to a specific state
-                    const zoomHintEl = document.getElementById('zoom-hint');
-                    if (zoomHintEl) {
-                        zoomHintEl.style.display = 'none';
-                    }
+                    // Note: Don't hide zoom hint on state filter - it should only hide
+                    // when user explicitly clicks zoom buttons (Issue #26)
                 }
 
                 isFiltering = false;
@@ -6251,10 +6366,28 @@
         const formatDollars = (val) => val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         const formatKwh = (val) => val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         const formatPercent = (val) => val.toFixed(1);
+        // Format for whole numbers (EV miles, homes)
+        const formatWholeNumber = (val) => Math.round(val).toLocaleString('en-US');
+
+        // Solar metric conversions (Issue #15)
+        // EV efficiency: ~3.5 miles per kWh (average for modern EVs)
+        const KWH_TO_EV_MILES = 3.5;
+        // Average US home uses ~10,500 kWh per year (EIA data)
+        const KWH_PER_HOME_YEAR = 10500;
+
+        function convertKwhToEvMiles(kwh) {
+            return kwh * KWH_TO_EV_MILES;
+        }
+
+        function convertKwhToHomesPowered(kwh) {
+            return kwh / KWH_PER_HOME_YEAR;
+        }
 
         // Live ticker update
         let metricsStarted = false;
         let tickerInterval = null;
+        let solarCarouselIndex = 0;
+        let solarCarouselInterval = null;
 
         function startLiveTicker() {
             if (metricsStarted) return;
@@ -6262,6 +6395,9 @@
 
             const donationsEl = document.getElementById('donations-counter');
             const solarEl = document.getElementById('solar-counter');
+            const evMilesEl = document.getElementById('solar-evmiles');
+            const homesEl = document.getElementById('solar-homes');
+            const carouselSlides = document.querySelectorAll('.metric-carousel .metric-slide');
 
             // Initial animation from 0 to current values
             const currentDonations = calculateCurrentDonations();
@@ -6269,6 +6405,8 @@
 
             animateToValue(donationsEl, currentDonations, 2500, formatDollars);
             animateToValue(solarEl, currentSolar, 2500, formatKwh);
+            animateToValue(evMilesEl, convertKwhToEvMiles(currentSolar), 2500, formatWholeNumber);
+            animateToValue(homesEl, convertKwhToHomesPowered(currentSolar), 2500, formatWholeNumber);
 
             // After initial animation, start live updates every 100ms
             // This makes the counters tick up in real-time showing ongoing impact
@@ -6284,11 +6422,39 @@
                         donationsEl.textContent = formatDollars(newDonations);
                         lastDonations = newDonations;
                     }
+                    // Update all three solar metric displays
                     if (solarEl) {
                         solarEl.textContent = formatKwh(newSolar);
-                        lastSolar = newSolar;
                     }
+                    if (evMilesEl) {
+                        evMilesEl.textContent = formatWholeNumber(convertKwhToEvMiles(newSolar));
+                    }
+                    if (homesEl) {
+                        homesEl.textContent = formatWholeNumber(convertKwhToHomesPowered(newSolar));
+                    }
+                    lastSolar = newSolar;
                 }, 100);
+
+                // Start carousel rotation for solar metric (Issue #15)
+                // Rotate every 5 seconds as requested
+                if (carouselSlides.length > 1) {
+                    solarCarouselInterval = setInterval(() => {
+                        // Mark current as exiting
+                        const current = carouselSlides[solarCarouselIndex];
+                        current.classList.remove('active');
+                        current.classList.add('exiting');
+
+                        // Move to next slide
+                        solarCarouselIndex = (solarCarouselIndex + 1) % carouselSlides.length;
+                        const next = carouselSlides[solarCarouselIndex];
+
+                        // After exit animation, switch to next
+                        setTimeout(() => {
+                            current.classList.remove('exiting');
+                            next.classList.add('active');
+                        }, 500); // Match CSS transition duration
+                    }, 5000); // 5 seconds per slide
+                }
             }, 2600);
         }
 
@@ -7229,7 +7395,8 @@
                         const mapEl = document.getElementById('map');
                         if (mapEl && !mapEl.classList.contains('map-expanded')) {
                             mapEl.classList.add('map-expanded');
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            // Scroll map into view smoothly - better than window.scrollTo which fights with keyboard
+                            mapEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                             setTimeout(() => {
                                 if (window.map) window.map.invalidateSize({ animate: true });
                             }, 350);
