@@ -2592,6 +2592,21 @@
             }
         }
 
+        /* Prevent body scroll when password overlay is visible */
+        html:not(.authenticated) {
+            overflow: hidden;
+            height: 100%;
+        }
+
+        html:not(.authenticated) body {
+            overflow: hidden;
+            height: 100%;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+        }
+
         /* Password Protection Overlay - presentation gate */
         /* Styled to match email modal for consistency */
         .password-overlay {
@@ -2608,6 +2623,10 @@
             justify-content: center;
             padding: 2rem;
             transition: opacity 0.8s ease, visibility 0.8s ease;
+            /* Prevent touch events from passing through to body */
+            touch-action: none;
+            -webkit-overflow-scrolling: auto;
+            overscroll-behavior: contain;
         }
 
         /* Hide immediately for returning users - no transition */
@@ -3199,6 +3218,8 @@
 
         function completeAuthentication() {
             passwordOverlay.classList.add('hidden');
+            // Add authenticated class to enable body scrolling
+            document.documentElement.classList.add('authenticated');
             // Use localStorage for persistent caching
             localStorage.setItem('sunshineTrailAuth', 'true');
             // Signal that site is revealed (for email timer)
