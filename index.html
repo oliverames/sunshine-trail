@@ -384,9 +384,9 @@
             height: 100vh;
             background: linear-gradient(
                 180deg,
-                rgba(180, 210, 255, 0.32) 0%,
-                rgba(150, 200, 240, 0.22) 50%,
-                rgba(120, 190, 250, 0.15) 100%
+                rgba(120, 170, 255, 0.40) 0%,
+                rgba(100, 160, 250, 0.30) 50%,
+                rgba(80, 150, 250, 0.20) 100%
             );
             pointer-events: none;
             opacity: 0;
@@ -1297,6 +1297,7 @@
 
         /* Map Search Control - inside Leaflet control container, anchored to zoom buttons */
         .map-search-control {
+            position: relative; /* Positioning context for results */
             margin-bottom: 10px; /* Gap between search and zoom buttons */
             margin-right: 15px; /* Same as zoom controls */
             pointer-events: auto !important; /* Override Leaflet's pointer-events: none on .leaflet-bottom */
@@ -1316,6 +1317,9 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             pointer-events: auto !important; /* Ensure clickable */
             -webkit-tap-highlight-color: transparent;
+            align-self: center; /* Ensure vertical alignment in flex container */
+            flex-shrink: 0; /* Prevent shrinking */
+            margin: 0; /* Remove any default margins */
         }
 
         .map-search-btn:hover {
@@ -1348,16 +1352,23 @@
             width: 0;
             height: 48px; /* Match search button height */
             padding: 0;
+            margin: 0; /* Remove any default margins */
             border: none;
             border-radius: 10px;
             background: white;
             font-family: 'new-spirit', serif;
             font-size: 1rem;
+            line-height: 48px; /* Match height for vertical text centering */
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             transition: width 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
             opacity: 0;
             outline: none;
             box-sizing: border-box;
+            align-self: center; /* Ensure vertical alignment in flex container */
+            flex-shrink: 0; /* Prevent shrinking */
+            -webkit-appearance: none; /* Remove default browser styling */
+            position: relative;
+            top: -1px; /* Fine-tune vertical alignment with button */
         }
 
         .map-search-input.expanded {
@@ -1373,7 +1384,7 @@
         .map-search-results {
             position: absolute;
             bottom: 60px; /* Float above the input */
-            right: 71px; /* Position above input: 15px (container right) + 48px (button) + 8px (gap) */
+            right: 56px; /* Align with input: 48px (button) + 8px (gap) */
             width: 320px; /* Same width as expanded input */
             max-height: 300px;
             overflow-y: auto;
@@ -1436,10 +1447,12 @@
         }
 
         @media (max-width: 768px) {
-            /* On mobile, search button stays above zoom controls, same styling */
+            /* On mobile, search control is inside leaflet container - no absolute positioning needed */
             .map-search-control {
-                bottom: 140px; /* Above zoom controls */
-                right: 15px;
+                /* Remove absolute positioning - let flexbox in leaflet container handle it */
+                position: relative;
+                bottom: auto;
+                right: auto;
             }
 
             /* Mobile search input expands to left of button */
@@ -1447,22 +1460,20 @@
                 width: calc(100vw - 95px); /* Expand to fill available space */
                 padding: 0 16px;
                 font-size: 1rem;
-                /* Keep position: absolute like desktop, just wider */
             }
 
-            /* Search results on mobile - wider to match input */
+            /* Search results on mobile - wider to match input, position above input */
             .map-search-results {
                 width: calc(100vw - 95px);
                 right: 56px;
+                bottom: 55px; /* Position above the 48px search input + gap */
                 max-height: 200px;
             }
         }
 
         /* Extra narrow mobile viewports */
         @media (max-width: 420px) {
-            .map-search-control {
-                right: 10px;
-            }
+            /* Search control positioning handled by leaflet container */
 
             .map-search-input.expanded {
                 width: calc(100vw - 85px); /* Slightly narrower margins */
@@ -1471,6 +1482,8 @@
             .map-search-results {
                 left: 10px;
                 right: 10px;
+                bottom: 55px; /* Position above the search input */
+                width: auto; /* Override calc() width when using left/right */
             }
         }
 
@@ -2653,12 +2666,21 @@
             }
         }
 
+        /* Extra large on Pro Max phones (iPhone 14/15/16/17 Pro Max ~430px) */
+        @media (max-width: 768px) and (min-width: 428px) {
+            .fidget-sun-password {
+                width: 200px;
+                height: 200px;
+            }
+        }
+
         .password-overlay h1 {
             font-family: 'new-spirit', serif;
             font-weight: 700;
             font-size: 3rem;
             color: var(--deep-brown);
-            margin-bottom: 0.75rem;
+            margin-top: 1.25rem;
+            margin-bottom: 1.25rem;
         }
 
         .password-overlay .welcome-text {
@@ -3112,11 +3134,21 @@
         window.siteRevealed = false;
 
         // Early search state declaration (needed before route toggle code)
-        // Full search functionality is defined later in the file
+        // Full collapse implementation - gets elements each time for safety
         let searchExpanded = false;
         window.collapseSearch = function() {
-            // Will be redefined later with full implementation
             searchExpanded = false;
+            const input = document.getElementById('map-search-input');
+            const results = document.getElementById('map-search-results');
+            if (input) {
+                input.classList.remove('expanded');
+                input.value = '';
+                input.blur();
+            }
+            if (results) {
+                results.classList.remove('visible');
+                results.innerHTML = '';
+            }
         };
 
         // Update Safari theme-color to white (for after password page)
@@ -5656,7 +5688,7 @@
                 };
             }
 
-            // Center map to show both pin AND entire popup card
+            // Center map to show pin+popup as a unit within the safe area
             if (e.popup && e.popup._latlng) {
                 // Wait a moment for popup to render so we can measure it
                 setTimeout(() => {
@@ -5667,51 +5699,68 @@
                     const mapContainer = document.getElementById('map');
                     const mapRect = mapContainer.getBoundingClientRect();
 
-                    // Calculate visible map area (accounting for sidebar on desktop)
-                    const padding = 20; // Minimum padding from edge
-                    let visibleLeft = mapRect.left + padding;
-                    let visibleRight = mapRect.right - padding;
-                    const visibleTop = mapRect.top + padding;
-                    const visibleBottom = mapRect.bottom - padding;
+                    // Get marker position on screen
+                    const markerPoint = map.latLngToContainerPoint(e.popup._latlng);
+                    const markerScreenY = mapRect.top + markerPoint.y;
+                    const markerScreenX = mapRect.left + markerPoint.x;
+
+                    // Calculate combined bounding box of popup + marker pin
+                    // Popup is above the marker, pin extends ~20px below the popup anchor
+                    const pinHeight = 35; // Approximate marker pin height
+                    const combinedTop = popupRect.top;
+                    const combinedBottom = markerScreenY + pinHeight;
+                    const combinedLeft = Math.min(popupRect.left, markerScreenX - 20);
+                    const combinedRight = Math.max(popupRect.right, markerScreenX + 20);
+                    const combinedHeight = combinedBottom - combinedTop;
+                    const combinedWidth = combinedRight - combinedLeft;
+                    const combinedCenterX = combinedLeft + combinedWidth / 2;
+                    const combinedCenterY = combinedTop + combinedHeight / 2;
+
+                    // Calculate visible safe area (accounting for sidebar on desktop)
+                    const padding = 30; // Padding from edges
+                    let safeLeft = mapRect.left + padding;
+                    let safeRight = mapRect.right - padding;
+                    const safeTop = mapRect.top + padding;
+                    const safeBottom = mapRect.bottom - padding;
 
                     // On desktop, account for sidebar overlay
                     if (window.innerWidth > 768) {
                         const sidebar = document.querySelector('.sidebar');
                         if (sidebar) {
                             const sidebarWidth = sidebar.offsetWidth;
-                            visibleLeft = mapRect.left + sidebarWidth + padding;
+                            safeLeft = mapRect.left + sidebarWidth + padding;
                         }
                     }
 
-                    // Calculate how much we need to pan in each direction
-                    let xShift = 0;
-                    let yShift = 0;
+                    // Calculate center of the safe area
+                    const safeCenterX = (safeLeft + safeRight) / 2;
+                    const safeCenterY = (safeTop + safeBottom) / 2;
 
-                    // Check top edge (most common case - popups open above markers)
-                    if (popupRect.top < visibleTop) {
-                        yShift = (visibleTop - popupRect.top) + 50; // Extra 50px breathing room
+                    // Calculate shift needed to center the popup+pin unit in safe area
+                    let xShift = combinedCenterX - safeCenterX;
+                    let yShift = safeCenterY - combinedCenterY;
+
+                    // Check if combined unit fits within safe area, if not just ensure it's visible
+                    const safeWidth = safeRight - safeLeft;
+                    const safeHeight = safeBottom - safeTop;
+
+                    // If popup+pin is taller than safe area, prioritize showing top of popup
+                    if (combinedHeight > safeHeight) {
+                        yShift = safeTop - combinedTop + 20; // Show popup top with some padding
                     }
 
-                    // Check bottom edge (rare, but for completeness)
-                    if (popupRect.bottom > visibleBottom) {
-                        yShift = -(popupRect.bottom - visibleBottom + 20);
+                    // If popup+pin is wider than safe area, center it as best we can
+                    if (combinedWidth > safeWidth) {
+                        xShift = combinedCenterX - safeCenterX;
                     }
 
-                    // Check left edge
-                    if (popupRect.left < visibleLeft) {
-                        xShift = -(visibleLeft - popupRect.left + 20);
-                    }
-
-                    // Check right edge
-                    if (popupRect.right > visibleRight) {
-                        xShift = popupRect.right - visibleRight + 20;
-                    }
-
-                    // Only pan if we need to adjust
-                    if (xShift !== 0 || yShift !== 0) {
+                    // Only pan if we need to adjust significantly (avoid jitter)
+                    if (Math.abs(xShift) > 10 || Math.abs(yShift) > 10) {
                         const center = map.getCenter();
                         const point = map.latLngToContainerPoint(center);
-                        const newPoint = L.point(point.x + xShift, point.y - yShift);
+                        // Subtract xShift to move popup toward center (if popup is right, pan left)
+                        // Add yShift to move popup toward center (if popup is high, pan down)
+                        const newPoint = L.point(point.x - xShift, point.y + yShift);
                         const newLatLng = map.containerPointToLatLng(newPoint);
 
                         // Use sidebar-aware centering when sidebar floats over map (>768px)
@@ -6064,33 +6113,69 @@
         // Define scenic route coordinates
         // Blue Ridge Parkway: Asheville, NC (Milepost 382) to Waynesboro, VA (Milepost 0)
         const blueRidgeParkway = [
-            [35.5951, -82.5515],  // Asheville, NC
-            [35.6810, -82.4920],  // Craggy Gardens
-            [35.7972, -82.9569],  // Max Patch area
-            [35.9150, -82.2760],  // Mount Mitchell area
-            [36.1064, -82.1098],  // Roan Mountain
+            // Blue Ridge Parkway: Asheville to Waynesboro (469 miles)
+            // More detailed waypoints following the actual parkway route
+            [35.5951, -82.5515],  // Asheville, NC (Folk Art Center area)
+            [35.6100, -82.4800],  // BRP heading northeast
+            [35.6450, -82.3750],  // Craggy Gardens approach
+            [35.6810, -82.3790],  // Craggy Gardens Visitor Center
+            [35.7650, -82.2650],  // Mount Mitchell Spur (MP 355)
+            [35.7980, -82.2270],  // Black Mountain Gap
+            [35.8550, -82.1350],  // Crabtree Falls area
+            [35.9170, -82.0640],  // Little Switzerland
+            [35.9550, -81.9370],  // Linville Falls (MP 316)
+            [36.0200, -81.8600],  // Linville Gorge area
+            [36.0880, -81.8030],  // Grandfather Mountain approach
+            [36.1350, -81.7480],  // Linn Cove Viaduct
+            [36.1580, -81.7050],  // Julian Price Park
+            [36.2000, -81.6800],  // Moses Cone Manor
             [36.2987, -81.6904],  // Blowing Rock
-            [36.3396, -81.4996],  // Boone area
+            [36.3100, -81.5800],  // Thunder Hill
+            [36.3600, -81.4200],  // E.B. Jeffress Park
+            [36.4200, -81.2800],  // Doughton Park
+            [36.5000, -81.0500],  // Air Bellows Gap
             [36.5569, -80.9897],  // Fancy Gap
-            [36.7180, -80.4070],  // Mabry Mill
-            [37.0889, -80.1869],  // Roanoke area
-            [37.2390, -80.0328],  // McAfee Knob area
-            [37.4530, -79.6190],  // Natural Bridge
+            [36.6300, -80.6500],  // Groundhog Mountain
+            [36.7180, -80.4070],  // Mabry Mill (MP 176)
+            [36.7700, -80.3200],  // Rocky Knob
+            [36.8400, -80.2400],  // Smart View
+            [36.9500, -80.1500],  // Roanoke Mountain
+            [37.0889, -80.1869],  // Roanoke area (MP 120)
+            [37.2000, -80.0800],  // Peaks of Otter area
+            [37.3100, -79.8500],  // Apple Orchard Mountain
+            [37.4530, -79.6190],  // Natural Bridge area
+            [37.5500, -79.5000],  // Buena Vista area
             [37.6600, -79.3400],  // Lexington area
+            [37.7700, -79.2000],  // Steeles Tavern
             [37.8600, -79.0800],  // Staunton area
-            [38.0330, -78.8690],  // Waynesboro (BRP northern terminus)
+            [37.9500, -78.9700],  // Afton Mountain approach
+            [38.0330, -78.8690],  // Waynesboro / Rockfish Gap (BRP terminus, MP 0)
         ];
 
-        // Skyline Drive: Waynesboro (Rockfish Gap) to Front Royal
+        // Skyline Drive: Waynesboro (Rockfish Gap) to Front Royal (105 miles)
         const skylineDrive = [
-            [38.0330, -78.8690],  // Rockfish Gap (southern entrance)
-            [38.1900, -78.7500],  // Swift Run Gap
-            [38.3000, -78.6800],  // Big Meadows
-            [38.4500, -78.5500],  // Skyland
-            [38.5533, -78.3161],  // Old Rag nearby
-            [38.6300, -78.3800],  // Thornton Gap
-            [38.7500, -78.2800],  // Dickey Ridge
-            [38.9030, -78.1940],  // Front Royal (northern terminus)
+            // More detailed waypoints following the Skyline Drive through Shenandoah
+            [38.0330, -78.8690],  // Rockfish Gap (southern entrance, MP 105)
+            [38.0800, -78.8100],  // Jarman Gap
+            [38.1200, -78.7700],  // Sawmill Run Overlook
+            [38.1900, -78.7500],  // Swift Run Gap (MP 65)
+            [38.2350, -78.7100],  // South River Overlook
+            [38.2800, -78.6900],  // Lewis Mountain
+            [38.3200, -78.6650],  // Pocosin Mission
+            [38.3600, -78.6500],  // Big Meadows (MP 51)
+            [38.4000, -78.6000],  // Dark Hollow Falls area
+            [38.4500, -78.5500],  // Skyland Resort area
+            [38.4900, -78.4800],  // Stony Man Overlook
+            [38.5250, -78.4300],  // Little Stony Man
+            [38.5533, -78.3800],  // Mary's Rock area
+            [38.5900, -78.3500],  // Panorama area
+            [38.6300, -78.3350],  // Thornton Gap (MP 31)
+            [38.6800, -78.3100],  // Pass Mountain
+            [38.7200, -78.2900],  // Elkwallow Wayside
+            [38.7700, -78.2600],  // Range View Overlook
+            [38.8200, -78.2300],  // Dickey Ridge Visitor Center
+            [38.8600, -78.2100],  // Signal Knob Overlook
+            [38.9030, -78.1940],  // Front Royal (northern terminus, MP 0)
         ];
 
         // Connector Route: Front Royal, VA to Bennington, VT via I-81 / I-87 / US-7
@@ -6108,21 +6193,38 @@
             [42.8800, -73.2000],  // Bennington, VT
         ];
 
-        // Vermont Route 100: Wilmington to Waitsfield (Lawson's HQ - the destination!)
+        // Vermont Route 100: Wilmington to Waitsfield (217 miles of scenic mountain road)
+        // Known as "The Skier's Highway" - one of America's most scenic drives
         const route100Vermont = [
-            [42.8800, -73.2000],  // Bennington (connector)
-            [42.8678, -72.8711],  // Wilmington
+            [42.8800, -73.2000],  // Bennington (connector from US-7)
+            [42.9200, -72.9500],  // Route 9 heading east
+            [42.8678, -72.8711],  // Wilmington (Route 100 begins)
+            [42.9400, -72.8300],  // West Dover
+            [43.0100, -72.8000],  // Mount Snow area
+            [43.0700, -72.7900],  // Wardsboro
+            [43.1300, -72.7850],  // South Londonderry
             [43.1597, -72.7792],  // Jamaica
+            [43.2200, -72.7600],  // Rawsonville
             [43.2600, -72.7400],  // Londonderry
-            [43.3890, -72.7000],  // Weston
-            [43.4700, -72.7300],  // Ludlow
-            [43.5500, -72.7100],  // Plymouth
-            [43.6200, -72.8000],  // Killington
+            [43.3200, -72.7200],  // Peru
+            [43.3890, -72.7000],  // Weston (Vermont Country Store)
+            [43.4300, -72.7150],  // Andover
+            [43.4700, -72.7300],  // Ludlow (Okemo Mountain)
+            [43.5200, -72.7200],  // Tyson
+            [43.5500, -72.7100],  // Plymouth (Calvin Coolidge homestead)
+            [43.5900, -72.7500],  // Bridgewater Corners
+            [43.6200, -72.7900],  // Killington Access Road
+            [43.6700, -72.8100],  // Sherburne Pass area
             [43.7100, -72.8200],  // Pittsfield
-            [43.8800, -72.8400],  // Rochester / Hancock
+            [43.7600, -72.8200],  // Stockbridge
+            [43.8200, -72.8350],  // Gaysville
+            [43.8800, -72.8400],  // Rochester
+            [43.9200, -72.8350],  // Hancock
             [43.9700, -72.8400],  // Granville (Moss Glen Falls)
-            [44.0800, -72.8200],  // Warren
-            [44.1852, -72.8288],  // Waitsfield (Lawson's HQ - journey's end!)
+            [44.0200, -72.8350],  // Granville Gulf
+            [44.0800, -72.8200],  // Warren (Sugarbush)
+            [44.1400, -72.8250],  // Irasville
+            [44.1852, -72.8288],  // Waitsfield (Lawson's Finest HQ - journey's end!)
         ];
 
         // Create route layers
@@ -6876,6 +6978,7 @@
         }
 
         // Expose collapseSearch globally so other sections can use it
+        // This overwrites the placeholder defined earlier in the script
         window.collapseSearch = collapseSearch;
 
         // Global Escape key handler - closes search from anywhere
@@ -6889,9 +6992,17 @@
             // Note: Removed auto-scroll behaviors - search should not scroll the page
 
             // Toggle search input expansion - handler function
+            // Check both state variable AND DOM state for robustness
             function toggleSearch(e) {
                 e.preventDefault();
-                if (!searchExpanded) {
+                e.stopPropagation(); // Prevent event from bubbling to document click handler
+
+                // Check actual DOM state as well as variable for robustness
+                const isInputExpanded = mapSearchInput.classList.contains('expanded');
+                const areResultsVisible = mapSearchResults.classList.contains('visible');
+                const isActuallyExpanded = searchExpanded || isInputExpanded || areResultsVisible;
+
+                if (!isActuallyExpanded) {
                     // Expand search
                     searchExpanded = true;
                     mapSearchInput.classList.add('expanded');
@@ -7621,7 +7732,7 @@
         // Use only text characters for snowflakes (no emoji) for consistent rendering
         const snowflakeChars = ['❄', '❅', '❆', '✻', '✼'];
 
-        function createSnowflake() {
+        function createSnowflake(fast = false) {
             const snowflake = document.createElement('div');
             snowflake.className = 'snowflake';
             snowflake.textContent = snowflakeChars[Math.floor(Math.random() * snowflakeChars.length)];
@@ -7644,9 +7755,9 @@
             snowflake.style.setProperty('--sway4', (swayBase * -0.2 + (Math.random() - 0.5) * 25) + 'px');
 
             // Variable fall duration for natural continuous effect (avoids "wave" pattern)
-            // Wide range ensures snowflakes finish at different times for steady coverage
-            const duration = 5 + Math.random() * 12;  // 5-17 seconds (wider spread)
-            const delay = Math.random() * 0.5;
+            // Fast snowflakes (initial burst) fall quicker to fill the header area
+            const duration = fast ? (2 + Math.random() * 4) : (5 + Math.random() * 12);
+            const delay = fast ? 0 : (Math.random() * 0.3);
             snowflake.style.animation = `snowfall ${duration}s linear ${delay}s forwards`;
 
             document.body.appendChild(snowflake);
@@ -7721,15 +7832,20 @@
             isSnowing = true;
             freezeOverlay.classList.add('active');
 
-            // Start continuous creation immediately - same rate throughout
-            // ~3 flakes every 30ms = 100 flakes/second for heavy, consistent snow
+            // Create initial burst of FAST snowflakes from the top
+            // Fast snowflakes (2-6s duration) fill the header area quickly
+            for (let i = 0; i < 25; i++) {
+                createSnowflake(true); // Fast snowflakes
+            }
+
+            // Start continuous creation - steady rate for natural snow effect
+            // ~2 flakes every 40ms = 50 flakes/second
             snowInterval = setInterval(() => {
-                if (isSnowing && snowflakes.length < 350) {
-                    createSnowflake();
-                    createSnowflake();
+                if (isSnowing && snowflakes.length < 250) {
+                    createSnowflake(); // Normal speed snowflakes
                     createSnowflake();
                 }
-            }, 30);
+            }, 40);
         }
 
         function stopSnow() {
