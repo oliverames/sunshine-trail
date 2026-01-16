@@ -6087,33 +6087,69 @@
         // Define scenic route coordinates
         // Blue Ridge Parkway: Asheville, NC (Milepost 382) to Waynesboro, VA (Milepost 0)
         const blueRidgeParkway = [
-            [35.5951, -82.5515],  // Asheville, NC
-            [35.6810, -82.4920],  // Craggy Gardens
-            [35.7972, -82.9569],  // Max Patch area
-            [35.9150, -82.2760],  // Mount Mitchell area
-            [36.1064, -82.1098],  // Roan Mountain
+            // Blue Ridge Parkway: Asheville to Waynesboro (469 miles)
+            // More detailed waypoints following the actual parkway route
+            [35.5951, -82.5515],  // Asheville, NC (Folk Art Center area)
+            [35.6100, -82.4800],  // BRP heading northeast
+            [35.6450, -82.3750],  // Craggy Gardens approach
+            [35.6810, -82.3790],  // Craggy Gardens Visitor Center
+            [35.7650, -82.2650],  // Mount Mitchell Spur (MP 355)
+            [35.7980, -82.2270],  // Black Mountain Gap
+            [35.8550, -82.1350],  // Crabtree Falls area
+            [35.9170, -82.0640],  // Little Switzerland
+            [35.9550, -81.9370],  // Linville Falls (MP 316)
+            [36.0200, -81.8600],  // Linville Gorge area
+            [36.0880, -81.8030],  // Grandfather Mountain approach
+            [36.1350, -81.7480],  // Linn Cove Viaduct
+            [36.1580, -81.7050],  // Julian Price Park
+            [36.2000, -81.6800],  // Moses Cone Manor
             [36.2987, -81.6904],  // Blowing Rock
-            [36.3396, -81.4996],  // Boone area
+            [36.3100, -81.5800],  // Thunder Hill
+            [36.3600, -81.4200],  // E.B. Jeffress Park
+            [36.4200, -81.2800],  // Doughton Park
+            [36.5000, -81.0500],  // Air Bellows Gap
             [36.5569, -80.9897],  // Fancy Gap
-            [36.7180, -80.4070],  // Mabry Mill
-            [37.0889, -80.1869],  // Roanoke area
-            [37.2390, -80.0328],  // McAfee Knob area
-            [37.4530, -79.6190],  // Natural Bridge
+            [36.6300, -80.6500],  // Groundhog Mountain
+            [36.7180, -80.4070],  // Mabry Mill (MP 176)
+            [36.7700, -80.3200],  // Rocky Knob
+            [36.8400, -80.2400],  // Smart View
+            [36.9500, -80.1500],  // Roanoke Mountain
+            [37.0889, -80.1869],  // Roanoke area (MP 120)
+            [37.2000, -80.0800],  // Peaks of Otter area
+            [37.3100, -79.8500],  // Apple Orchard Mountain
+            [37.4530, -79.6190],  // Natural Bridge area
+            [37.5500, -79.5000],  // Buena Vista area
             [37.6600, -79.3400],  // Lexington area
+            [37.7700, -79.2000],  // Steeles Tavern
             [37.8600, -79.0800],  // Staunton area
-            [38.0330, -78.8690],  // Waynesboro (BRP northern terminus)
+            [37.9500, -78.9700],  // Afton Mountain approach
+            [38.0330, -78.8690],  // Waynesboro / Rockfish Gap (BRP terminus, MP 0)
         ];
 
-        // Skyline Drive: Waynesboro (Rockfish Gap) to Front Royal
+        // Skyline Drive: Waynesboro (Rockfish Gap) to Front Royal (105 miles)
         const skylineDrive = [
-            [38.0330, -78.8690],  // Rockfish Gap (southern entrance)
-            [38.1900, -78.7500],  // Swift Run Gap
-            [38.3000, -78.6800],  // Big Meadows
-            [38.4500, -78.5500],  // Skyland
-            [38.5533, -78.3161],  // Old Rag nearby
-            [38.6300, -78.3800],  // Thornton Gap
-            [38.7500, -78.2800],  // Dickey Ridge
-            [38.9030, -78.1940],  // Front Royal (northern terminus)
+            // More detailed waypoints following the Skyline Drive through Shenandoah
+            [38.0330, -78.8690],  // Rockfish Gap (southern entrance, MP 105)
+            [38.0800, -78.8100],  // Jarman Gap
+            [38.1200, -78.7700],  // Sawmill Run Overlook
+            [38.1900, -78.7500],  // Swift Run Gap (MP 65)
+            [38.2350, -78.7100],  // South River Overlook
+            [38.2800, -78.6900],  // Lewis Mountain
+            [38.3200, -78.6650],  // Pocosin Mission
+            [38.3600, -78.6500],  // Big Meadows (MP 51)
+            [38.4000, -78.6000],  // Dark Hollow Falls area
+            [38.4500, -78.5500],  // Skyland Resort area
+            [38.4900, -78.4800],  // Stony Man Overlook
+            [38.5250, -78.4300],  // Little Stony Man
+            [38.5533, -78.3800],  // Mary's Rock area
+            [38.5900, -78.3500],  // Panorama area
+            [38.6300, -78.3350],  // Thornton Gap (MP 31)
+            [38.6800, -78.3100],  // Pass Mountain
+            [38.7200, -78.2900],  // Elkwallow Wayside
+            [38.7700, -78.2600],  // Range View Overlook
+            [38.8200, -78.2300],  // Dickey Ridge Visitor Center
+            [38.8600, -78.2100],  // Signal Knob Overlook
+            [38.9030, -78.1940],  // Front Royal (northern terminus, MP 0)
         ];
 
         // Connector Route: Front Royal, VA to Bennington, VT via I-81 / I-87 / US-7
@@ -6131,21 +6167,38 @@
             [42.8800, -73.2000],  // Bennington, VT
         ];
 
-        // Vermont Route 100: Wilmington to Waitsfield (Lawson's HQ - the destination!)
+        // Vermont Route 100: Wilmington to Waitsfield (217 miles of scenic mountain road)
+        // Known as "The Skier's Highway" - one of America's most scenic drives
         const route100Vermont = [
-            [42.8800, -73.2000],  // Bennington (connector)
-            [42.8678, -72.8711],  // Wilmington
+            [42.8800, -73.2000],  // Bennington (connector from US-7)
+            [42.9200, -72.9500],  // Route 9 heading east
+            [42.8678, -72.8711],  // Wilmington (Route 100 begins)
+            [42.9400, -72.8300],  // West Dover
+            [43.0100, -72.8000],  // Mount Snow area
+            [43.0700, -72.7900],  // Wardsboro
+            [43.1300, -72.7850],  // South Londonderry
             [43.1597, -72.7792],  // Jamaica
+            [43.2200, -72.7600],  // Rawsonville
             [43.2600, -72.7400],  // Londonderry
-            [43.3890, -72.7000],  // Weston
-            [43.4700, -72.7300],  // Ludlow
-            [43.5500, -72.7100],  // Plymouth
-            [43.6200, -72.8000],  // Killington
+            [43.3200, -72.7200],  // Peru
+            [43.3890, -72.7000],  // Weston (Vermont Country Store)
+            [43.4300, -72.7150],  // Andover
+            [43.4700, -72.7300],  // Ludlow (Okemo Mountain)
+            [43.5200, -72.7200],  // Tyson
+            [43.5500, -72.7100],  // Plymouth (Calvin Coolidge homestead)
+            [43.5900, -72.7500],  // Bridgewater Corners
+            [43.6200, -72.7900],  // Killington Access Road
+            [43.6700, -72.8100],  // Sherburne Pass area
             [43.7100, -72.8200],  // Pittsfield
-            [43.8800, -72.8400],  // Rochester / Hancock
+            [43.7600, -72.8200],  // Stockbridge
+            [43.8200, -72.8350],  // Gaysville
+            [43.8800, -72.8400],  // Rochester
+            [43.9200, -72.8350],  // Hancock
             [43.9700, -72.8400],  // Granville (Moss Glen Falls)
-            [44.0800, -72.8200],  // Warren
-            [44.1852, -72.8288],  // Waitsfield (Lawson's HQ - journey's end!)
+            [44.0200, -72.8350],  // Granville Gulf
+            [44.0800, -72.8200],  // Warren (Sugarbush)
+            [44.1400, -72.8250],  // Irasville
+            [44.1852, -72.8288],  // Waitsfield (Lawson's Finest HQ - journey's end!)
         ];
 
         // Create route layers
