@@ -1064,6 +1064,21 @@
                 order: 1;
                 flex-shrink: 0;
                 width: 100%;
+                transition: height 0.3s ease, min-height 0.3s ease, max-height 0.3s ease;
+            }
+
+            /* Expanded map state for mobile - fills viewport below header */
+            #map.map-expanded {
+                height: calc(100vh - 85px); /* viewport minus header */
+                height: calc(100dvh - 85px); /* dynamic viewport for mobile browsers */
+                min-height: calc(100vh - 85px);
+                min-height: calc(100dvh - 85px);
+                max-height: none;
+            }
+
+            /* Hide sidebar content when map is expanded */
+            #map.map-expanded ~ .sidebar {
+                display: none;
             }
 
             header {
@@ -3149,6 +3164,17 @@
                 results.classList.remove('visible');
                 results.innerHTML = '';
             }
+            // Collapse map on mobile when search is closed (unless popup is open)
+            if (window.innerWidth <= 768) {
+                const mapEl = document.getElementById('map');
+                const hasOpenPopup = document.querySelector('.leaflet-popup');
+                if (mapEl && mapEl.classList.contains('map-expanded') && !hasOpenPopup) {
+                    mapEl.classList.remove('map-expanded');
+                    setTimeout(() => {
+                        if (window.map) window.map.invalidateSize({ animate: true });
+                    }, 350);
+                }
+            }
         };
 
         // Update Safari theme-color to white (for after password page)
@@ -3444,6 +3470,9 @@
             doubleClickZoom: true,
             boxZoom: true
         });
+
+        // Expose map globally for cross-function access
+        window.map = map;
 
         // Add a styled tile layer with smooth transitions
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
@@ -5680,6 +5709,20 @@
                 }, 300); // 300ms protection window
             }
 
+            // Expand map on mobile to show full popup
+            if (window.innerWidth <= 768) {
+                const mapEl = document.getElementById('map');
+                if (mapEl && !mapEl.classList.contains('map-expanded')) {
+                    mapEl.classList.add('map-expanded');
+                    // Scroll to top so map fills viewport
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    // Tell Leaflet the container size changed
+                    setTimeout(() => {
+                        map.invalidateSize({ animate: true });
+                    }, 350); // Wait for CSS transition
+                }
+            }
+
             // Only save state on mobile/tablet
             if (window.innerWidth <= 1200) {
                 savedMapState = {
@@ -5780,6 +5823,18 @@
         });
 
         map.on('popupclose', function(e) {
+            // Collapse map on mobile
+            if (window.innerWidth <= 768) {
+                const mapEl = document.getElementById('map');
+                if (mapEl && mapEl.classList.contains('map-expanded')) {
+                    mapEl.classList.remove('map-expanded');
+                    // Tell Leaflet the container size changed
+                    setTimeout(() => {
+                        map.invalidateSize({ animate: true });
+                    }, 350); // Wait for CSS transition
+                }
+            }
+
             // Only restore state on mobile/tablet
             if (window.innerWidth <= 1200 && savedMapState) {
                 map.setView(savedMapState.center, savedMapState.zoom, {
@@ -6971,6 +7026,17 @@
                 mapSearchResults.classList.remove('visible');
                 mapSearchResults.innerHTML = ''; // Clear results content
             }
+            // Collapse map on mobile when search is closed (unless popup is open)
+            if (window.innerWidth <= 768) {
+                const mapEl = document.getElementById('map');
+                const hasOpenPopup = document.querySelector('.leaflet-popup');
+                if (mapEl && mapEl.classList.contains('map-expanded') && !hasOpenPopup) {
+                    mapEl.classList.remove('map-expanded');
+                    setTimeout(() => {
+                        if (window.map) window.map.invalidateSize({ animate: true });
+                    }, 350);
+                }
+            }
         }
 
         // Expose collapseSearch globally so other sections can use it
@@ -7007,6 +7073,17 @@
                     const zoomHintEl = document.getElementById('zoom-hint');
                     if (zoomHintEl) {
                         zoomHintEl.classList.add('hidden');
+                    }
+                    // Expand map on mobile to show more search results
+                    if (window.innerWidth <= 768) {
+                        const mapEl = document.getElementById('map');
+                        if (mapEl && !mapEl.classList.contains('map-expanded')) {
+                            mapEl.classList.add('map-expanded');
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            setTimeout(() => {
+                                if (window.map) window.map.invalidateSize({ animate: true });
+                            }, 350);
+                        }
                     }
                 } else {
                     // Collapse search - use helper function for consistency
@@ -8130,10 +8207,39 @@
                 }
             }
 
-            // Scroll handler - scroll up or down
+            // Scroll handler - scroll up or down, also collapse map when expanded
             function handleScrollClick(e) {
                 e.preventDefault();
                 e.stopPropagation();
+
+                // If map is expanded, collapse it and scroll down
+                const mapEl = document.getElementById('map');
+                if (mapEl && mapEl.classList.contains('map-expanded')) {
+                    // Close any open popups first
+                    if (window.map) {
+                        window.map.closePopup();
+                    }
+                    // Collapse search if open
+                    if (window.collapseSearch) {
+                        window.collapseSearch();
+                    }
+                    // Remove expanded class
+                    mapEl.classList.remove('map-expanded');
+                    // Notify Leaflet of size change
+                    setTimeout(() => {
+                        if (window.map) window.map.invalidateSize({ animate: true });
+                    }, 350);
+                    // Scroll to route section after a short delay
+                    setTimeout(() => {
+                        const routeSection = document.querySelector('.route-toggle-section');
+                        if (routeSection) {
+                            const sectionTop = routeSection.getBoundingClientRect().top + (window.scrollY || window.pageYOffset || 0);
+                            window.scrollTo({ top: sectionTop - 20, behavior: 'smooth' });
+                        }
+                    }, 100);
+                    return;
+                }
+
                 const isUp = scrollIndicator.classList.contains('up');
                 if (isUp) {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
