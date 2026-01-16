@@ -2666,12 +2666,21 @@
             }
         }
 
+        /* Extra large on Pro Max phones (iPhone 14/15/16/17 Pro Max ~430px) */
+        @media (max-width: 768px) and (min-width: 428px) {
+            .fidget-sun-password {
+                width: 200px;
+                height: 200px;
+            }
+        }
+
         .password-overlay h1 {
             font-family: 'new-spirit', serif;
             font-weight: 700;
             font-size: 3rem;
             color: var(--deep-brown);
-            margin-bottom: 0.75rem;
+            margin-top: 1.25rem;
+            margin-bottom: 1.25rem;
         }
 
         .password-overlay .welcome-text {
