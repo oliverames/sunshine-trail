@@ -230,6 +230,9 @@ The Sunshine Trail Route is basically a road trip I put together from Asheville,
 
 There's a little key that pops down showing the different sections of the trip with mileage.
 
+**Route Accuracy**
+The route uses 85 carefully placed waypoints to ensure the polyline follows the actual scenic roads rather than cutting corners. The Blue Ridge Parkway and Skyline Drive sections are particularly detailed to capture the winding mountain roads accurately. Vermont Route 100 waypoints ensure the route follows this iconic scenic byway through the Green Mountains rather than defaulting to faster highways.
+
 **UX Consideration**
 One of the things I was having trouble with is that when you click "show route on map," it takes a second for it to load. It feels like the page hangs during that time.
 
@@ -337,6 +340,20 @@ So we're showing the impact. What's the beer tie-in? Well, clean drinking water,
 ### Privacy
 None of your location data is being passed back to us unless you explicitly give it to us in that signup form. The location detection is completely private.
 
+### SEO & Social Sharing
+
+**Structured Data (JSON-LD)**
+The site includes TouristAttraction schema markup providing search engines with rich context about the Sunshine Trail—its geographic scope, creator, and purpose. This structured data helps search engines understand the page is an interactive map experience connecting Vermont to North Carolina.
+
+**Open Graph & Twitter Cards**
+Meta tags ensure the site previews beautifully when shared on social platforms:
+- Title: "The Sunshine Trail | Lawson's Finest Liquids"
+- Description highlighting the 791-mile journey and discoverable content
+- Preview image featuring the Sip of Sunshine branding
+- Proper locale, URL, and site name attribution
+
+These optimizations ensure that when someone shares the link on LinkedIn, Facebook, or Twitter, it displays a compelling preview that drives clicks.
+
 ### Hosting
 - **GitHub Pages** with custom domain (thesunshinetrail.com)
 - I purchased the custom domain, which is pretty cool—you can navigate to thesunshinetrail.com in any browser
@@ -439,6 +456,13 @@ Live Impact metric buttons no longer have hover states on touch devices, prevent
 **Beer Section Image Animation (Mobile)**
 The beer cans image automatically animates to its "hover" state when fully visible in the viewport, and returns to normal when scrolling away. This brings attention to the CTA without requiring hover interaction.
 
+**Map Expansion on Interaction (Mobile)**
+On mobile, the map expands to fill the viewport below the header when:
+- A marker popup opens (giving room to see the full popup)
+- Search is activated (providing more space for results)
+
+The map collapses back when the popup closes or search is dismissed. The scroll indicator also collapses the expanded map and scrolls to the sidebar content—making it easy to navigate between map exploration and content browsing.
+
 ### Technical Robustness
 
 - **Haversine formula** — Distance calculations use proper geographic math (Haversine formula) rather than simple Euclidean distance, ensuring accurate "nearest location" results regardless of where users are
@@ -479,6 +503,12 @@ This is a demonstration project created for a job interview—not operated by or
 ### Presentation Mode
 
 For controlled demonstrations, the site includes a password-protected overlay. Visitors see the Lawson's yellow (`#f7e949`) branded gate with a password field. Entering the correct password triggers a "Welcome" animation before revealing the full experience. Authentication persists for the session, so refreshing doesn't require re-entry.
+
+**Fidget Sun Animation**
+The password page features the signature Lawson's sun with a clever sizing progression—on mobile, it starts small and grows progressively larger through tablet to desktop sizes, creating an appropriate visual presence for each screen size. The sun can be spun and clicked for emoji bursts, giving users something to interact with while they enter the password.
+
+**Scroll Prevention**
+The password overlay properly locks the page—no scrolling or touch-dragging behind the overlay. This prevents users from accidentally glimpsing content before authentication and keeps focus on the password entry experience.
 
 ---
 

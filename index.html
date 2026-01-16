@@ -6563,8 +6563,8 @@
                         map.addLayer(routeLayers);
                         routeLegend.style.display = 'flex';
 
-                        // Hide zoom hint when route is shown
-                        if (zoomHintEl) zoomHintEl.style.display = 'none';
+                        // Keep zoom hint visible until user manually zooms (Issue #26)
+                        // The zoom hint will auto-hide via the userHasZoomed flag when user interacts with zoom controls
 
                         // Show chargers when route is shown (add to unified cluster)
                         visibleCategories.charger = true;
@@ -6650,9 +6650,8 @@
             chargerFilterItem.title = '';
             refreshUnifiedCluster();
 
-            // Hide zoom hint
-            const zoomHintEl = document.getElementById('zoom-hint');
-            if (zoomHintEl) zoomHintEl.style.display = 'none';
+            // Keep zoom hint visible until user manually zooms (Issue #26)
+            // It will auto-hide via userHasZoomed flag when user clicks zoom controls
 
             // Fit bounds to show full route AND all markers
             const fullRoute = [
