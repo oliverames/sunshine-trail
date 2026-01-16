@@ -384,9 +384,9 @@
             height: 100vh;
             background: linear-gradient(
                 180deg,
-                rgba(180, 210, 255, 0.32) 0%,
-                rgba(150, 200, 240, 0.22) 50%,
-                rgba(120, 190, 250, 0.15) 100%
+                rgba(120, 170, 255, 0.40) 0%,
+                rgba(100, 160, 250, 0.30) 50%,
+                rgba(80, 150, 250, 0.20) 100%
             );
             pointer-events: none;
             opacity: 0;
@@ -1297,6 +1297,7 @@
 
         /* Map Search Control - inside Leaflet control container, anchored to zoom buttons */
         .map-search-control {
+            position: relative; /* Positioning context for results */
             margin-bottom: 10px; /* Gap between search and zoom buttons */
             margin-right: 15px; /* Same as zoom controls */
             pointer-events: auto !important; /* Override Leaflet's pointer-events: none on .leaflet-bottom */
@@ -1373,7 +1374,7 @@
         .map-search-results {
             position: absolute;
             bottom: 60px; /* Float above the input */
-            right: 71px; /* Position above input: 15px (container right) + 48px (button) + 8px (gap) */
+            right: 56px; /* Align with input: 48px (button) + 8px (gap) */
             width: 320px; /* Same width as expanded input */
             max-height: 300px;
             overflow-y: auto;
@@ -1450,10 +1451,11 @@
                 /* Keep position: absolute like desktop, just wider */
             }
 
-            /* Search results on mobile - wider to match input */
+            /* Search results on mobile - wider to match input, position above input */
             .map-search-results {
                 width: calc(100vw - 95px);
                 right: 56px;
+                bottom: 55px; /* Position above the 48px search input + gap */
                 max-height: 200px;
             }
         }
@@ -1471,6 +1473,8 @@
             .map-search-results {
                 left: 10px;
                 right: 10px;
+                bottom: 55px; /* Position above the search input */
+                width: auto; /* Override calc() width when using left/right */
             }
         }
 
@@ -3112,11 +3116,21 @@
         window.siteRevealed = false;
 
         // Early search state declaration (needed before route toggle code)
-        // Full search functionality is defined later in the file
+        // Full collapse implementation - gets elements each time for safety
         let searchExpanded = false;
         window.collapseSearch = function() {
-            // Will be redefined later with full implementation
             searchExpanded = false;
+            const input = document.getElementById('map-search-input');
+            const results = document.getElementById('map-search-results');
+            if (input) {
+                input.classList.remove('expanded');
+                input.value = '';
+                input.blur();
+            }
+            if (results) {
+                results.classList.remove('visible');
+                results.innerHTML = '';
+            }
         };
 
         // Update Safari theme-color to white (for after password page)
@@ -6876,6 +6890,7 @@
         }
 
         // Expose collapseSearch globally so other sections can use it
+        // This overwrites the placeholder defined earlier in the script
         window.collapseSearch = collapseSearch;
 
         // Global Escape key handler - closes search from anywhere
@@ -6889,9 +6904,17 @@
             // Note: Removed auto-scroll behaviors - search should not scroll the page
 
             // Toggle search input expansion - handler function
+            // Check both state variable AND DOM state for robustness
             function toggleSearch(e) {
                 e.preventDefault();
-                if (!searchExpanded) {
+                e.stopPropagation(); // Prevent event from bubbling to document click handler
+
+                // Check actual DOM state as well as variable for robustness
+                const isInputExpanded = mapSearchInput.classList.contains('expanded');
+                const areResultsVisible = mapSearchResults.classList.contains('visible');
+                const isActuallyExpanded = searchExpanded || isInputExpanded || areResultsVisible;
+
+                if (!isActuallyExpanded) {
                     // Expand search
                     searchExpanded = true;
                     mapSearchInput.classList.add('expanded');
@@ -7621,7 +7644,7 @@
         // Use only text characters for snowflakes (no emoji) for consistent rendering
         const snowflakeChars = ['❄', '❅', '❆', '✻', '✼'];
 
-        function createSnowflake() {
+        function createSnowflake(fast = false) {
             const snowflake = document.createElement('div');
             snowflake.className = 'snowflake';
             snowflake.textContent = snowflakeChars[Math.floor(Math.random() * snowflakeChars.length)];
@@ -7644,9 +7667,9 @@
             snowflake.style.setProperty('--sway4', (swayBase * -0.2 + (Math.random() - 0.5) * 25) + 'px');
 
             // Variable fall duration for natural continuous effect (avoids "wave" pattern)
-            // Wide range ensures snowflakes finish at different times for steady coverage
-            const duration = 5 + Math.random() * 12;  // 5-17 seconds (wider spread)
-            const delay = Math.random() * 0.5;
+            // Fast snowflakes (initial burst) fall quicker to fill the header area
+            const duration = fast ? (2 + Math.random() * 4) : (5 + Math.random() * 12);
+            const delay = fast ? 0 : (Math.random() * 0.3);
             snowflake.style.animation = `snowfall ${duration}s linear ${delay}s forwards`;
 
             document.body.appendChild(snowflake);
@@ -7721,15 +7744,20 @@
             isSnowing = true;
             freezeOverlay.classList.add('active');
 
-            // Start continuous creation immediately - same rate throughout
-            // ~3 flakes every 30ms = 100 flakes/second for heavy, consistent snow
+            // Create initial burst of FAST snowflakes from the top
+            // Fast snowflakes (2-6s duration) fill the header area quickly
+            for (let i = 0; i < 25; i++) {
+                createSnowflake(true); // Fast snowflakes
+            }
+
+            // Start continuous creation - steady rate for natural snow effect
+            // ~2 flakes every 40ms = 50 flakes/second
             snowInterval = setInterval(() => {
-                if (isSnowing && snowflakes.length < 350) {
-                    createSnowflake();
-                    createSnowflake();
+                if (isSnowing && snowflakes.length < 250) {
+                    createSnowflake(); // Normal speed snowflakes
                     createSnowflake();
                 }
-            }, 30);
+            }, 40);
         }
 
         function stopSnow() {
