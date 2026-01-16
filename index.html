@@ -1317,6 +1317,9 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             pointer-events: auto !important; /* Ensure clickable */
             -webkit-tap-highlight-color: transparent;
+            align-self: center; /* Ensure vertical alignment in flex container */
+            flex-shrink: 0; /* Prevent shrinking */
+            margin: 0; /* Remove any default margins */
         }
 
         .map-search-btn:hover {
@@ -1349,18 +1352,23 @@
             width: 0;
             height: 48px; /* Match search button height */
             padding: 0;
+            margin: 0; /* Remove any default margins */
             border: none;
             border-radius: 10px;
             background: white;
             font-family: 'new-spirit', serif;
             font-size: 1rem;
-            line-height: 48px; /* Vertically center text */
+            line-height: 48px; /* Match height for vertical text centering */
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             transition: width 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
             opacity: 0;
             outline: none;
             box-sizing: border-box;
-            vertical-align: middle; /* Ensure vertical alignment with button */
+            align-self: center; /* Ensure vertical alignment in flex container */
+            flex-shrink: 0; /* Prevent shrinking */
+            -webkit-appearance: none; /* Remove default browser styling */
+            position: relative;
+            top: -1px; /* Fine-tune vertical alignment with button */
         }
 
         .map-search-input.expanded {
@@ -1439,10 +1447,12 @@
         }
 
         @media (max-width: 768px) {
-            /* On mobile, search button stays above zoom controls, same styling */
+            /* On mobile, search control is inside leaflet container - no absolute positioning needed */
             .map-search-control {
-                bottom: 140px; /* Above zoom controls */
-                right: 15px;
+                /* Remove absolute positioning - let flexbox in leaflet container handle it */
+                position: relative;
+                bottom: auto;
+                right: auto;
             }
 
             /* Mobile search input expands to left of button */
@@ -1450,7 +1460,6 @@
                 width: calc(100vw - 95px); /* Expand to fill available space */
                 padding: 0 16px;
                 font-size: 1rem;
-                /* Keep position: absolute like desktop, just wider */
             }
 
             /* Search results on mobile - wider to match input, position above input */
@@ -1464,9 +1473,7 @@
 
         /* Extra narrow mobile viewports */
         @media (max-width: 420px) {
-            .map-search-control {
-                right: 10px;
-            }
+            /* Search control positioning handled by leaflet container */
 
             .map-search-input.expanded {
                 width: calc(100vw - 85px); /* Slightly narrower margins */
