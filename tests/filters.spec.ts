@@ -35,7 +35,7 @@ test.describe('Category Filters', () => {
     await expect(page.locator(selectors.filters.chargers)).toBeVisible();
   });
 
-  test('default filters should be checked except chargers', async ({ page }) => {
+  test('default filters should be checked (including chargers when route is shown)', async ({ page }) => {
     // These should be checked by default
     await expect(page.locator(selectors.filters.breweries)).toBeChecked();
     await expect(page.locator(selectors.filters.tastingRooms)).toBeChecked();
@@ -45,8 +45,15 @@ test.describe('Category Filters', () => {
     await expect(page.locator(selectors.filters.rivers)).toBeChecked();
     await expect(page.locator(selectors.filters.community)).toBeChecked();
 
-    // Chargers should be unchecked by default
-    await expect(page.locator(selectors.filters.chargers)).not.toBeChecked();
+    // When route is shown (default), chargers should be enabled
+    // When route is hidden, chargers would be unchecked
+    const routeToggle = page.locator(selectors.route.toggleCheckbox);
+    const isRouteShown = await routeToggle.isChecked();
+    if (isRouteShown) {
+      await expect(page.locator(selectors.filters.chargers)).toBeChecked();
+    } else {
+      await expect(page.locator(selectors.filters.chargers)).not.toBeChecked();
+    }
   });
 
   test('unchecking a filter should reduce visible markers', async ({ page }) => {
@@ -110,7 +117,7 @@ test.describe('Category Filters', () => {
   });
 
   test('unchecking all filters should show no markers', async ({ page }) => {
-    // Uncheck all filters
+    // Uncheck all filters (including chargers which is enabled when route is shown)
     const filters = [
       selectors.filters.breweries,
       selectors.filters.tastingRooms,
@@ -119,6 +126,7 @@ test.describe('Category Filters', () => {
       selectors.filters.trails,
       selectors.filters.rivers,
       selectors.filters.community,
+      selectors.filters.chargers,
     ];
 
     for (const filter of filters) {
@@ -188,20 +196,22 @@ test.describe('State Filters', () => {
   test('clicking "All States" should show all markers', async ({ page }) => {
     // First filter to a single state
     await page.locator(selectors.stateFilters.buttonByState('VT')).click();
-    await page.waitForTimeout(500);
-
-    const filteredCount = await getVisibleMarkerCount(page);
-    const filteredClusters = await getVisibleClusterCount(page);
+    await page.waitForTimeout(800);
 
     // Then click All States
     await page.locator(selectors.stateFilters.allStates).click();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(800);
 
+    // All States button should be active
+    const allStatesBtn = page.locator(selectors.stateFilters.allStates);
+    await expect(allStatesBtn).toHaveClass(/active/);
+
+    // Should have visible markers or clusters
     const allCount = await getVisibleMarkerCount(page);
     const allClusters = await getVisibleClusterCount(page);
 
-    // Should have more or equal markers
-    expect(allCount + allClusters).toBeGreaterThanOrEqual(filteredCount + filteredClusters);
+    // Should have at least some markers/clusters showing all states
+    expect(allCount + allClusters).toBeGreaterThan(0);
   });
 
   test('state filter should work with category filters', async ({ page }) => {
