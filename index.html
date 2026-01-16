@@ -5758,19 +5758,15 @@
                     if (Math.abs(xShift) > 10 || Math.abs(yShift) > 10) {
                         const center = map.getCenter();
                         const point = map.latLngToContainerPoint(center);
-                        // Subtract xShift to move popup toward center (if popup is right, pan left)
-                        // Add yShift to move popup toward center (if popup is high, pan down)
-                        const newPoint = L.point(point.x - xShift, point.y + yShift);
+                        // Add xShift to move content left when popup is right of safe center
+                        // Subtract yShift to move content down when popup is above safe center
+                        const newPoint = L.point(point.x + xShift, point.y - yShift);
                         const newLatLng = map.containerPointToLatLng(newPoint);
 
-                        // Use sidebar-aware centering when sidebar floats over map (>768px)
-                        if (window.innerWidth > 768) {
-                            panToWithOffset(newLatLng, { animate: true, duration: 0.3 });
-                        } else {
-                            map.panTo(newLatLng, { animate: true, duration: 0.3 });
-                        }
+                        // Use map.panTo directly since safe area calculation already accounts for sidebar
+                        map.panTo(newLatLng, { animate: true, duration: 0.3 });
                     }
-                }, 50); // Small delay to ensure popup is rendered
+                }, 100); // Wait for popup to fully render before measuring
             }
         });
 
