@@ -2706,7 +2706,7 @@
             .scroll-indicator {
                 display: flex;
                 position: fixed;
-                bottom: 20px;
+                bottom: calc(20px + env(safe-area-inset-bottom, 0px));
                 right: 15px;
                 width: 52px;
                 height: 52px;
@@ -5748,6 +5748,16 @@
                     if (userMapLocation) {
                         e.stopPropagation();
                         e.preventDefault();
+
+                        // Hide zoom hint when user manually zooms (Issue #26)
+                        const zoomHintEl = document.getElementById('zoom-hint');
+                        if (zoomHintEl) {
+                            zoomHintEl.classList.add('hidden');
+                        }
+                        if (typeof userHasZoomed !== 'undefined') {
+                            window.userHasZoomed = true;
+                        }
+
                         const currentZoom = map.getZoom();
                         const currentCenter = map.getCenter();
 
