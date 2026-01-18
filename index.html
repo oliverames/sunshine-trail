@@ -167,6 +167,13 @@
     }
     </script>
 
+    <!-- Resource preloading for critical assets (#44) -->
+    <link rel="preload" href="assets/images/fidget-sun.png" as="image">
+    <link rel="preload" href="assets/images/lawsons-logo.svg" as="image">
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="dns-prefetch" href="https://nominatim.openstreetmap.org">
+    <link rel="dns-prefetch" href="https://basemaps.cartocdn.com">
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" integrity="sha256-FHz6Gb0yFxO0m4UKz0jHXXEPwZ4TBPbLKLLn1/qgFAk=" crossorigin="anonymous">
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" integrity="sha256-LWhzWaQGZRsWFrrJxg+6Zn8TT84k0/trtiHBc6qcGpY=" crossorigin="anonymous">
@@ -3097,9 +3104,9 @@
             </div>
             <h1>The Sunshine Trail</h1>
             <div class="password-input-container">
-                <input type="password" class="password-input" id="password-input" placeholder="Enter password" autocomplete="off">
+                <input type="password" class="password-input" id="password-input" placeholder="Enter password" autocomplete="off" aria-label="Password">
             </div>
-            <button class="password-submit" id="password-submit">Enter</button>
+            <button class="password-submit" id="password-submit" aria-label="Submit password">Enter</button>
             <div class="password-error" id="password-error">Incorrect password</div>
         </div>
         <div class="welcome-text" id="welcome-text">Welcome</div>
@@ -3225,7 +3232,7 @@
                         <span>VT Route 100 (217 mi)</span>
                     </div>
                     <div class="get-itinerary-btn-container">
-                        <button class="get-itinerary-btn" id="get-itinerary-btn">Get Itinerary</button>
+                        <button class="get-itinerary-btn" id="get-itinerary-btn" aria-label="Get road trip itinerary">Get Itinerary</button>
                     </div>
                 </div>
             </div>
@@ -3367,8 +3374,8 @@
             <div class="map-search-control" id="map-search-control">
                 <div class="map-search-results" id="map-search-results"></div>
                 <div class="map-search-container">
-                    <input type="text" class="map-search-input" id="map-search-input" placeholder="Search places or listings...">
-                    <button class="map-search-btn" id="map-search-btn" title="Search map">
+                    <input type="text" class="map-search-input" id="map-search-input" placeholder="Search places or listings..." aria-label="Search map locations">
+                    <button class="map-search-btn" id="map-search-btn" title="Search map" aria-label="Search map">
                         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="10" cy="10" r="6" fill="none"/>
                             <line x1="14.5" y1="14.5" x2="20" y2="20"/>
@@ -3388,17 +3395,17 @@
             </div>
             <h2>Get Your Free Road Trip Guide</h2>
             <p>Join the Lawson's newsletter to receive a detailed Sunshine Trail road trip plan with recommended stops, local tips, and exclusive brewery news.</p>
-            <form class="email-form" id="email-form">
-                <input type="text" placeholder="Your Name" required class="email-input" id="name-input">
-                <input type="email" placeholder="Your Email" required class="email-input" id="email-input">
+            <form class="email-form" id="email-form" aria-label="Newsletter signup form">
+                <input type="text" placeholder="Your Name" required class="email-input" id="name-input" aria-label="Your name" aria-required="true">
+                <input type="email" placeholder="Your Email" required class="email-input" id="email-input" aria-label="Your email address" aria-required="true">
                 <label class="email-checkbox">
-                    <input type="checkbox" id="local-checkbox">
+                    <input type="checkbox" id="local-checkbox" aria-label="Receive local happenings newsletter">
                     <span>Send me info about local happenings</span>
                 </label>
                 <div class="location-field" id="location-field" style="display: none;">
-                    <input type="text" placeholder="Detecting your location..." class="email-input location-input" id="location-input">
+                    <input type="text" placeholder="Detecting your location..." class="email-input location-input" id="location-input" aria-label="Your location">
                 </div>
-                <button type="submit" class="email-submit">Send My Itinerary</button>
+                <button type="submit" class="email-submit" aria-label="Submit and send itinerary">Send My Itinerary</button>
             </form>
             <p class="email-disclaimer">By signing up, you'll join the Lawson's Finest newsletter. Unsubscribe anytime.</p>
         </div>
@@ -3453,6 +3460,32 @@
                 return false;
             }
         }
+
+        // ============================================
+        // APPLICATION CONSTANTS (#37 - extract magic numbers)
+        // Centralized configuration for maintainability
+        // ============================================
+        const APP_CONFIG = {
+            // Timing constants
+            GEOCODING_RATE_LIMIT_MS: 1100,  // Nominatim requires 1 request/second
+            FORM_RATE_LIMIT_MS: 5000,       // 5 seconds between form submissions
+            EMAIL_MODAL_DELAY_MS: 30000,    // 30 seconds before showing email modal
+            POPUP_ANIMATION_MS: 300,        // Popup pan animation duration
+            CLUSTER_DOUBLE_CLICK_MS: 2000,  // Time window for cluster double-click
+
+            // Map constants
+            MOBILE_BREAKPOINT: 768,         // Mobile width breakpoint
+            MAX_ZOOM_LEVEL: 15,             // Maximum zoom for clusters
+            CLUSTER_SPIDERFY_ZOOM: 12,      // Zoom level for cluster spiderfy
+
+            // Validation constants
+            MAX_EMAIL_LENGTH: 254,          // RFC 5321 max email length
+            MAX_NAME_LENGTH: 100,           // Max name input length
+            MAX_LOCATION_LENGTH: 200,       // Max location input length
+
+            // Floating-point comparison
+            COORDINATE_EPSILON: 0.000001    // Epsilon for lat/lng comparison
+        };
 
         // ============================================
         // PAGE VISIBILITY API - PAUSE ANIMATIONS WHEN TAB HIDDEN
@@ -5769,16 +5802,37 @@
             });
         }
 
-        // Update counts
+        // Cache DOM element references for count displays (#40, #50 - performance fix)
+        const countElements = {
+            brewery: document.getElementById('count-breweries'),
+            tastingroom: document.getElementById('count-tastingrooms'),
+            retailer: document.getElementById('count-retailers'),
+            bar: document.getElementById('count-bars'),
+            trail: document.getElementById('count-trails'),
+            river: document.getElementById('count-rivers'),
+            community: document.getElementById('count-community'),
+            charger: document.getElementById('count-chargers')
+        };
+
+        // Pre-compute category counts (only changes when data changes, not on filter toggle)
+        const categoryCounts = {
+            brewery: sunshineSpots.filter(s => s.category === 'brewery').length,
+            tastingroom: sunshineSpots.filter(s => s.category === 'tastingroom').length,
+            retailer: sunshineSpots.filter(s => s.category === 'retailer').length,
+            bar: sunshineSpots.filter(s => s.category === 'bar').length,
+            trail: sunshineSpots.filter(s => s.category === 'trail').length,
+            river: sunshineSpots.filter(s => s.category === 'river').length,
+            community: sunshineSpots.filter(s => s.category === 'community').length,
+            charger: sunshineSpots.filter(s => s.category === 'charger').length
+        };
+
+        // Update counts - now uses cached elements and pre-computed counts
         function updateCounts() {
-            document.getElementById('count-breweries').textContent = sunshineSpots.filter(s => s.category === 'brewery').length;
-            document.getElementById('count-tastingrooms').textContent = sunshineSpots.filter(s => s.category === 'tastingroom').length;
-            document.getElementById('count-retailers').textContent = sunshineSpots.filter(s => s.category === 'retailer').length;
-            document.getElementById('count-bars').textContent = sunshineSpots.filter(s => s.category === 'bar').length;
-            document.getElementById('count-trails').textContent = sunshineSpots.filter(s => s.category === 'trail').length;
-            document.getElementById('count-rivers').textContent = sunshineSpots.filter(s => s.category === 'river').length;
-            document.getElementById('count-community').textContent = sunshineSpots.filter(s => s.category === 'community').length;
-            document.getElementById('count-chargers').textContent = sunshineSpots.filter(s => s.category === 'charger').length;
+            Object.keys(countElements).forEach(category => {
+                if (countElements[category]) {
+                    countElements[category].textContent = categoryCounts[category];
+                }
+            });
         }
         updateCounts();
 
@@ -5917,7 +5971,7 @@
                     };
                     // User location acquired for zoom guidance (PII removed from console)
                 },
-                () => { console.log('Geolocation denied or failed'); },
+                () => { /* Geolocation denied or failed - silent fail */ },
                 { enableHighAccuracy: false, timeout: 10000 }
             );
         }
@@ -7317,25 +7371,53 @@
             });
         }
 
+        // Form submission rate limiting (#25) - prevent spam
+        let lastFormSubmission = 0;
+        const FORM_RATE_LIMIT_MS = 5000; // 5 seconds between submissions
+
         // Handle form submission
         if (emailForm) {
             emailForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const name = document.getElementById('name-input').value;
-                const email = document.getElementById('email-input').value;
+
+                // Rate limiting check (#25)
+                const now = Date.now();
+                if (now - lastFormSubmission < FORM_RATE_LIMIT_MS) {
+                    alert('Please wait a few seconds before submitting again.');
+                    return;
+                }
+
+                const name = document.getElementById('name-input').value.trim();
+                const email = document.getElementById('email-input').value.trim();
                 const localHappenings = document.getElementById('local-checkbox').checked;
-                const location = locationInput ? locationInput.value : '';
-                // Here you would typically send to your backend or integrate with Lawson's newsletter
-                // Input validation to prevent malformed data
+                const location = locationInput ? locationInput.value.trim() : '';
+
+                // Enhanced input validation (#26)
+                // Email validation - RFC 5322 simplified
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
+                if (!email || !emailRegex.test(email)) {
                     alert('Please enter a valid email address');
                     return;
                 }
-                if (name.length < 1 || name.length > 100) {
-                    alert('Please enter a valid name');
+                // Email max length check
+                if (email.length > 254) {
+                    alert('Email address is too long');
                     return;
                 }
+                // Name validation - letters, spaces, hyphens, apostrophes only
+                const nameRegex = /^[a-zA-Z\s\-']+$/;
+                if (!name || name.length < 1 || name.length > 100 || !nameRegex.test(name)) {
+                    alert('Please enter a valid name (letters only)');
+                    return;
+                }
+                // Location validation if provided (no script injection)
+                if (location && (location.length > 200 || /<script/i.test(location))) {
+                    alert('Please enter a valid location');
+                    return;
+                }
+
+                // Update rate limit timestamp
+                lastFormSubmission = now;
                 // Show success message - use safe DOM APIs to prevent XSS (Security Fix)
                 const successMsg = document.createElement('p');
                 successMsg.style.cssText = 'color: var(--deep-brown); font-weight: 600; font-size: 1.1rem;';
