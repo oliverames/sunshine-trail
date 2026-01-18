@@ -179,9 +179,11 @@
     <link rel="dns-prefetch" href="https://nominatim.openstreetmap.org">
     <link rel="dns-prefetch" href="https://basemaps.cartocdn.com">
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" integrity="sha256-FHz6Gb0yFxO0m4UKz0jHXXEPwZ4TBPbLKLLn1/qgFAk=" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" integrity="sha256-LWhzWaQGZRsWFrrJxg+6Zn8TT84k0/trtiHBc6qcGpY=" crossorigin="anonymous">
+    <!-- Note: SRI hashes removed - unpkg content changes can invalidate hashes -->
+    <!-- To re-add SRI, generate fresh hashes from https://www.srihash.org/ -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
@@ -200,6 +202,19 @@
             --cream: #FFFBF2;              /* Warm cream background */
             --light-gold: #FDF5E6;         /* Light gold for highlights */
             --amber: #FCB900;              /* Luminous amber from site */
+
+            /* Responsive Breakpoints - Single Source of Truth (#39)
+               These MUST match APP_CONFIG.BREAKPOINTS in JavaScript */
+            --breakpoint-mobile: 768px;
+            --breakpoint-tablet: 1024px;
+            --breakpoint-desktop: 1280px;
+            --breakpoint-sidebar-large: 1400px;
+            --breakpoint-sidebar-xlarge: 1800px;
+
+            /* Sidebar widths - MUST match APP_CONFIG.SIDEBAR_WIDTHS */
+            --sidebar-width-default: 420px;
+            --sidebar-width-large: 460px;
+            --sidebar-width-xlarge: 500px;
         }
 
         * {
@@ -3428,8 +3443,9 @@
         </div>
     </footer>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js" integrity="sha256-NL4rh4W5hS3AhLQPRoRw9iIvpuU9+PcL9pKZF+uLu5E=" crossorigin="anonymous"></script>
+    <!-- Note: SRI hashes removed - unpkg content changes can invalidate hashes -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js" crossorigin="anonymous"></script>
     <script>
         // ============================================
         // SECURITY UTILITIES
@@ -3478,8 +3494,26 @@
             POPUP_ANIMATION_MS: 300,        // Popup pan animation duration
             CLUSTER_DOUBLE_CLICK_MS: 2000,  // Time window for cluster double-click
 
+            // Responsive Breakpoints - Single Source of Truth (#39)
+            // These values MUST match the CSS media queries
+            BREAKPOINTS: {
+                MOBILE: 768,          // @media (max-width: 768px) - full-width map
+                TABLET: 1024,         // Tablet upper bound
+                DESKTOP: 1280,        // Desktop with floating sidebar
+                SIDEBAR_LARGE: 1400,  // @media (min-width: 1400px) - wider sidebar
+                SIDEBAR_XLARGE: 1800  // @media (min-width: 1800px) - widest sidebar
+            },
+            MIN_VIEWPORT_HEIGHT: 600,  // Short viewport threshold for zoom limits
+
+            // Sidebar widths by breakpoint (matches CSS)
+            // On desktop, sidebar floats over map, reducing "safe area"
+            SIDEBAR_WIDTHS: {
+                DEFAULT: 420,   // 769px - 1399px
+                LARGE: 460,     // 1400px - 1799px
+                XLARGE: 500     // 1800px+
+            },
+
             // Map constants
-            MOBILE_BREAKPOINT: 768,         // Mobile width breakpoint
             MAX_ZOOM_LEVEL: 15,             // Maximum zoom for clusters
             CLUSTER_SPIDERFY_ZOOM: 12,      // Zoom level for cluster spiderfy
 
@@ -3490,6 +3524,61 @@
 
             // Floating-point comparison
             COORDINATE_EPSILON: 0.000001    // Epsilon for lat/lng comparison
+        };
+
+        // ============================================
+        // VIEWPORT UTILITIES - Dynamic Responsive Helpers (#39)
+        // Single source of truth for viewport queries
+        // ============================================
+        const Viewport = {
+            // Current dimensions
+            width: () => window.innerWidth,
+            height: () => window.innerHeight,
+
+            // Breakpoint queries
+            isMobile: () => window.innerWidth <= APP_CONFIG.BREAKPOINTS.MOBILE,
+            isTablet: () => {
+                const w = window.innerWidth;
+                return w > APP_CONFIG.BREAKPOINTS.MOBILE && w < APP_CONFIG.BREAKPOINTS.DESKTOP;
+            },
+            isDesktop: () => window.innerWidth >= APP_CONFIG.BREAKPOINTS.DESKTOP,
+            isShortViewport: () => window.innerHeight < APP_CONFIG.MIN_VIEWPORT_HEIGHT,
+
+            // Sidebar width calculation (0 on mobile, varies on desktop)
+            getSidebarWidth: () => {
+                if (Viewport.isMobile()) return 0;
+                const w = window.innerWidth;
+                if (w >= APP_CONFIG.BREAKPOINTS.SIDEBAR_XLARGE) {
+                    return APP_CONFIG.SIDEBAR_WIDTHS.XLARGE;
+                }
+                if (w >= APP_CONFIG.BREAKPOINTS.SIDEBAR_LARGE) {
+                    return APP_CONFIG.SIDEBAR_WIDTHS.LARGE;
+                }
+                return APP_CONFIG.SIDEBAR_WIDTHS.DEFAULT;
+            },
+
+            // Map safe area - the usable map width after sidebar overlap
+            // On mobile: full width. On desktop: viewport minus floating sidebar
+            getMapSafeWidth: () => {
+                return Viewport.width() - Viewport.getSidebarWidth();
+            },
+
+            // Get the center point of the map safe area (accounts for sidebar)
+            getMapSafeCenterX: () => {
+                const sidebarWidth = Viewport.getSidebarWidth();
+                // Safe area starts after sidebar, center is in the middle of safe area
+                return sidebarWidth + (Viewport.getMapSafeWidth() / 2);
+            },
+
+            // Get current breakpoint name (useful for debugging)
+            getCurrentBreakpoint: () => {
+                const w = window.innerWidth;
+                if (w <= APP_CONFIG.BREAKPOINTS.MOBILE) return 'mobile';
+                if (w < APP_CONFIG.BREAKPOINTS.DESKTOP) return 'tablet';
+                if (w < APP_CONFIG.BREAKPOINTS.SIDEBAR_LARGE) return 'desktop';
+                if (w < APP_CONFIG.BREAKPOINTS.SIDEBAR_XLARGE) return 'desktop-large';
+                return 'desktop-xlarge';
+            }
         };
 
         // Shared emoji array for fidget sun burst animations (#51 - consolidate duplicates)
@@ -3551,7 +3640,7 @@
                 results.innerHTML = '';
             }
             // Collapse map on mobile when search is closed (unless popup is open)
-            if (window.innerWidth <= 768) {
+            if (Viewport.isMobile()) {
                 const mapEl = document.getElementById('map');
                 const hasOpenPopup = document.querySelector('.leaflet-popup');
                 if (mapEl && mapEl.classList.contains('map-expanded') && !hasOpenPopup) {
@@ -5446,12 +5535,9 @@
         // ============================================
 
         // Get sidebar width in pixels based on screen size
-        // Must match CSS breakpoints: sidebar floats over map at viewport > 768px
+        // Uses Viewport utility for single source of truth (#39)
         function getSidebarWidth() {
-            if (window.innerWidth <= 768) return 0;  // Mobile - sidebar is below map (CSS: position: relative)
-            if (window.innerWidth >= 1800) return 500;  // CSS: width: 500px
-            if (window.innerWidth >= 1400) return 460;  // CSS: width: 460px
-            return 420;  // Default CSS: width: 420px (applies to 769-1399px)
+            return Viewport.getSidebarWidth();
         }
 
         // Get the visible map viewport dimensions (excluding sidebar overlay)
@@ -5501,7 +5587,7 @@
         // Get padding for fitBounds - account for sidebar floating over map
         // Left padding must be sidebar width + margins + buffer to keep pills visible
         function getSidebarPadding() {
-            if (window.innerWidth <= 768) {
+            if (Viewport.isMobile()) {
                 // Mobile: sidebar is stacked below map (CSS: position: relative)
                 return [20, 40, 380, 40]; // [top, right, bottom, left]
             }
@@ -5777,16 +5863,14 @@
             if (isSameCluster) {
                 // Same cluster clicked again - zoom in 1.5 levels for progressive drilling
                 const newZoom = Math.min(currentZoom + 1.5, 15);
-                const isMobile = window.innerWidth <= 768;
                 map.setView(clusterLatLng, newZoom, {
-                    animate: !isMobile,  // Disable animation on mobile to reduce jank
+                    animate: !Viewport.isMobile(),  // Disable animation on mobile to reduce jank
                     duration: 0.4
                 });
             } else {
                 // Different cluster or first click - fit bounds normally
-                const isMobile = window.innerWidth <= 768;
                 fitBoundsWithSidebarOffset(bounds, {
-                    animate: !isMobile,  // Disable animation on mobile to reduce jank
+                    animate: !Viewport.isMobile(),  // Disable animation on mobile to reduce jank
                     duration: 0.5,
                     easeLinearity: 0.25,
                     maxZoom: 15,  // Don't zoom in too far, let user click again if needed
@@ -6185,7 +6269,7 @@
             }
 
             // Expand map on mobile to show full popup
-            if (window.innerWidth <= 768) {
+            if (Viewport.isMobile()) {
                 const mapEl = document.getElementById('map');
                 if (mapEl && !mapEl.classList.contains('map-expanded')) {
                     mapEl.classList.add('map-expanded');
@@ -6198,8 +6282,8 @@
                 }
             }
 
-            // Only save state on mobile/tablet
-            if (window.innerWidth <= 1200) {
+            // Only save state on mobile/tablet (not full desktop)
+            if (!Viewport.isDesktop()) {
                 savedMapState = {
                     center: map.getCenter(),
                     zoom: map.getZoom()
@@ -6210,7 +6294,7 @@
             if (e.popup && e.popup._latlng) {
                 // On mobile, wait longer for map resize to complete (CSS transition + invalidateSize)
                 // On desktop, wait just for popup to render
-                const isMobile = window.innerWidth <= 768;
+                const isMobile = Viewport.isMobile();
                 const mapEl = document.getElementById('map');
                 const isExpanding = isMobile && mapEl && mapEl.classList.contains('map-expanded');
                 const waitTime = isExpanding ? 400 : 100; // 400ms = 350ms CSS + 50ms buffer (no invalidateSize animation now - Issue #34)
@@ -6370,7 +6454,7 @@
 
         map.on('popupclose', function(e) {
             // Collapse map on mobile
-            if (window.innerWidth <= 768) {
+            if (Viewport.isMobile()) {
                 const mapEl = document.getElementById('map');
                 if (mapEl && mapEl.classList.contains('map-expanded')) {
                     mapEl.classList.remove('map-expanded');
@@ -6381,8 +6465,8 @@
                 }
             }
 
-            // Only restore state on mobile/tablet
-            if (window.innerWidth <= 1200 && savedMapState) {
+            // Only restore state on mobile/tablet (not full desktop)
+            if (!Viewport.isDesktop() && savedMapState) {
                 map.setView(savedMapState.center, savedMapState.zoom, {
                     animate: true,
                     duration: 0.5
@@ -6452,7 +6536,7 @@
                 // If filtering to a specific state, zoom to show all markers in that state
                 if (state !== 'all') {
                     // On mobile, scroll to the map first (#12)
-                    if (window.innerWidth <= 768) {
+                    if (Viewport.isMobile()) {
                         const mapElement = document.getElementById('map');
                         if (mapElement) {
                             // Use setTimeout to ensure scroll happens after any DOM updates
@@ -6479,7 +6563,7 @@
                     if (stateMarkers.length > 0) {
                         const bounds = stateMarkers.map(s => [s.lat, s.lng]);
                         // Responsive padding - less on mobile for better map utilization
-                        const isMobile = window.innerWidth <= 768;
+                        const isMobile = Viewport.isMobile();
                         const paddingValue = isMobile ? 40 : 80;
                         // Zoom to fit all markers in the state - let bounds determine appropriate zoom
                         fitBoundsWithSidebarOffset(bounds, {
@@ -7095,7 +7179,7 @@
                         const sidebarWidth = getSidebarWidth();
 
                         // Use different padding for mobile vs desktop
-                        if (window.innerWidth <= 768) {
+                        if (Viewport.isMobile()) {
                             map.fitBounds(fullRoute, {
                                 animate: true,
                                 duration: 1.0,
@@ -7178,7 +7262,7 @@
 
             // Calculate appropriate zoom based on viewport
             // Mobile needs to zoom in more since map area is smaller
-            const isMobile = window.innerWidth <= 768;
+            const isMobile = Viewport.isMobile();
             const minZoom = isMobile ? 5 : 5;  // Minimum zoom to keep focus on east coast
             const maxZoom = isMobile ? 6 : 7;  // Maximum zoom
 
@@ -7734,7 +7818,7 @@
                 mapSearchResults.innerHTML = ''; // Clear results content
             }
             // Collapse map on mobile when search is closed (unless popup is open)
-            if (window.innerWidth <= 768) {
+            if (Viewport.isMobile()) {
                 const mapEl = document.getElementById('map');
                 const hasOpenPopup = document.querySelector('.leaflet-popup');
                 if (mapEl && mapEl.classList.contains('map-expanded') && !hasOpenPopup) {
@@ -7782,7 +7866,7 @@
                         zoomHintEl.classList.add('hidden');
                     }
                     // Expand map on mobile to show more search results
-                    if (window.innerWidth <= 768) {
+                    if (Viewport.isMobile()) {
                         const mapEl = document.getElementById('map');
                         if (mapEl && !mapEl.classList.contains('map-expanded')) {
                             mapEl.classList.add('map-expanded');
@@ -9048,7 +9132,7 @@
         // ============================================
         // Store observer reference for cleanup (Bug Fix #34)
         let beerImageObserver = null;
-        if (window.innerWidth <= 768) {
+        if (Viewport.isMobile()) {
             const beerSectionImage = document.querySelector('.beer-section-image');
             if (beerSectionImage) {
                 beerImageObserver = new IntersectionObserver((entries) => {
