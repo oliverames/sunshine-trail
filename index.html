@@ -3487,6 +3487,9 @@
             COORDINATE_EPSILON: 0.000001    // Epsilon for lat/lng comparison
         };
 
+        // Shared emoji array for fidget sun burst animations (#51 - consolidate duplicates)
+        const FIDGET_SUN_EMOJIS = ['😊', '😁', '🍺', '🍻', '☀️', '🧊', '🌈'];
+
         // ============================================
         // PAGE VISIBILITY API - PAUSE ANIMATIONS WHEN TAB HIDDEN
         // Performance Fix: Prevents battery drain from idle animations
@@ -6458,10 +6461,12 @@
                     const stateMarkers = sunshineSpots.filter(s => {
                         // Check explicit state property
                         if (s.state === state) return true;
-                        // Parse state from location string (e.g., "Philadelphia, PA" -> "PA")
+                        // Parse state from location string (#33 - improved regex to handle more formats)
+                        // Handles: "City, ST", "City ST", "City, ST 12345", "city, st" (case-insensitive)
                         if (s.location) {
-                            const stateMatch = s.location.match(/,\s*([A-Z]{2})(?:\s|$)/);
-                            if (stateMatch && stateMatch[1] === state) return true;
+                            // Match state abbreviation after comma or space, case-insensitive
+                            const stateMatch = s.location.match(/[,\s]\s*([A-Za-z]{2})(?:\s+\d{5})?(?:\s|$)/i);
+                            if (stateMatch && stateMatch[1].toUpperCase() === state) return true;
                         }
                         return false;
                     });
@@ -7521,7 +7526,7 @@
             document.addEventListener('touchend', endDragM);
 
             // Emoji burst on click/tap for modal sun
-            const emojisM = ['😊', '😁', '🍺', '🍻', '☀️', '🧊', '🌈'];
+            const emojisM = FIDGET_SUN_EMOJIS; // Use shared emoji array (#51)
             let clickStartTimeM = 0;
             let clickStartPosM = { x: 0, y: 0 };
 
@@ -8209,7 +8214,7 @@
             document.addEventListener('touchend', endDrag);
 
             // Emoji burst on click/tap
-            const emojis = ['😊', '😁', '🍺', '🍻', '☀️', '🧊', '🌈'];
+            const emojis = FIDGET_SUN_EMOJIS; // Use shared emoji array (#51)
             let clickStartTime = 0;
             let clickStartPos = { x: 0, y: 0 };
 
@@ -8411,7 +8416,7 @@
             document.addEventListener('touchend', endDragF);
 
             // Emoji burst on tap/click for mobile
-            const emojisF = ['😊', '😁', '🍺', '🍻', '☀️', '🧊', '🌈'];
+            const emojisF = FIDGET_SUN_EMOJIS; // Use shared emoji array (#51)
             let clickStartTimeF = 0;
             let clickStartPosF = { x: 0, y: 0 };
             let rotationAtStartF = 0;
