@@ -64,10 +64,15 @@
 
     <!-- Early auth check - runs before body parses to prevent any flash of password page -->
     <script>
-        if (localStorage.getItem('sunshineTrailAuth') === 'true') {
-            document.documentElement.classList.add('authenticated');
-            // Update theme color to white immediately
-            document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.content = '#ffffff');
+        // Feature detection for localStorage (handles private browsing - Issue #20)
+        try {
+            if (localStorage.getItem('sunshineTrailAuth') === 'true') {
+                document.documentElement.classList.add('authenticated');
+                // Update theme color to white immediately
+                document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.content = '#ffffff');
+            }
+        } catch (e) {
+            // localStorage not available (private browsing mode)
         }
     </script>
     <link rel="icon" type="image/png" href="assets/images/favicon.png">
@@ -3569,7 +3574,8 @@
         }
 
         // Check if already authenticated (persistent with localStorage)
-        const isAuthenticated = localStorage.getItem('sunshineTrailAuth') === 'true';
+        // Uses storageAvailable() for feature detection (Issue #20)
+        const isAuthenticated = storageAvailable() && localStorage.getItem('sunshineTrailAuth') === 'true';
         if (isAuthenticated && passwordOverlay) {
             // Hide immediately - no flash, no transition
             passwordOverlay.classList.add('instant-hidden');
@@ -6992,7 +6998,8 @@
         let emailModalElapsedTime = 0;
         const emailModalDelay = 30000; // 30 seconds
         const emailModalShownKey = 'sunshineTrailEmailModalShown';
-        let emailModalShownEarly = localStorage.getItem(emailModalShownKey) === 'true';
+        // Use storageAvailable() for feature detection (Issue #20)
+        let emailModalShownEarly = storageAvailable() && localStorage.getItem(emailModalShownKey) === 'true';
 
         // Start email modal timer ONLY AFTER site is revealed (password authenticated)
         // 30 seconds of ACTIVE viewing after authentication
@@ -7010,7 +7017,7 @@
                     if (emailModalEl && !emailModalShownEarly && !document.hidden) {
                         emailModalEl.classList.add('visible');
                         emailModalShownEarly = true;
-                        localStorage.setItem(emailModalShownKey, 'true');
+                        if (storageAvailable()) localStorage.setItem(emailModalShownKey, 'true');
                     }
                 }, remainingTime);
             }
@@ -7226,7 +7233,7 @@
                     emailModal.classList.add('visible');
                     // Mark as shown so 30-second timer doesn't show it again
                     emailModalShownEarly = true;
-                    localStorage.setItem(emailModalShownKey, 'true');
+                    if (storageAvailable()) localStorage.setItem(emailModalShownKey, 'true');
                     if (emailModalTimer) {
                         clearTimeout(emailModalTimer);
                         emailModalTimer = null;
