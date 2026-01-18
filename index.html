@@ -3587,6 +3587,7 @@
         // ============================================
         // PAGE VISIBILITY API - PAUSE ANIMATIONS WHEN TAB HIDDEN
         // Performance Fix: Prevents battery drain from idle animations
+        // Note: Defined early so FidgetSunSpinner class can use it
         // ============================================
         let pageIsVisible = !document.hidden;
         const animationResumers = []; // Callbacks to resume animations when page becomes visible
@@ -3602,6 +3603,249 @@
         // Register an animation to be paused/resumed with visibility
         function registerVisibilityAnimation(resumeCallback) {
             animationResumers.push(resumeCallback);
+        }
+
+        // ============================================
+        // FIDGET SUN SPINNER CLASS (#36 - Consolidated)
+        // Reusable class for all fidget sun spinners
+        // Physics-based rotation with momentum, emoji burst, idle spin
+        // ============================================
+        class FidgetSunSpinner {
+            constructor(elementId, options = {}) {
+                this.element = document.getElementById(elementId);
+                if (!this.element) return;
+
+                this.container = this.element.parentElement;
+                this.options = {
+                    friction: options.friction || 0.9995,  // Ultra-low friction
+                    idleSpeed: options.idleSpeed || 0.1,   // Idle rotation speed
+                    emojis: options.emojis || FIDGET_SUN_EMOJIS,
+                    burstCount: options.burstCount || 20,
+                    enableIdle: options.enableIdle !== false,
+                    preventBubble: options.preventBubble || false,
+                    ...options
+                };
+
+                // Physics state
+                this.rotation = 0;
+                this.velocity = 0;
+                this.isDragging = false;
+                this.lastAngle = 0;
+                this.lastTime = 0;
+                this.animationId = null;
+                this.idleRotation = 0;
+
+                // Click detection state
+                this.clickStartTime = 0;
+                this.clickStartPos = { x: 0, y: 0 };
+
+                // Bound methods for event listener cleanup
+                this._boundDrag = this.drag.bind(this);
+                this._boundEndDrag = this.endDrag.bind(this);
+                this._boundIdleSpin = this.idleSpin.bind(this);
+
+                this.init();
+            }
+
+            init() {
+                if (!this.container) return;
+
+                // Prevent clicks from bubbling (useful for modal fidget suns)
+                if (this.options.preventBubble) {
+                    this.element.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                    });
+                }
+
+                // Mouse events - use container for larger hit area
+                this.container.addEventListener('mousedown', (e) => this.startDrag(e));
+                document.addEventListener('mousemove', this._boundDrag);
+                document.addEventListener('mouseup', this._boundEndDrag);
+
+                // Touch events
+                this.container.addEventListener('touchstart', (e) => this.startDrag(e), { passive: false });
+                document.addEventListener('touchmove', this._boundDrag, { passive: false });
+                document.addEventListener('touchend', this._boundEndDrag);
+
+                // Click/tap for emoji burst
+                this.container.addEventListener('mousedown', (e) => this.recordClickStart(e));
+                this.container.addEventListener('mouseup', (e) => this.checkBurst(e));
+                this.container.addEventListener('touchstart', (e) => this.recordTouchStart(e), { passive: true });
+                this.container.addEventListener('touchend', (e) => this.checkTouchBurst(e), { passive: true });
+
+                // Start idle spin
+                if (this.options.enableIdle) {
+                    this.idleSpin();
+                    registerVisibilityAnimation(this._boundIdleSpin);
+                }
+            }
+
+            getAngle(e) {
+                const rect = this.element.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return Math.atan2(clientY - centerY, clientX - centerX);
+            }
+
+            startDrag(e) {
+                e.preventDefault();
+                this.isDragging = true;
+                this.element.classList.add('spinning');
+                this.lastAngle = this.getAngle(e);
+                this.lastTime = Date.now();
+                this.velocity = 0;
+                if (this.animationId) cancelAnimationFrame(this.animationId);
+            }
+
+            drag(e) {
+                if (!this.isDragging) return;
+                e.preventDefault();
+                const currentAngle = this.getAngle(e);
+                const now = Date.now();
+                const dt = Math.max(now - this.lastTime, 1);
+
+                let deltaAngle = currentAngle - this.lastAngle;
+                if (deltaAngle > Math.PI) deltaAngle -= 2 * Math.PI;
+                if (deltaAngle < -Math.PI) deltaAngle += 2 * Math.PI;
+
+                this.rotation += deltaAngle * (180 / Math.PI);
+                this.velocity = (deltaAngle * (180 / Math.PI)) / dt * 35;
+
+                this.element.style.transform = `rotate(${this.rotation}deg)`;
+                this.lastAngle = currentAngle;
+                this.lastTime = now;
+            }
+
+            endDrag() {
+                if (!this.isDragging) return;
+                this.isDragging = false;
+                this.element.classList.remove('spinning');
+                this.animateMomentum();
+            }
+
+            animateMomentum() {
+                if (Math.abs(this.velocity) < 0.005) {
+                    this.velocity = 0;
+                    return;
+                }
+                this.rotation += this.velocity;
+                this.velocity *= this.options.friction;
+                this.element.style.transform = `rotate(${this.rotation}deg)`;
+                this.animationId = requestAnimationFrame(() => this.animateMomentum());
+            }
+
+            recordClickStart(e) {
+                this.clickStartTime = Date.now();
+                this.clickStartPos = { x: e.clientX, y: e.clientY };
+            }
+
+            recordTouchStart(e) {
+                this.clickStartTime = Date.now();
+                if (e.touches && e.touches.length > 0) {
+                    this.clickStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+            }
+
+            checkBurst(e) {
+                const elapsed = Date.now() - this.clickStartTime;
+                const moved = Math.sqrt(
+                    Math.pow(e.clientX - this.clickStartPos.x, 2) +
+                    Math.pow(e.clientY - this.clickStartPos.y, 2)
+                );
+                if (elapsed < 200 && moved < 10) {
+                    this.burstEmojis(e);
+                }
+            }
+
+            checkTouchBurst(e) {
+                const elapsed = Date.now() - this.clickStartTime;
+                const endPos = e.changedTouches && e.changedTouches.length > 0
+                    ? { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY }
+                    : this.clickStartPos;
+                const moved = Math.sqrt(
+                    Math.pow(endPos.x - this.clickStartPos.x, 2) +
+                    Math.pow(endPos.y - this.clickStartPos.y, 2)
+                );
+                if (elapsed < 300 && moved < 30) {
+                    this.burstEmojis({ clientX: endPos.x, clientY: endPos.y });
+                }
+            }
+
+            burstEmojis(e) {
+                const rect = this.element.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                const shuffled = [...this.options.emojis].sort(() => Math.random() - 0.5);
+                const selectedEmojis = shuffled.slice(0, 3);
+
+                for (let i = 0; i < this.options.burstCount; i++) {
+                    const emoji = document.createElement('div');
+                    emoji.textContent = selectedEmojis[Math.floor(Math.random() * selectedEmojis.length)];
+                    const size = 24 + Math.random() * 20;
+                    emoji.style.cssText = `
+                        position: fixed;
+                        left: ${centerX}px;
+                        top: ${centerY}px;
+                        font-size: ${size}px;
+                        pointer-events: none;
+                        z-index: 10000;
+                        transform: translate(-50%, -50%);
+                        will-change: transform, opacity, left, top;
+                    `;
+                    document.body.appendChild(emoji);
+
+                    const angle = (Math.PI * 2 * i / this.options.burstCount) + (Math.random() - 0.5) * 0.6;
+                    const speed = 250 + Math.random() * 200;
+                    const vx = Math.cos(angle) * speed;
+                    const vy = Math.sin(angle) * speed;
+                    const gravity = 400;
+                    const startTime = performance.now();
+                    const spinDirection = Math.random() > 0.5 ? 1 : -1;
+                    const spinSpeed = 180 + Math.random() * 180;
+
+                    function animateEmoji(currentTime) {
+                        const t = (currentTime - startTime) / 1000;
+                        const x = centerX + vx * t;
+                        const y = centerY + vy * t + 0.5 * gravity * t * t;
+                        const opacity = Math.max(0, 1 - t * 0.9);
+                        const scale = 1 + t * 0.5;
+                        const spin = t * spinSpeed * spinDirection;
+
+                        emoji.style.left = `${x}px`;
+                        emoji.style.top = `${y}px`;
+                        emoji.style.opacity = opacity;
+                        emoji.style.transform = `translate(-50%, -50%) scale(${scale}) rotate(${spin}deg)`;
+
+                        if (opacity > 0) {
+                            requestAnimationFrame(animateEmoji);
+                        } else {
+                            emoji.remove();
+                        }
+                    }
+                    requestAnimationFrame(animateEmoji);
+                }
+            }
+
+            idleSpin() {
+                if (!pageIsVisible) return;
+                if (!this.isDragging && Math.abs(this.velocity) < 0.1) {
+                    this.idleRotation += this.options.idleSpeed;
+                    this.element.style.transform = `rotate(${this.rotation + this.idleRotation}deg)`;
+                }
+                requestAnimationFrame(this._boundIdleSpin);
+            }
+
+            // Cleanup method for when spinner should be destroyed
+            destroy() {
+                document.removeEventListener('mousemove', this._boundDrag);
+                document.removeEventListener('mouseup', this._boundEndDrag);
+                document.removeEventListener('touchmove', this._boundDrag);
+                document.removeEventListener('touchend', this._boundEndDrag);
+                if (this.animationId) cancelAnimationFrame(this.animationId);
+            }
         }
 
         // ============================================
