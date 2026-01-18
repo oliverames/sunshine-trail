@@ -849,10 +849,20 @@
             .leaflet-marker-icon {
                 transition: transform 0.15s ease-out, filter 0.15s ease-out;
                 transform-origin: center bottom;
+                /* GPU acceleration for smoother animations (Issue #37) */
+                will-change: transform;
+                transform: translateZ(0);
             }
 
             .leaflet-marker-icon:hover {
-                transform: scale(1.1) translateY(-2px);
+                transform: scale(1.1) translateY(-2px) translateZ(0);
+            }
+        }
+
+        /* Disable transitions on touch devices to reduce jank (Issue #37) */
+        @media (hover: none) {
+            .leaflet-marker-icon {
+                transition: none;
             }
         }
 
@@ -912,6 +922,45 @@
         /* Smooth transitions for cluster pills only */
         .marker-cluster-pill {
             transition: opacity 0.5s ease;
+            /* GPU acceleration for smoother animations (Issue #37) */
+            will-change: transform, opacity;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+
+        /* Faster animation on mobile to reduce perceived jank (Issue #37) */
+        @media (max-width: 768px) {
+            .marker-cluster-pill > div {
+                animation-duration: 0.4s;
+            }
+        }
+
+        /* High DPI optimization for marker icons on Retina displays (Issue #33) */
+        @media (-webkit-min-device-pixel-ratio: 3), (min-resolution: 3dppx) {
+            .leaflet-marker-icon img,
+            .marker-cluster-pill img {
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: crisp-edges;
+            }
+        }
+
+        /* Extra large phones (iPhone Pro Max 430px+) - adjust for better visibility (Issue #33) */
+        @media (max-width: 768px) and (min-width: 428px) {
+            /* Ensure cluster pills don't overflow on large screens */
+            .marker-cluster {
+                max-width: calc(100vw - 40px);
+            }
+
+            /* Slightly larger icons for better visibility on large phones */
+            .marker-cluster-pill img {
+                width: 32px !important;
+                height: 32px !important;
+            }
+
+            /* Slightly larger markers for better touch targets */
+            .leaflet-marker-icon {
+                transform: scale(1.05);
+            }
         }
 
         /* Custom Leaflet popup styles */
@@ -5430,7 +5479,7 @@
             iconCreateFunction: createUnifiedClusterIcon,
             spiderLegPolylineOptions: { weight: 2, color: '#ffc72d', opacity: 0.6 },
             spiderfyDistanceMultiplier: 1.8,  // More spread out spider
-            animate: true,
+            animate: false,  // Disable cluster animations to reduce jank on mobile (Issue #37)
             animateAddingMarkers: false  // Disable fly-in animation on initial load
         };
 
@@ -5516,7 +5565,7 @@
             }
 
             const marker = L.marker([spot.lat, spot.lng], { icon: icon, category: spot.category })
-                .bindPopup(popupContent, { maxWidth: 320, closeOnClick: false, autoClose: true });
+                .bindPopup(popupContent, { maxWidth: 320, closeOnClick: false, autoClose: false });
 
             // Store marker by category
             markersByCategory[spot.category].push(marker);
@@ -5558,29 +5607,59 @@
             }, 200);
         }, 100);
 
+        // Track last clicked cluster for repeated zoom behavior (Issue #35)
+        let lastClickedCluster = null;
+        let lastClickedClusterLatLng = null;
+        let lastClickTime = 0;
+
         // Custom cluster click handler - zoom with sidebar padding
         unifiedCluster.on('clusterclick', function(e) {
             const cluster = e.layer;
             const currentZoom = map.getZoom();
             const childCount = cluster.getChildCount();
+            const now = Date.now();
+            const clusterLatLng = cluster.getLatLng();
 
             // If already at high zoom or few markers, spiderfy immediately
             if (currentZoom >= 15 || (currentZoom >= 12 && childCount <= 5)) {
                 cluster.spiderfy();
+                lastClickedCluster = null;
+                lastClickedClusterLatLng = null;
                 return;
             }
 
+            // Check if this is the same cluster clicked within 2 seconds
+            const isSameCluster = lastClickedClusterLatLng &&
+                                  lastClickedClusterLatLng.lat === clusterLatLng.lat &&
+                                  lastClickedClusterLatLng.lng === clusterLatLng.lng &&
+                                  (now - lastClickTime) < 2000;
+
             const bounds = cluster.getBounds();
 
-            // Zoom to show all markers in the cluster within safe area
-            // Use fitBoundsWithSidebarOffset which respects the sidebar
-            fitBoundsWithSidebarOffset(bounds, {
-                animate: true,
-                duration: 0.6,
-                easeLinearity: 0.25,
-                maxZoom: 15,  // Don't zoom in too far, let user click again if needed
-                padding: [60, 60]  // Generous padding to keep markers visible
-            });
+            if (isSameCluster) {
+                // Same cluster clicked again - zoom in 1.5 levels for progressive drilling
+                const newZoom = Math.min(currentZoom + 1.5, 15);
+                const isMobile = window.innerWidth <= 768;
+                map.setView(clusterLatLng, newZoom, {
+                    animate: !isMobile,  // Disable animation on mobile to reduce jank
+                    duration: 0.4
+                });
+            } else {
+                // Different cluster or first click - fit bounds normally
+                const isMobile = window.innerWidth <= 768;
+                fitBoundsWithSidebarOffset(bounds, {
+                    animate: !isMobile,  // Disable animation on mobile to reduce jank
+                    duration: 0.5,
+                    easeLinearity: 0.25,
+                    maxZoom: 15,  // Don't zoom in too far, let user click again if needed
+                    padding: [60, 60]  // Generous padding to keep markers visible
+                });
+            }
+
+            // Update tracking
+            lastClickedCluster = cluster;
+            lastClickedClusterLatLng = clusterLatLng;
+            lastClickTime = now;
         });
 
 
@@ -5943,7 +6022,7 @@
                     mapEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     // Tell Leaflet the container size changed
                     setTimeout(() => {
-                        map.invalidateSize({ animate: true });
+                        map.invalidateSize({ animate: false });  // No animation for cleaner timing (Issue #37)
                     }, 350); // Wait for CSS transition
                 }
             }
@@ -5963,13 +6042,23 @@
                 const isMobile = window.innerWidth <= 768;
                 const mapEl = document.getElementById('map');
                 const isExpanding = isMobile && mapEl && mapEl.classList.contains('map-expanded');
-                const waitTime = isExpanding ? 450 : 100; // 450ms on mobile = 350ms invalidateSize + 100ms buffer
+                const waitTime = isExpanding ? 400 : 100; // 400ms = 350ms CSS + 50ms buffer (no invalidateSize animation now - Issue #34)
 
-                setTimeout(() => {
-                    const popupEl = e.popup.getElement();
-                    if (!popupEl) return;
+                // Cancel any pending centering operations to prevent race conditions (Issue #34)
+                if (window.popupCenteringTimeout) {
+                    clearTimeout(window.popupCenteringTimeout);
+                }
 
-                    const popupRect = popupEl.getBoundingClientRect();
+                window.popupCenteringTimeout = setTimeout(() => {
+                    // Use requestAnimationFrame for smooth rendering (Issue #34, #37)
+                    requestAnimationFrame(() => {
+                        const popupEl = e.popup.getElement();
+                        if (!popupEl) return;
+
+                        // Force layout reflow before measuring to ensure accurate values (Issue #34)
+                        map.getContainer().offsetHeight;
+
+                        const popupRect = popupEl.getBoundingClientRect();
                     const mapContainer = document.getElementById('map');
                     const mapRect = mapContainer.getBoundingClientRect();
 
@@ -6068,26 +6157,35 @@
 
                         if (latDiff < 2 && lngDiff < 2) {
                             // Safe to pan - within reasonable distance of marker
-                            map.panTo(newLatLng, { animate: true, duration: 0.4 });
+                            // Reduced duration from 0.4s to 0.3s for snappier feel (Issue #37)
+                            map.panTo(newLatLng, { animate: true, duration: 0.3, easeLinearity: 0.2 });
                         } else {
                             // Shift is too extreme - just center on marker with slight offset for popup
                             const simpleOffset = map.getSize().y * 0.15; // 15% offset for popup above marker
                             const offsetCenter = map.containerPointToLatLng(
                                 map.latLngToContainerPoint(e.popup._latlng).add([0, simpleOffset])
                             );
-                            map.panTo(offsetCenter, { animate: true, duration: 0.4 });
+                            map.panTo(offsetCenter, { animate: true, duration: 0.3, easeLinearity: 0.2 });
                         }
                     }
+                    }); // Close requestAnimationFrame
                 }, waitTime);
             }
         });
 
-        // Prevent popup from closing immediately after opening on touch devices
+        // Manual popup close on map click (since autoClose is disabled)
+        // This provides better control over popup behavior on touch devices
         map.on('click', function(e) {
             if (popupJustOpened) {
-                // Prevent this click from closing the popup
-                e.originalEvent.stopPropagation();
-                return false;
+                // Don't close popup that was just opened (prevents immediate close on touch)
+                return;
+            }
+            // Only close if clicking directly on map, not on a marker/cluster/popup
+            if (e.originalEvent &&
+                !e.originalEvent.target.closest('.leaflet-marker-icon') &&
+                !e.originalEvent.target.closest('.leaflet-popup') &&
+                !e.originalEvent.target.closest('.marker-cluster-pill')) {
+                map.closePopup();
             }
         });
 
