@@ -46,6 +46,22 @@
     <meta name="color-scheme" content="light">
     <meta name="supported-color-schemes" content="light">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+    <!-- Security Headers -->
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+
+    <!-- Content Security Policy - allows necessary external resources -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' https://unpkg.com;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.typekit.net https://unpkg.com;
+        font-src 'self' https://fonts.gstatic.com https://use.typekit.net data:;
+        img-src 'self' data: blob: https: http:;
+        connect-src 'self' https://nominatim.openstreetmap.org https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org;
+        frame-ancestors 'self';
+    ">
+
     <!-- Early auth check - runs before body parses to prevent any flash of password page -->
     <script>
         if (localStorage.getItem('sunshineTrailAuth') === 'true') {
@@ -152,8 +168,8 @@
     </script>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" integrity="sha256-FHz6Gb0yFxO0m4UKz0jHXXEPwZ4TBPbLKLLn1/qgFAk=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" integrity="sha256-LWhzWaQGZRsWFrrJxg+6Zn8TT84k0/trtiHBc6qcGpY=" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
@@ -3177,7 +3193,7 @@
                 </div>
                 <div class="bcorp-section">
                     <a href="https://www.bcorporation.net/en-us/find-a-b-corp/company/lawsons-finest-liquids/" target="_blank" rel="noopener noreferrer" class="bcorp-badge" title="Certified B Corporation">
-                        <img src="assets/images/b-corp-logo.png" alt="Certified B Corporation">
+                        <img src="assets/images/b-corp-logo.png" alt="Certified B Corporation" loading="lazy">
                     </a>
                 </div>
             </div>
@@ -3312,7 +3328,7 @@
 
             <div class="beer-section">
                 <a href="https://www.lawsonsfinest.com/beer/" target="_blank" rel="noopener noreferrer" class="beer-section-image">
-                    <img src="assets/images/beer-cans.png" alt="Lawson's Finest Liquids beers - Hop Wired, Sip of Sunshine, Little Sip">
+                    <img src="assets/images/beer-cans.png" alt="Lawson's Finest Liquids beers - Hop Wired, Sip of Sunshine, Little Sip" loading="lazy">
                 </a>
                 <div class="beer-section-content">
                     <h3>Have a Sip!</h3>
@@ -3368,7 +3384,7 @@
         <div class="email-modal">
             <button class="email-modal-close" id="email-modal-close" aria-label="Close"></button>
             <div class="email-modal-sun">
-                <img src="assets/images/fidget-sun.png" alt="Spin me!" class="fidget-sun-modal" id="fidget-sun-modal" draggable="false">
+                <img src="assets/images/fidget-sun.png" alt="Spin me!" class="fidget-sun-modal" id="fidget-sun-modal" draggable="false" loading="lazy">
             </div>
             <h2>Get Your Free Road Trip Guide</h2>
             <p>Join the Lawson's newsletter to receive a detailed Sunshine Trail road trip plan with recommended stops, local tips, and exclusive brewery news.</p>
@@ -3390,22 +3406,79 @@
 
     <footer class="bottom-brand">
         <a href="https://www.lawsonsfinest.com" target="_blank" rel="noopener noreferrer" class="bottom-brand-link">
-            <img src="assets/images/lawsons-logo.svg" alt="Lawson's Finest Liquids" class="bottom-brand-logo">
+            <img src="assets/images/lawsons-logo.svg" alt="Lawson's Finest Liquids" class="bottom-brand-logo" loading="lazy">
             <span class="bottom-brand-cta">Visit lawsonsfinest.com</span>
         </a>
         <p class="demo-disclaimer">This is a demonstration project and is not operated by or affiliated with Lawson's Finest Liquids.</p>
         <p class="demo-copyright">&copy; 2026 Ames Consulting LLC. All rights reserved.</p>
         <div class="fidget-sun-footer">
-            <img src="assets/images/fidget-sun.png" alt="Spin me!" class="fidget-sun" id="fidget-sun-footer" draggable="false">
+            <img src="assets/images/fidget-sun.png" alt="Spin me!" class="fidget-sun" id="fidget-sun-footer" draggable="false" loading="lazy">
         </div>
     </footer>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js" integrity="sha256-NL4rh4W5hS3AhLQPRoRw9iIvpuU9+PcL9pKZF+uLu5E=" crossorigin="anonymous"></script>
     <script>
         // ============================================
+        // SECURITY UTILITIES
+        // ============================================
+
+        // HTML escaping utility to prevent XSS attacks (Security Fix)
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
+
+        // Safe URL validation
+        function isValidUrl(url) {
+            if (!url) return false;
+            try {
+                const parsed = new URL(url);
+                return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+            } catch {
+                return false;
+            }
+        }
+
+        // localStorage feature detection (handles private browsing mode)
+        function storageAvailable() {
+            try {
+                const test = '__storage_test__';
+                localStorage.setItem(test, test);
+                localStorage.removeItem(test);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // ============================================
+        // PAGE VISIBILITY API - PAUSE ANIMATIONS WHEN TAB HIDDEN
+        // Performance Fix: Prevents battery drain from idle animations
+        // ============================================
+        let pageIsVisible = !document.hidden;
+        const animationResumers = []; // Callbacks to resume animations when page becomes visible
+
+        document.addEventListener('visibilitychange', function() {
+            pageIsVisible = !document.hidden;
+            if (pageIsVisible) {
+                // Resume all registered animations
+                animationResumers.forEach(resume => resume());
+            }
+        });
+
+        // Register an animation to be paused/resumed with visibility
+        function registerVisibilityAnimation(resumeCallback) {
+            animationResumers.push(resumeCallback);
+        }
+
+        // ============================================
         // PASSWORD PROTECTION OVERLAY
-        // Simple presentation gate (not for security)
+        // NOTE: This is a PRESENTATION GATE only, not security.
+        // The password is visible in source code intentionally.
+        // For actual security, use server-side authentication.
         // Uses localStorage for persistent caching
         // ============================================
         const passwordOverlay = document.getElementById('password-overlay');
@@ -3414,6 +3487,7 @@
         const passwordError = document.getElementById('password-error');
         const passwordContent = document.getElementById('password-content');
         const welcomeText = document.getElementById('welcome-text');
+        // Presentation gate password (intentionally visible - not for security)
         const correctPassword = 'hireme';
 
         // Track authentication state for email timer
@@ -3468,17 +3542,34 @@
             updateThemeColorToWhite();
         }
 
+        // Track password overlay event listeners for cleanup (Memory Leak Fix)
+        const passwordOverlayListeners = [];
+        function addPasswordListener(target, type, handler, options) {
+            target.addEventListener(type, handler, options);
+            passwordOverlayListeners.push({ target, type, handler, options });
+        }
+        function cleanupPasswordListeners() {
+            passwordOverlayListeners.forEach(({ target, type, handler, options }) => {
+                target.removeEventListener(type, handler, options);
+            });
+            passwordOverlayListeners.length = 0;
+        }
+
         function completeAuthentication() {
             passwordOverlay.classList.add('hidden');
             // Add authenticated class to enable body scrolling
             document.documentElement.classList.add('authenticated');
             // Use localStorage for persistent caching
-            localStorage.setItem('sunshineTrailAuth', 'true');
+            if (storageAvailable()) {
+                localStorage.setItem('sunshineTrailAuth', 'true');
+            }
             // Signal that site is revealed (for email timer)
             window.siteRevealed = true;
             window.dispatchEvent(new CustomEvent('siteRevealed'));
             // Update theme color to white for main page
             updateThemeColorToWhite();
+            // Clean up password overlay event listeners (Memory Leak Fix)
+            cleanupPasswordListeners();
         }
 
         function handlePasswordSubmit() {
@@ -3601,15 +3692,15 @@
                 passwordSunAnimationFrame = requestAnimationFrame(animatePasswordMomentum);
             }
 
-            // Mouse events
-            passwordSunContainer.addEventListener('mousedown', startPasswordSunDrag);
-            document.addEventListener('mousemove', movePasswordSunDrag);
-            document.addEventListener('mouseup', endPasswordSunDrag);
+            // Mouse events (using tracked listeners for cleanup - Memory Leak Fix)
+            addPasswordListener(passwordSunContainer, 'mousedown', startPasswordSunDrag);
+            addPasswordListener(document, 'mousemove', movePasswordSunDrag);
+            addPasswordListener(document, 'mouseup', endPasswordSunDrag);
 
-            // Touch events
-            passwordSunContainer.addEventListener('touchstart', startPasswordSunDrag, { passive: false });
-            document.addEventListener('touchmove', movePasswordSunDrag, { passive: false });
-            document.addEventListener('touchend', endPasswordSunDrag);
+            // Touch events (using tracked listeners for cleanup - Memory Leak Fix)
+            addPasswordListener(passwordSunContainer, 'touchstart', startPasswordSunDrag, { passive: false });
+            addPasswordListener(document, 'touchmove', movePasswordSunDrag, { passive: false });
+            addPasswordListener(document, 'touchend', endPasswordSunDrag);
 
             // Emoji burst on click/tap
             const passwordEmojis = ['😊', '😁', '🍺', '🍻', '☀️', '🧊', '🌈'];
@@ -3710,8 +3801,9 @@
                 }
             }
 
-            // Gentle idle spin
+            // Gentle idle spin (pauses when tab hidden to save battery)
             function passwordIdleSpin() {
+                if (!pageIsVisible) return; // Pause when tab hidden
                 if (!passwordSunIsDragging && Math.abs(passwordSunVelocity) < 0.1) {
                     passwordIdleRotation += 0.1;
                     fidgetSunPassword.style.transform = `rotate(${passwordSunRotation + passwordIdleRotation}deg)`;
@@ -3719,6 +3811,7 @@
                 requestAnimationFrame(passwordIdleSpin);
             }
             passwordIdleSpin();
+            registerVisibilityAnimation(passwordIdleSpin);
         }
 
         // Initialize the map with smooth scrolling and animations
@@ -4297,7 +4390,7 @@
                 lng: -82.5568,
                 location: "Asheville, NC",
                 description: "Great selection and one-stop shopping for beer and wine in Asheville.",
-                url: "http://www.appalachianvintner.com/"
+                url: "https://www.appalachianvintner.com/"
             },
             // Additional Vermont Retailers
             {
@@ -5518,9 +5611,9 @@
             // Build popup content with enhanced information for community partners
             let popupContent = '';
 
-            // Add image if available
-            if (spot.image) {
-                popupContent += `<img src="${spot.image}" alt="${spot.name}" class="popup-image" loading="lazy">`;
+            // Add image if available (Security: validate URL and escape alt text)
+            if (spot.image && isValidUrl(spot.image)) {
+                popupContent += `<img src="${escapeHtml(spot.image)}" alt="${escapeHtml(spot.name)}" class="popup-image" loading="lazy">`;
             }
 
             const categoryLabels = {
@@ -5533,33 +5626,34 @@
                 'community': 'Community Partner',
                 'charger': 'DC Fast Charger'
             };
-            const categoryLabel = categoryLabels[spot.category] || spot.category;
-            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.location)}`;
+            const categoryLabel = categoryLabels[spot.category] || escapeHtml(spot.category);
+            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.location || '')}`;
+            // Security: escape all user-visible text to prevent XSS
             popupContent += `
-                <div class="popup-category ${spot.category}">${categoryLabel}</div>
-                <div class="popup-title">${spot.name}</div>
-                <div class="popup-description">${spot.description}</div>
-                <div class="popup-location"><a href="${mapsUrl}" target="_blank" rel="noopener noreferrer">${spot.location}</a></div>
+                <div class="popup-category ${escapeHtml(spot.category)}">${escapeHtml(categoryLabel)}</div>
+                <div class="popup-title">${escapeHtml(spot.name)}</div>
+                <div class="popup-description">${escapeHtml(spot.description)}</div>
+                <div class="popup-location"><a href="${escapeHtml(mapsUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(spot.location)}</a></div>
             `;
 
-            // Add impact story for community partners
+            // Add impact story for community partners (Security: escape content)
             if (spot.impact) {
                 popupContent += `
                     <div class="popup-impact">
                         <div class="popup-impact-label">Impact Story</div>
-                        ${spot.impact}
+                        ${escapeHtml(spot.impact)}
                     </div>
                 `;
             }
 
-            // Add buttons
-            if (spot.url || spot.donateUrl) {
+            // Add buttons (Security: validate URLs before rendering)
+            if ((spot.url && isValidUrl(spot.url)) || (spot.donateUrl && isValidUrl(spot.donateUrl))) {
                 popupContent += '<div class="popup-buttons">';
-                if (spot.url) {
-                    popupContent += `<a href="${spot.url}" target="_blank" rel="noopener noreferrer" class="popup-btn popup-btn-primary">Learn More</a>`;
+                if (spot.url && isValidUrl(spot.url)) {
+                    popupContent += `<a href="${escapeHtml(spot.url)}" target="_blank" rel="noopener noreferrer" class="popup-btn popup-btn-primary">Learn More</a>`;
                 }
-                if (spot.donateUrl) {
-                    popupContent += `<a href="${spot.donateUrl}" target="_blank" rel="noopener noreferrer" class="popup-btn popup-btn-secondary">Donate</a>`;
+                if (spot.donateUrl && isValidUrl(spot.donateUrl)) {
+                    popupContent += `<a href="${escapeHtml(spot.donateUrl)}" target="_blank" rel="noopener noreferrer" class="popup-btn popup-btn-secondary">Donate</a>`;
                 }
                 popupContent += '</div>';
             }
@@ -5629,9 +5723,11 @@
             }
 
             // Check if this is the same cluster clicked within 2 seconds
+            // Bug Fix: Use epsilon comparison for floating-point coordinates
+            const EPSILON = 0.000001;
             const isSameCluster = lastClickedClusterLatLng &&
-                                  lastClickedClusterLatLng.lat === clusterLatLng.lat &&
-                                  lastClickedClusterLatLng.lng === clusterLatLng.lng &&
+                                  Math.abs(lastClickedClusterLatLng.lat - clusterLatLng.lat) < EPSILON &&
+                                  Math.abs(lastClickedClusterLatLng.lng - clusterLatLng.lng) < EPSILON &&
                                   (now - lastClickTime) < 2000;
 
             const bounds = cluster.getBounds();
@@ -5696,13 +5792,17 @@
             // Use requestAnimationFrame + setTimeout to ensure spinner renders before heavy operations
             requestAnimationFrame(() => {
                 setTimeout(() => {
-                    visibleCategories[categoryKey] = checkbox.checked;
-                    refreshUnifiedCluster();
-
-                    // Hide spinner after cluster refresh
-                    requestAnimationFrame(() => {
-                        filterItem.classList.remove('loading');
-                    });
+                    try {
+                        visibleCategories[categoryKey] = checkbox.checked;
+                        refreshUnifiedCluster();
+                    } catch (error) {
+                        console.error('Filter change error:', error);
+                    } finally {
+                        // Always hide spinner, even on error (Bug Fix #29)
+                        requestAnimationFrame(() => {
+                            filterItem.classList.remove('loading');
+                        });
+                    }
                 }, 10);
             });
         }
@@ -5746,24 +5846,28 @@
             // Use requestAnimationFrame + setTimeout to ensure spinner renders before heavy operations
             requestAnimationFrame(() => {
                 setTimeout(() => {
-                    visibleCategories.charger = checkbox.checked;
+                    try {
+                        visibleCategories.charger = checkbox.checked;
 
-                    // If user tries to enable chargers, also enable the route (chargers are only relevant along the route)
-                    if (checkbox.checked) {
-                        const routeCheckbox = document.getElementById('toggle-scenic-route');
-                        if (routeCheckbox && !routeCheckbox.checked) {
-                            routeCheckbox.checked = true;
-                            // Trigger the change event to load the route
-                            routeCheckbox.dispatchEvent(new Event('change'));
+                        // If user tries to enable chargers, also enable the route (chargers are only relevant along the route)
+                        if (checkbox.checked) {
+                            const routeCheckbox = document.getElementById('toggle-scenic-route');
+                            if (routeCheckbox && !routeCheckbox.checked) {
+                                routeCheckbox.checked = true;
+                                // Trigger the change event to load the route
+                                routeCheckbox.dispatchEvent(new Event('change'));
+                            }
                         }
+
+                        refreshUnifiedCluster();
+                    } catch (error) {
+                        console.error('Charger filter change error:', error);
+                    } finally {
+                        // Always hide spinner, even on error (Bug Fix #29)
+                        requestAnimationFrame(() => {
+                            filterItem.classList.remove('loading');
+                        });
                     }
-
-                    refreshUnifiedCluster();
-
-                    // Hide spinner after cluster refresh
-                    requestAnimationFrame(() => {
-                        filterItem.classList.remove('loading');
-                    });
                 }, 10);
             });
         });
@@ -5811,7 +5915,7 @@
                         lat: position.coords.latitude,
                         lng: position.coords.longitude
                     };
-                    console.log('User location acquired for zoom guidance:', userMapLocation);
+                    // User location acquired for zoom guidance (PII removed from console)
                 },
                 () => { console.log('Geolocation denied or failed'); },
                 { enableHighAccuracy: false, timeout: 10000 }
@@ -5868,20 +5972,24 @@
         }, 1500);
 
         // Zoom hint - hide when zoomed in past level 9
+        // Bug Fix: Add null checks to prevent crashes if elements don't exist
         const zoomHint = document.getElementById('zoom-hint');
-        const zoomHintText = zoomHint.querySelector('span');
-        const zoomHintOriginalText = zoomHintText.textContent;
+        const zoomHintText = zoomHint ? zoomHint.querySelector('span') : null;
+        const zoomHintOriginalText = zoomHintText ? zoomHintText.textContent : '';
 
-        // Wave animation on hover for zoom hint (faster timing)
-        zoomHint.addEventListener('mouseenter', () => {
-            createWaveAnimation(zoomHintText, 0.015);
-        });
-        zoomHint.addEventListener('mouseleave', () => {
-            resetWaveAnimation(zoomHintText, zoomHintOriginalText);
-        });
+        // Only set up zoom hint handlers if elements exist
+        if (zoomHint && zoomHintText) {
+            // Wave animation on hover for zoom hint (faster timing)
+            zoomHint.addEventListener('mouseenter', () => {
+                createWaveAnimation(zoomHintText, 0.015);
+            });
+            zoomHint.addEventListener('mouseleave', () => {
+                resetWaveAnimation(zoomHintText, zoomHintOriginalText);
+            });
+        }
 
-        // Click handler - find nearest Sunshine Spot
-        zoomHint.addEventListener('click', () => {
+        // Click handler - find nearest Sunshine Spot (with null check)
+        if (zoomHint) zoomHint.addEventListener('click', () => {
             if (!navigator.geolocation) {
                 alert('Geolocation is not supported by your browser');
                 return;
@@ -6050,16 +6158,24 @@
                 }
 
                 window.popupCenteringTimeout = setTimeout(() => {
+                    // Bug Fix: Check if popup is still open before processing (Race Condition Fix)
+                    if (!e.popup || !map.hasLayer(e.popup)) return;
+
                     // Use requestAnimationFrame for smooth rendering (Issue #34, #37)
                     requestAnimationFrame(() => {
+                        // Double-check popup still exists after rAF (another race condition check)
+                        if (!e.popup || !map.hasLayer(e.popup)) return;
                         const popupEl = e.popup.getElement();
                         if (!popupEl) return;
 
                         // Force layout reflow before measuring to ensure accurate values (Issue #34)
-                        map.getContainer().offsetHeight;
+                        const mapContainerEl = map.getContainer();
+                        if (!mapContainerEl) return;
+                        mapContainerEl.offsetHeight;
 
                         const popupRect = popupEl.getBoundingClientRect();
                     const mapContainer = document.getElementById('map');
+                    if (!mapContainer) return; // Null check
                     const mapRect = mapContainer.getBoundingClientRect();
 
                     // Get marker position on screen
@@ -6483,9 +6599,71 @@
 
         // Live ticker update
         let metricsStarted = false;
+        let metricsRunning = false; // Track if intervals are currently running
         let tickerInterval = null;
         let solarCarouselIndex = 0;
         let solarCarouselInterval = null;
+
+        // Pause metrics intervals when tab is hidden to save battery (Bug Fix #30)
+        function pauseMetricsIntervals() {
+            if (tickerInterval) {
+                clearInterval(tickerInterval);
+                tickerInterval = null;
+            }
+            if (solarCarouselInterval) {
+                clearInterval(solarCarouselInterval);
+                solarCarouselInterval = null;
+            }
+            metricsRunning = false;
+        }
+
+        // Resume metrics intervals when tab becomes visible
+        function resumeMetricsIntervals() {
+            if (!metricsStarted || metricsRunning) return;
+            metricsRunning = true;
+
+            const donationsEl = document.getElementById('donations-counter');
+            const solarEl = document.getElementById('solar-counter');
+            const evMilesEl = document.getElementById('solar-evmiles');
+            const homesEl = document.getElementById('solar-homes');
+            const carouselSlides = document.querySelectorAll('.metric-carousel .metric-slide');
+
+            tickerInterval = setInterval(() => {
+                const newDonations = calculateCurrentDonations();
+                const newSolar = calculateCurrentSolar();
+
+                if (donationsEl) donationsEl.textContent = formatDollars(newDonations);
+                if (solarEl) solarEl.textContent = formatKwh(newSolar);
+                if (evMilesEl) evMilesEl.textContent = formatWholeNumber(convertKwhToEvMiles(newSolar));
+                if (homesEl) homesEl.textContent = formatWholeNumber(convertKwhToHomesPowered(newSolar));
+            }, 100);
+
+            if (carouselSlides.length > 1) {
+                solarCarouselInterval = setInterval(() => {
+                    const current = carouselSlides[solarCarouselIndex];
+                    current.classList.remove('active');
+                    current.classList.add('exiting');
+                    solarCarouselIndex = (solarCarouselIndex + 1) % carouselSlides.length;
+                    const next = carouselSlides[solarCarouselIndex];
+                    setTimeout(() => {
+                        current.classList.remove('exiting');
+                        next.classList.add('active');
+                    }, 500);
+                }, 5000);
+            }
+        }
+
+        // Register with visibility API to pause/resume
+        registerVisibilityAnimation(() => {
+            if (metricsStarted) resumeMetricsIntervals();
+        });
+
+        // Also pause when tab hidden
+        document.addEventListener('visibilitychange', function metricsVisibility() {
+            if (document.hidden) {
+                pauseMetricsIntervals();
+            }
+        });
 
         function startLiveTicker() {
             if (metricsStarted) return;
@@ -6512,6 +6690,9 @@
             let lastSolar = currentSolar;
 
             setTimeout(() => {
+                // Mark intervals as running (for pause/resume on visibility change)
+                metricsRunning = true;
+
                 tickerInterval = setInterval(() => {
                     const newDonations = calculateCurrentDonations();
                     const newSolar = calculateCurrentSolar();
@@ -7145,10 +7326,26 @@
                 const localHappenings = document.getElementById('local-checkbox').checked;
                 const location = locationInput ? locationInput.value : '';
                 // Here you would typically send to your backend or integrate with Lawson's newsletter
-                // For demo, we just log and discard the location data
-                console.log('Newsletter signup:', { name, email, localHappenings, location, userLocation });
-                // Show success message
-                emailForm.innerHTML = '<p style="color: var(--deep-brown); font-weight: 600; font-size: 1.1rem;">Thanks, ' + name.split(' ')[0] + '! Check your inbox for your road trip guide. 🚗☀️</p>';
+                // Input validation to prevent malformed data
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    alert('Please enter a valid email address');
+                    return;
+                }
+                if (name.length < 1 || name.length > 100) {
+                    alert('Please enter a valid name');
+                    return;
+                }
+                // Show success message - use safe DOM APIs to prevent XSS (Security Fix)
+                const successMsg = document.createElement('p');
+                successMsg.style.cssText = 'color: var(--deep-brown); font-weight: 600; font-size: 1.1rem;';
+                const firstName = name.split(' ')[0].substring(0, 50); // Limit length
+                successMsg.textContent = 'Thanks, ' + firstName + '! Check your inbox for your road trip guide. 🚗☀️';
+                // Clear form and append success message safely
+                while (emailForm.firstChild) {
+                    emailForm.removeChild(emailForm.firstChild);
+                }
+                emailForm.appendChild(successMsg);
                 // Close modal after 5 seconds
                 setTimeout(hideEmailModal, 5000);
             });
@@ -7345,9 +7542,10 @@
                 }
             }
 
-            // Gentle idle spin for modal sun
+            // Gentle idle spin for modal sun (pauses when tab hidden to save battery)
             let idleRotationM = 0;
             function idleSpinM() {
+                if (!pageIsVisible) return; // Pause when tab hidden
                 if (!isDraggingM && Math.abs(velocityM) < 0.1) {
                     idleRotationM += 0.05;
                     fidgetSunModal.style.transform = `rotate(${rotationM + idleRotationM}deg)`;
@@ -7355,6 +7553,7 @@
                 requestAnimationFrame(idleSpinM);
             }
             idleSpinM();
+            registerVisibilityAnimation(idleSpinM);
         }
 
         // ============================================
@@ -7507,8 +7706,18 @@
             }
 
             // Add both click and touchend for mobile compatibility
-            mapSearchBtn.addEventListener('click', toggleSearch);
-            mapSearchBtn.addEventListener('touchend', toggleSearch, { passive: false });
+            // Fix double-firing by tracking touch events (Bug Fix)
+            let searchTouchHandled = false;
+            mapSearchBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                searchTouchHandled = true;
+                toggleSearch(e);
+                setTimeout(() => { searchTouchHandled = false; }, 300);
+            }, { passive: false });
+            mapSearchBtn.addEventListener('click', (e) => {
+                if (searchTouchHandled) return; // Prevent double-firing on touch devices
+                toggleSearch(e);
+            });
 
             // Close search when clicking outside search control
             // Check both searchExpanded state AND if results are visible (handles edge cases)
@@ -7542,8 +7751,26 @@
                 }).slice(0, 8); // Limit to 8 results
             }
 
-            // Geocode location using Nominatim with improved error handling
+            // Geocode location using Nominatim with rate limiting and caching (Performance + API Policy Fix)
+            const geocodeCache = new Map();
+            let lastGeocodingCall = 0;
+            const GEOCODING_RATE_LIMIT_MS = 1100; // Nominatim requires 1 request/second
+
             async function geocodeLocation(query) {
+                // Check cache first
+                const cacheKey = query.toLowerCase().trim();
+                if (geocodeCache.has(cacheKey)) {
+                    return geocodeCache.get(cacheKey);
+                }
+
+                // Rate limiting - wait if needed
+                const now = Date.now();
+                const timeSinceLastCall = now - lastGeocodingCall;
+                if (timeSinceLastCall < GEOCODING_RATE_LIMIT_MS) {
+                    await new Promise(r => setTimeout(r, GEOCODING_RATE_LIMIT_MS - timeSinceLastCall));
+                }
+                lastGeocodingCall = Date.now();
+
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
@@ -7562,13 +7789,16 @@
                     }
 
                     const data = await response.json();
-                    return data.map(item => ({
+                    const results = data.map(item => ({
                         name: item.display_name.split(',').slice(0, 2).join(','),
                         fullName: item.display_name,
                         lat: parseFloat(item.lat),
                         lng: parseFloat(item.lon),
                         type: 'location'
                     }));
+                    // Cache results for future queries
+                    geocodeCache.set(cacheKey, results);
+                    return results;
                 } catch (error) {
                     clearTimeout(timeoutId);
                     if (error.name === 'AbortError') {
@@ -7590,15 +7820,23 @@
                     return;
                 }
 
-                // Add listing results
+                // Add listing results (Security: use safe DOM methods to prevent XSS)
                 listings.forEach(spot => {
                     const item = document.createElement('div');
                     item.className = 'search-result-item';
-                    item.innerHTML = `
-                        <div class="search-result-name">${spot.name}</div>
-                        <div class="search-result-location">${spot.location || ''}</div>
-                        <span class="search-result-category">${spot.category}</span>
-                    `;
+                    // Build safely using DOM APIs instead of innerHTML
+                    const nameDiv = document.createElement('div');
+                    nameDiv.className = 'search-result-name';
+                    nameDiv.textContent = spot.name;
+                    const locDiv = document.createElement('div');
+                    locDiv.className = 'search-result-location';
+                    locDiv.textContent = spot.location || '';
+                    const catSpan = document.createElement('span');
+                    catSpan.className = 'search-result-category';
+                    catSpan.textContent = spot.category;
+                    item.appendChild(nameDiv);
+                    item.appendChild(locDiv);
+                    item.appendChild(catSpan);
 
                     // Handler function for selecting this search result
                     const selectResult = (e) => {
@@ -7643,13 +7881,18 @@
                     mapSearchResults.appendChild(separator);
                 }
 
+                // Security: use safe DOM methods for location results to prevent XSS
                 locations.forEach(loc => {
                     const item = document.createElement('div');
                     item.className = 'search-result-item';
-                    item.innerHTML = `
-                        <div class="search-result-name">${loc.name}</div>
-                        <div class="search-result-location">${loc.fullName}</div>
-                    `;
+                    const nameDiv = document.createElement('div');
+                    nameDiv.className = 'search-result-name';
+                    nameDiv.textContent = loc.name;
+                    const locDiv = document.createElement('div');
+                    locDiv.className = 'search-result-location';
+                    locDiv.textContent = loc.fullName;
+                    item.appendChild(nameDiv);
+                    item.appendChild(locDiv);
 
                     // Handler function for selecting this location result
                     const selectLocation = (e) => {
@@ -7989,9 +8232,10 @@
                 }
             }
 
-            // Gentle idle spin
+            // Gentle idle spin (pauses when tab hidden to save battery)
             let idleRotation = 0;
             function idleSpin() {
+                if (!pageIsVisible) return; // Pause when tab hidden
                 if (!isDragging && Math.abs(velocity) < 0.1) {
                     idleRotation += 0.1;
                     fidgetSun.style.transform = `rotate(${rotation + idleRotation}deg)`;
@@ -7999,6 +8243,7 @@
                 requestAnimationFrame(idleSpin);
             }
             idleSpin();
+            registerVisibilityAnimation(idleSpin);
         }
 
         // ============================================
@@ -8196,9 +8441,10 @@
                 }
             }
 
-            // Gentle idle spin for mobile
+            // Gentle idle spin for mobile (pauses when tab hidden to save battery)
             let idleRotationF = 0;
             function idleSpinF() {
+                if (!pageIsVisible) return; // Pause when tab hidden
                 if (!isDraggingF && Math.abs(velocityF) < 0.1) {
                     idleRotationF += 0.1;
                     mobileFidgetSun.style.transform = `rotate(${rotationF + idleRotationF}deg)`;
@@ -8206,6 +8452,7 @@
                 requestAnimationFrame(idleSpinF);
             }
             idleSpinF();
+            registerVisibilityAnimation(idleSpinF);
         }
 
         // ============================================
@@ -8705,10 +8952,12 @@
         // BEER SECTION IMAGE VIEWPORT ANIMATION (MOBILE)
         // Animate to hover state when fully visible
         // ============================================
+        // Store observer reference for cleanup (Bug Fix #34)
+        let beerImageObserver = null;
         if (window.innerWidth <= 768) {
             const beerSectionImage = document.querySelector('.beer-section-image');
             if (beerSectionImage) {
-                const beerImageObserver = new IntersectionObserver((entries) => {
+                beerImageObserver = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
                         if (entry.isIntersecting && entry.intersectionRatio >= 0.9) {
                             beerSectionImage.classList.add('in-view');
@@ -8761,6 +9010,15 @@
 
             // Remove device orientation listener
             window.removeEventListener('deviceorientation', handleDeviceOrientation);
+
+            // Disconnect IntersectionObserver (Bug Fix #34)
+            if (beerImageObserver) {
+                beerImageObserver.disconnect();
+                beerImageObserver = null;
+            }
+
+            // Clean up metrics intervals
+            pauseMetricsIntervals();
         });
     </script>
 </body>
