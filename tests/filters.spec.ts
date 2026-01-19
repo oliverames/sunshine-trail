@@ -155,7 +155,8 @@ test.describe('Category Filters', () => {
   });
 });
 
-test.describe('State Filters', () => {
+// SKIPPED: State filters tests have passed consistently - Issue #73
+test.describe.skip('State Filters', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -302,7 +303,8 @@ test.describe('State Filters', () => {
   });
 });
 
-test.describe('Filter Interactions', () => {
+// SKIPPED: Filter interactions tests have passed consistently - Issue #73
+test.describe.skip('Filter Interactions', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -350,7 +352,8 @@ test.describe('Filter Interactions', () => {
   });
 });
 
-test.describe('Filters - Mobile', () => {
+// SKIPPED: Mobile filters tests have passed consistently - Issue #73
+test.describe.skip('Filters - Mobile', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);

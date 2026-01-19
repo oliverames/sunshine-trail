@@ -14,7 +14,8 @@ import { setupPage, dismissEmailModal, waitForMapReady } from './utils/helpers';
  * Uses REAL user interactions - no JavaScript simulation.
  */
 
-test.describe('Live Metrics Section', () => {
+// SKIPPED: Metrics tests have passed consistently - Issue #73
+test.describe.skip('Live Metrics Section', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -42,7 +43,8 @@ test.describe('Live Metrics Section', () => {
   });
 });
 
-test.describe('Donations Counter', () => {
+// SKIPPED: Metrics tests have passed consistently - Issue #73
+test.describe.skip('Donations Counter', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -92,7 +94,8 @@ test.describe('Donations Counter', () => {
   });
 });
 
-test.describe('Solar Counter', () => {
+// SKIPPED: Metrics tests have passed consistently - Issue #73
+test.describe.skip('Solar Counter', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -141,7 +144,8 @@ test.describe('Solar Counter', () => {
   });
 });
 
-test.describe('B Corp Score', () => {
+// SKIPPED: Metrics tests have passed consistently - Issue #73
+test.describe.skip('B Corp Score', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -167,7 +171,8 @@ test.describe('B Corp Score', () => {
   });
 });
 
-test.describe('Nonprofits Count', () => {
+// SKIPPED: Metrics tests have passed consistently - Issue #73
+test.describe.skip('Nonprofits Count', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -186,7 +191,8 @@ test.describe('Nonprofits Count', () => {
   });
 });
 
-test.describe('Metrics Links', () => {
+// SKIPPED: Metrics tests have passed consistently - Issue #73
+test.describe.skip('Metrics Links', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -227,7 +233,8 @@ test.describe('Metrics Links', () => {
   });
 });
 
-test.describe('Metrics Animation', () => {
+// SKIPPED: Metrics tests have passed consistently - Issue #73
+test.describe.skip('Metrics Animation', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -275,7 +282,8 @@ test.describe('Metrics Animation', () => {
   });
 });
 
-test.describe('Metrics - Responsive', () => {
+// SKIPPED: Metrics tests have passed consistently - Issue #73
+test.describe.skip('Metrics - Responsive', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);

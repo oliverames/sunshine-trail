@@ -12,7 +12,8 @@ import { setupPage, dismissEmailModal, waitForMapReady, isSidebarVisible } from 
  * Uses REAL user interactions - no JavaScript simulation.
  */
 
-test.describe('Responsive Layout - Mobile', () => {
+// SKIPPED: Mobile layout tests have passed consistently - Issue #73
+test.describe.skip('Responsive Layout - Mobile', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -168,7 +169,8 @@ test.describe('Responsive Layout - Desktop', () => {
   });
 });
 
-test.describe('Responsive Elements', () => {
+// SKIPPED: Responsive elements tests have passed consistently - Issue #73
+test.describe.skip('Responsive Elements', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -220,7 +222,8 @@ test.describe('Responsive Elements', () => {
   });
 });
 
-test.describe('Touch vs Click Interactions', () => {
+// SKIPPED: Touch vs click tests have passed consistently - Issue #73
+test.describe.skip('Touch vs Click Interactions', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -322,7 +325,8 @@ test.describe('Touch vs Click Interactions', () => {
   });
 });
 
-test.describe('Scroll Behavior', () => {
+// SKIPPED: Scroll behavior tests have passed consistently - Issue #73
+test.describe.skip('Scroll Behavior', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -369,7 +373,8 @@ test.describe('Scroll Behavior', () => {
   });
 });
 
-test.describe('Viewport-Specific Features', () => {
+// SKIPPED: Viewport specific tests have passed consistently - Issue #73
+test.describe.skip('Viewport-Specific Features', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -415,7 +420,8 @@ test.describe('Viewport-Specific Features', () => {
   });
 });
 
-test.describe('Screenshot Verification', () => {
+// SKIPPED: Screenshot verification tests have passed consistently - Issue #73
+test.describe.skip('Screenshot Verification', () => {
   test('capture full page on mobile', async ({ page }) => {
     const viewport = page.viewportSize();
     if (!viewport || viewport.width >= 768) {

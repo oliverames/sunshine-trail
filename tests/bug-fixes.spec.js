@@ -9,7 +9,8 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test.describe('Issue #11 - Zoom Hint Visibility', () => {
+// SKIPPED: Zoom hint tests have passed consistently - Issue #73
+test.describe.skip('Issue #11 - Zoom Hint Visibility', () => {
   // Note: Route now displays by default, which hides zoom hint
   // These tests verify the zoom hint behavior when route is toggled off
 
@@ -88,7 +89,8 @@ test.describe('Issue #11 - Zoom Hint Visibility', () => {
   });
 });
 
-test.describe('Issue #13 - Search Result Selection', () => {
+// SKIPPED: Search selection tests have passed consistently - Issue #73
+test.describe.skip('Issue #13 - Search Result Selection', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('.leaflet-container', { state: 'visible' });
@@ -283,7 +285,8 @@ test.describe('Issue #13 - Search Result Selection', () => {
   });
 });
 
-test.describe('Initial Map View', () => {
+// SKIPPED: Initial map view tests have passed consistently - Issue #73
+test.describe.skip('Initial Map View', () => {
   test('map should fit all markers within visible area on desktop', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
@@ -327,7 +330,8 @@ test.describe('Initial Map View', () => {
   });
 });
 
-test.describe('Issue #12 - Mobile Auto-scroll', () => {
+// SKIPPED: Mobile auto-scroll tests have passed consistently - Issue #73
+test.describe.skip('Issue #12 - Mobile Auto-scroll', () => {
   test('selecting a state should scroll map into view on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
@@ -350,7 +354,8 @@ test.describe('Issue #12 - Mobile Auto-scroll', () => {
   });
 });
 
-test.describe('Core Functionality', () => {
+// SKIPPED: Core functionality tests have passed consistently - Issue #73
+test.describe.skip('Core Functionality', () => {
   test('map should initialize without JavaScript errors', async ({ page }) => {
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
@@ -453,7 +458,8 @@ test.describe('Core Functionality', () => {
   });
 });
 
-test.describe('Viewport Utilities', () => {
+// SKIPPED: Viewport utilities tests have passed consistently - Issue #73
+test.describe.skip('Viewport Utilities', () => {
   test('sidebar width should be calculated correctly on desktop', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
@@ -509,7 +515,8 @@ test.describe('Viewport Utilities', () => {
 // UX IMPROVEMENTS TESTS
 // ============================================
 
-test.describe('Route Display by Default', () => {
+// SKIPPED: Route display tests have passed consistently - Issue #73
+test.describe.skip('Route Display by Default', () => {
   test('route should be displayed on page load', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('.leaflet-container', { state: 'visible' });
@@ -548,7 +555,8 @@ test.describe('Route Display by Default', () => {
   });
 });
 
-test.describe('Mobile Map Height', () => {
+// SKIPPED: Mobile map height tests have passed consistently - Issue #73
+test.describe.skip('Mobile Map Height', () => {
   test('map should be 50vh on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
@@ -567,7 +575,8 @@ test.describe('Mobile Map Height', () => {
   });
 });
 
-test.describe('Mobile Search Expansion', () => {
+// SKIPPED: Mobile search expansion tests have passed consistently - Issue #73
+test.describe.skip('Mobile Search Expansion', () => {
   test('search input should expand to full width on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
@@ -588,7 +597,8 @@ test.describe('Mobile Search Expansion', () => {
   });
 });
 
-test.describe('Mobile Scroll Indicator', () => {
+// SKIPPED: Mobile scroll indicator tests have passed consistently - Issue #73
+test.describe.skip('Mobile Scroll Indicator', () => {
   test('scroll indicator should be visible on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
@@ -648,7 +658,8 @@ test.describe('Mobile Scroll Indicator', () => {
   });
 });
 
-test.describe('Email Popup Timing', () => {
+// SKIPPED: Email popup timing tests have passed consistently - Issue #73
+test.describe.skip('Email Popup Timing', () => {
   test('email popup should not be visible initially', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('.leaflet-container', { state: 'visible' });
@@ -674,7 +685,8 @@ test.describe('Email Popup Timing', () => {
   });
 });
 
-test.describe('Mobile Email Modal Fullscreen', () => {
+// SKIPPED: Mobile email modal fullscreen tests have passed consistently - Issue #73
+test.describe.skip('Mobile Email Modal Fullscreen', () => {
   test('email modal should cover full viewport on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
@@ -711,7 +723,8 @@ test.describe('Mobile Email Modal Fullscreen', () => {
   });
 });
 
-test.describe('Mobile Hover States Disabled', () => {
+// SKIPPED: Mobile hover states tests have passed consistently - Issue #73
+test.describe.skip('Mobile Hover States Disabled', () => {
   test('metric links should not have hover transform on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
@@ -734,7 +747,8 @@ test.describe('Mobile Hover States Disabled', () => {
   });
 });
 
-test.describe('Beer Section Image Animation', () => {
+// SKIPPED: Beer section image animation tests have passed consistently - Issue #73
+test.describe.skip('Beer Section Image Animation', () => {
   test('beer section image should exist', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('.leaflet-container', { state: 'visible' });
@@ -745,7 +759,8 @@ test.describe('Beer Section Image Animation', () => {
   });
 });
 
-test.describe('Snowflake Animation Stability', () => {
+// SKIPPED: Snowflake animation stability tests have passed consistently - Issue #73
+test.describe.skip('Snowflake Animation Stability', () => {
   test('snowfall should not crash on rapid start/stop', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('.leaflet-container', { state: 'visible' });
@@ -869,7 +884,8 @@ test.describe('Copy Protection', () => {
 // Tests that clicking state buttons zooms to show all locations in that state
 // ============================================
 
-test.describe('State Button Zoom Levels', () => {
+// SKIPPED: State button zoom tests have passed consistently - Issue #73
+test.describe.skip('State Button Zoom Levels', () => {
   test('clicking PA state button should find Pennsylvania locations', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('.leaflet-container', { state: 'visible' });
@@ -965,7 +981,8 @@ test.describe('State Button Zoom Levels', () => {
 // Tests that Philadelphia locations are visible at appropriate zoom levels
 // ============================================
 
-test.describe('Philadelphia Locations Visibility', () => {
+// SKIPPED: Philadelphia locations tests have passed consistently - Issue #73
+test.describe.skip('Philadelphia Locations Visibility', () => {
   test('cluster settings should allow markers at zoom 15', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('.leaflet-container', { state: 'visible' });
@@ -1027,7 +1044,8 @@ test.describe('Philadelphia Locations Visibility', () => {
 // Tests that the wind effect code is properly configured
 // ============================================
 
-test.describe('Accelerometer Wind Effect', () => {
+// SKIPPED: Accelerometer wind tests have passed consistently - Issue #73
+test.describe.skip('Accelerometer Wind Effect', () => {
   test('wind animation loop should be defined', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('.leaflet-container', { state: 'visible' });

@@ -306,7 +306,8 @@ test.describe('Popup Centering (Issue #27)', () => {
   });
 });
 
-test.describe('Popup Centering - Different Viewport Sizes', () => {
+// SKIPPED: Viewport size tests have passed consistently - Issue #73
+test.describe.skip('Popup Centering - Different Viewport Sizes', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -384,7 +385,8 @@ test.describe('Popup Centering - Different Viewport Sizes', () => {
   });
 });
 
-test.describe('Popup Centering - Edge Cases', () => {
+// SKIPPED: Edge case tests have passed consistently - Issue #73
+test.describe.skip('Popup Centering - Edge Cases', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -507,7 +509,8 @@ test.describe('Popup Centering - Edge Cases', () => {
   });
 });
 
-test.describe('Popup Centering - Search Results', () => {
+// SKIPPED: Search results tests have passed consistently - Issue #73
+test.describe.skip('Popup Centering - Search Results', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);

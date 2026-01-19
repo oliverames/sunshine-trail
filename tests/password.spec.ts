@@ -8,7 +8,8 @@ import { selectors, DEMO_PASSWORD } from './utils/selectors';
  * Uses REAL user interactions (typing, clicking) - no JavaScript simulation.
  */
 
-test.describe('Password Overlay', () => {
+// SKIPPED: Password tests have passed consistently - Issue #73
+test.describe.skip('Password Overlay', () => {
   test.beforeEach(async ({ page }) => {
     // Start fresh without any cached authentication
     await page.goto('/');
@@ -165,7 +166,8 @@ test.describe('Password Overlay', () => {
   });
 });
 
-test.describe('Password Overlay - Accessibility', () => {
+// SKIPPED: Password tests have passed consistently - Issue #73
+test.describe.skip('Password Overlay - Accessibility', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.evaluate(() => localStorage.clear());

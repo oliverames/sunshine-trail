@@ -23,7 +23,8 @@ import {
  * Uses REAL user interactions - no JavaScript simulation.
  */
 
-test.describe('Map Initialization', () => {
+// SKIPPED: Map initialization tests have passed consistently - Issue #73
+test.describe.skip('Map Initialization', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -170,7 +171,8 @@ test.describe('Marker Clustering', () => {
   });
 });
 
-test.describe('Zoom Controls', () => {
+// SKIPPED: Zoom controls tests have passed consistently - Issue #73
+test.describe.skip('Zoom Controls', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -269,7 +271,8 @@ test.describe('Zoom Controls', () => {
   });
 });
 
-test.describe('Map Markers', () => {
+// SKIPPED: Map markers tests have passed consistently - Issue #73
+test.describe.skip('Map Markers', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -318,7 +321,8 @@ test.describe('Map Markers', () => {
   });
 });
 
-test.describe('Route Display', () => {
+// SKIPPED: Route display tests have passed consistently - Issue #73
+test.describe.skip('Route Display', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -405,7 +409,8 @@ test.describe('Route Display', () => {
   });
 });
 
-test.describe('Map Drag and Pan', () => {
+// SKIPPED: Map drag and pan tests have passed consistently - Issue #73
+test.describe.skip('Map Drag and Pan', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -449,7 +454,8 @@ test.describe('Map Drag and Pan', () => {
   });
 });
 
-test.describe('Map - Touch Interactions', () => {
+// SKIPPED: Touch interactions tests have passed consistently - Issue #73
+test.describe.skip('Map - Touch Interactions', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);

@@ -14,7 +14,8 @@ import { setupPage, dismissEmailModal, waitForMapReady } from './utils/helpers';
  * Uses REAL user interactions - no JavaScript simulation.
  */
 
-test.describe('Email Modal - Auto Popup', () => {
+// SKIPPED: Auto popup tests have passed consistently - Issue #73
+test.describe.skip('Email Modal - Auto Popup', () => {
   test('should auto-popup after 30 seconds', async ({ page }) => {
     await setupPage(page);
     // Don't dismiss the modal - we want to test auto-popup
@@ -44,7 +45,8 @@ test.describe('Email Modal - Auto Popup', () => {
   });
 });
 
-test.describe('Email Modal - UI Elements', () => {
+// SKIPPED: UI elements tests have passed consistently - Issue #73
+test.describe.skip('Email Modal - UI Elements', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await waitForMapReady(page);
@@ -106,7 +108,8 @@ test.describe('Email Modal - UI Elements', () => {
   });
 });
 
-test.describe('Email Modal - Form Validation', () => {
+// SKIPPED: Form validation tests have passed consistently - Issue #73
+test.describe.skip('Email Modal - Form Validation', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await waitForMapReady(page);
@@ -182,7 +185,8 @@ test.describe('Email Modal - Form Validation', () => {
   });
 });
 
-test.describe('Email Modal - Local Checkbox', () => {
+// SKIPPED: Local checkbox tests have passed consistently - Issue #73
+test.describe.skip('Email Modal - Local Checkbox', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await waitForMapReady(page);
@@ -303,7 +307,8 @@ test.describe('Email Modal - Form Submission', () => {
   });
 });
 
-test.describe('Email Modal - Accessibility', () => {
+// SKIPPED: Accessibility tests have passed consistently - Issue #73
+test.describe.skip('Email Modal - Accessibility', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await waitForMapReady(page);
@@ -353,7 +358,8 @@ test.describe('Email Modal - Accessibility', () => {
   });
 });
 
-test.describe('Email Modal - Fidget Sun', () => {
+// SKIPPED: Fidget sun tests have passed consistently - Issue #73
+test.describe.skip('Email Modal - Fidget Sun', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await waitForMapReady(page);

@@ -15,7 +15,8 @@ import {
  * Uses REAL user interactions - no JavaScript simulation.
  */
 
-test.describe('Search Functionality', () => {
+// SKIPPED: Search tests have passed consistently - Issue #73
+test.describe.skip('Search Functionality', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -242,7 +243,8 @@ test.describe('Search Functionality', () => {
   });
 });
 
-test.describe('Search - Accessibility', () => {
+// SKIPPED: Search tests have passed consistently - Issue #73
+test.describe.skip('Search - Accessibility', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);

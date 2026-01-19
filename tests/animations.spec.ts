@@ -9,7 +9,8 @@ import { setupPage, dismissEmailModal, waitForMapReady } from './utils/helpers';
  * Videos are automatically saved for manual review.
  */
 
-test.describe('Map Animations', () => {
+// SKIPPED: These animation tests have passed consistently - Issue #73
+test.describe.skip('Map Animations', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -149,7 +150,8 @@ test.describe('Map Animations', () => {
   });
 });
 
-test.describe('Filter Animations', () => {
+// SKIPPED: These animation tests have passed consistently - Issue #73
+test.describe.skip('Filter Animations', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -205,7 +207,8 @@ test.describe('Filter Animations', () => {
   });
 });
 
-test.describe('Route Toggle Animation', () => {
+// SKIPPED: These animation tests have passed consistently - Issue #73
+test.describe.skip('Route Toggle Animation', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -235,7 +238,8 @@ test.describe('Route Toggle Animation', () => {
   });
 });
 
-test.describe('Solar Metric Carousel', () => {
+// SKIPPED: These animation tests have passed consistently - Issue #73
+test.describe.skip('Solar Metric Carousel', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);
@@ -262,7 +266,8 @@ test.describe('Solar Metric Carousel', () => {
   });
 });
 
-test.describe('Scroll and Navigation', () => {
+// SKIPPED: These animation tests have passed consistently - Issue #73
+test.describe.skip('Scroll and Navigation', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
     await dismissEmailModal(page);

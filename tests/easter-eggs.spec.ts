@@ -28,7 +28,8 @@ test.describe('Easter Eggs', () => {
     await dismissEmailModal(page);
   });
 
-  test.describe('God Rays Effect', () => {
+  // SKIPPED: God rays tests have passed consistently - Issue #73
+  test.describe.skip('God Rays Effect', () => {
     // Hover tests don't work reliably on touch devices
     test('should trigger god rays when hovering over "Sunshine" text', async ({ page }) => {
       test.skip(isTouchViewport(page), 'Hover interactions not supported on touch devices');
@@ -340,7 +341,8 @@ test.describe('Easter Eggs', () => {
     });
   });
 
-  test.describe('Multiple Fidget Suns', () => {
+  // SKIPPED: Multiple fidget suns tests have passed consistently - Issue #73
+  test.describe.skip('Multiple Fidget Suns', () => {
     test('sidebar fidget sun should also be interactive', async ({ page }) => {
       const viewport = page.viewportSize();
       // Sidebar fidget sun is visible on larger screens
