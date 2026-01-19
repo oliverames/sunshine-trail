@@ -9277,7 +9277,7 @@
             }
 
             // Android and older iOS - just add listener directly
-            if (!('requestPermission' in (DeviceOrientationEvent || {})) &&
+            if (!('requestPermission' in (DeviceOrientationEvent || {})) ||
                 !('requestPermission' in (DeviceMotionEvent || {}))) {
                 window.addEventListener('deviceorientation', handleDeviceOrientation, true);
             }
