@@ -282,6 +282,15 @@ export function getViewportCategory(page: Page): 'mobile' | 'tablet' | 'desktop'
 }
 
 /**
+ * Checks if the current viewport represents a touch device (mobile or tablet)
+ * Touch devices don't support hover interactions reliably
+ */
+export function isTouchViewport(page: Page): boolean {
+  const category = getViewportCategory(page);
+  return category === 'mobile' || category === 'tablet';
+}
+
+/**
  * Waits for snowflakes to appear after cold beer hover
  */
 export async function waitForSnowflakes(page: Page, timeout: number = 3000): Promise<number> {

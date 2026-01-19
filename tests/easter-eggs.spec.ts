@@ -8,6 +8,7 @@ import {
   waitForSnowflakes,
   waitForGodRays,
   waitForEmojiBurst,
+  isTouchViewport,
 } from './utils/helpers';
 
 /**
@@ -28,7 +29,10 @@ test.describe('Easter Eggs', () => {
   });
 
   test.describe('God Rays Effect', () => {
+    // Hover tests don't work reliably on touch devices
     test('should trigger god rays when hovering over "Sunshine" text', async ({ page }) => {
+      test.skip(isTouchViewport(page), 'Hover interactions not supported on touch devices');
+
       const sunshineSpan = page.locator(selectors.header.sunshineSpan);
       await expect(sunshineSpan).toBeVisible();
 
@@ -45,6 +49,8 @@ test.describe('Easter Eggs', () => {
     });
 
     test('should hide god rays when mouse leaves "Sunshine" text', async ({ page }) => {
+      test.skip(isTouchViewport(page), 'Hover interactions not supported on touch devices');
+
       const sunshineSpan = page.locator(selectors.header.sunshineSpan);
 
       // Hover to trigger effect
@@ -64,6 +70,8 @@ test.describe('Easter Eggs', () => {
     });
 
     test('god rays should have HDR glow effect', async ({ page }) => {
+      test.skip(isTouchViewport(page), 'Hover interactions not supported on touch devices');
+
       const sunshineSpan = page.locator(selectors.header.sunshineSpan);
       await sunshineSpan.hover();
       await waitForGodRays(page);
@@ -84,7 +92,10 @@ test.describe('Easter Eggs', () => {
   });
 
   test.describe('Snowfall Effect', () => {
+    // Hover tests don't work reliably on touch devices
     test('should trigger snowfall when hovering over "Cold beer" text', async ({ page }) => {
+      test.skip(isTouchViewport(page), 'Hover interactions not supported on touch devices');
+
       const coldBeerSpan = page.locator(selectors.header.coldBeerSpan);
       await expect(coldBeerSpan).toBeVisible();
 
@@ -97,6 +108,8 @@ test.describe('Easter Eggs', () => {
     });
 
     test('should create approximately 101 snowflakes', async ({ page }) => {
+      test.skip(isTouchViewport(page), 'Hover interactions not supported on touch devices');
+
       const coldBeerSpan = page.locator(selectors.header.coldBeerSpan);
       await coldBeerSpan.hover();
 
@@ -112,6 +125,8 @@ test.describe('Easter Eggs', () => {
     });
 
     test('snowflakes should have variable animation durations', async ({ page }) => {
+      test.skip(isTouchViewport(page), 'Hover interactions not supported on touch devices');
+
       const coldBeerSpan = page.locator(selectors.header.coldBeerSpan);
       await coldBeerSpan.hover();
       await page.waitForTimeout(500);
@@ -135,6 +150,8 @@ test.describe('Easter Eggs', () => {
     });
 
     test('snowflakes should fall from top to bottom', async ({ page }) => {
+      test.skip(isTouchViewport(page), 'Hover interactions not supported on touch devices');
+
       const coldBeerSpan = page.locator(selectors.header.coldBeerSpan);
       await coldBeerSpan.hover();
       await page.waitForTimeout(200);
@@ -156,6 +173,8 @@ test.describe('Easter Eggs', () => {
     });
 
     test('snowflakes should be cleaned up after animation', async ({ page }) => {
+      test.skip(isTouchViewport(page), 'Hover interactions not supported on touch devices');
+
       const coldBeerSpan = page.locator(selectors.header.coldBeerSpan);
       await coldBeerSpan.hover();
       await page.waitForTimeout(500);
@@ -174,7 +193,10 @@ test.describe('Easter Eggs', () => {
   });
 
   test.describe('Emoji Burst Effect', () => {
+    // Mouse event tests don't work reliably on touch devices
     test('should trigger emoji burst on quick click of fidget sun', async ({ page }) => {
+      test.skip(isTouchViewport(page), 'Mouse events not supported on touch devices');
+
       // Dismiss modal if present
       await dismissEmailModal(page);
 
@@ -193,6 +215,8 @@ test.describe('Easter Eggs', () => {
     });
 
     test('should create approximately 20 emojis on burst', async ({ page }) => {
+      test.skip(isTouchViewport(page), 'Mouse events not supported on touch devices');
+
       await dismissEmailModal(page);
 
       // Perform quick click
@@ -208,6 +232,8 @@ test.describe('Easter Eggs', () => {
     });
 
     test('should NOT trigger emoji burst on slow click (drag)', async ({ page }) => {
+      test.skip(isTouchViewport(page), 'Mouse events not supported on touch devices');
+
       await dismissEmailModal(page);
 
       const fidgetSun = page.locator(selectors.header.fidgetSun);
@@ -233,6 +259,8 @@ test.describe('Easter Eggs', () => {
     });
 
     test('emojis should animate outward from sun', async ({ page }) => {
+      test.skip(isTouchViewport(page), 'Mouse events not supported on touch devices');
+
       await dismissEmailModal(page);
 
       const fidgetSun = page.locator(selectors.header.fidgetSun);
@@ -258,6 +286,8 @@ test.describe('Easter Eggs', () => {
     });
 
     test('fidget sun should spin on interaction', async ({ page }) => {
+      test.skip(isTouchViewport(page), 'Mouse events not supported on touch devices');
+
       await dismissEmailModal(page);
 
       const fidgetSun = page.locator(selectors.header.fidgetSun);
@@ -335,6 +365,8 @@ test.describe('Easter Eggs - Performance', () => {
   });
 
   test('snowfall should not cause memory leaks', async ({ page }) => {
+    test.skip(isTouchViewport(page), 'Hover interactions not supported on touch devices');
+
     const coldBeerSpan = page.locator(selectors.header.coldBeerSpan);
 
     // Trigger snowfall multiple times
@@ -357,6 +389,8 @@ test.describe('Easter Eggs - Performance', () => {
   });
 
   test('emoji burst should clean up after animation', async ({ page }) => {
+    test.skip(isTouchViewport(page), 'Mouse events not supported on touch devices');
+
     await dismissEmailModal(page);
 
     // Trigger emoji burst
