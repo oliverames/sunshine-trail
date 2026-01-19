@@ -6,6 +6,7 @@ import {
   waitForMapReady,
   isPopupFullyVisible,
   getPopupVisibility,
+  expandSearchInput,
 } from './utils/helpers';
 
 /**
@@ -500,6 +501,9 @@ test.describe('Popup Centering - Search Results', () => {
   });
 
   test('popup from search result should be fully visible', async ({ page }) => {
+    // Expand search input (required on mobile)
+    await expandSearchInput(page);
+
     const searchInput = page.locator(selectors.map.searchInput);
     const searchButton = page.locator(selectors.map.searchButton);
 
