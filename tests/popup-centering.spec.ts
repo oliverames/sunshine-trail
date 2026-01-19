@@ -398,7 +398,8 @@ test.describe('Popup Centering - Edge Cases', () => {
     await page.waitForTimeout(800);
 
     // Click second marker (should close first, open second)
-    await markers.nth(1).click();
+    // Use force:true to bypass popup interception - we're testing autoClose behavior
+    await markers.nth(1).click({ force: true });
     await page.waitForTimeout(1000);
 
     // The currently open popup should be fully visible

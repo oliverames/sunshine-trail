@@ -64,6 +64,10 @@ test.describe('Donations Counter', () => {
   test('donations counter should animate on page load', async ({ page }) => {
     const counter = page.locator(selectors.metrics.donationsCounter);
 
+    // Scroll metrics into view to trigger IntersectionObserver on mobile (Issue #55)
+    const metricsSection = page.locator(selectors.metrics.section);
+    await metricsSection.scrollIntoViewIfNeeded();
+
     // Get initial value
     const initialValue = await counter.textContent();
     const initialNum = parseInt(initialValue?.replace(/[^0-9]/g, '') || '0', 10);
@@ -117,6 +121,10 @@ test.describe('Solar Counter', () => {
 
   test('solar counter should animate on page load', async ({ page }) => {
     const counter = page.locator(selectors.metrics.solarCounter);
+
+    // Scroll metrics into view to trigger IntersectionObserver on mobile (Issue #55)
+    const metricsSection = page.locator(selectors.metrics.section);
+    await metricsSection.scrollIntoViewIfNeeded();
 
     // Get initial value
     const initialValue = await counter.textContent();
@@ -245,6 +253,10 @@ test.describe('Metrics Animation', () => {
   });
 
   test('counters should reach final value', async ({ page }) => {
+    // Scroll metrics into view to trigger IntersectionObserver on mobile (Issue #55)
+    const metricsSection = page.locator(selectors.metrics.section);
+    await metricsSection.scrollIntoViewIfNeeded();
+
     // Wait for animation to complete
     await page.waitForTimeout(4000);
 

@@ -167,9 +167,12 @@ test.describe('Easter Eggs', () => {
           });
       });
 
-      // Most snowflakes should start in upper half of viewport
+      // Most snowflakes should start in upper half of viewport (Issue #48)
+      // Use viewport from Playwright instead of window.innerHeight
+      const viewport = page.viewportSize();
+      const halfViewport = viewport ? viewport.height / 2 : 500;
       const avgTop = initialPositions.reduce((a, b) => a + b, 0) / initialPositions.length;
-      expect(avgTop).toBeLessThan(window.innerHeight / 2 || 500);
+      expect(avgTop).toBeLessThan(halfViewport);
     });
 
     test('snowflakes should be cleaned up after animation', async ({ page }) => {

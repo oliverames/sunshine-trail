@@ -450,6 +450,8 @@
             opacity: 0;
             transition: opacity 0.3s ease;
             z-index: 9999;
+            /* Subtle filter for composite glow effect (Issue #48) */
+            filter: blur(0.5px);
         }
 
         #god-rays-glow.active {
@@ -860,7 +862,9 @@
             top: 0;
             right: 0;
             bottom: 0;
-            left: 0;
+            /* Offset map to right of sidebar on desktop (Issue #53) */
+            /* Sidebar is 420px + 1.25rem left margin = ~440px */
+            left: 460px;
         }
 
         /* Smooth Leaflet transitions */
@@ -1295,6 +1299,7 @@
                 order: 1;
                 flex-shrink: 0;
                 width: 100%;
+                left: 0; /* Reset desktop sidebar offset for mobile (Issue #53) */
                 transition: height 0.3s ease, min-height 0.3s ease, max-height 0.3s ease;
             }
 
@@ -1387,9 +1392,11 @@
                 height: 45px;
             }
 
-            /* Hide footer on mobile since logo will be in sidebar */
+            /* Show footer on mobile at bottom of content (Issue #55) */
             .bottom-brand {
-                display: none;
+                display: block;
+                margin-top: 20px;
+                padding: 15px;
             }
         }
 
@@ -3783,6 +3790,7 @@
 
                 for (let i = 0; i < this.options.burstCount; i++) {
                     const emoji = document.createElement('div');
+                    emoji.className = 'emoji-burst'; // For test detection (Issue #48)
                     emoji.textContent = selectedEmojis[Math.floor(Math.random() * selectedEmojis.length)];
                     const size = 24 + Math.random() * 20;
                     emoji.style.cssText = `
@@ -6031,7 +6039,7 @@
             }
 
             const marker = L.marker([spot.lat, spot.lng], { icon: icon, category: spot.category })
-                .bindPopup(popupContent, { maxWidth: 320, closeOnClick: false, autoClose: false });
+                .bindPopup(popupContent, { maxWidth: 320, closeOnClick: false, autoClose: true });
 
             // Store marker by category
             markersByCategory[spot.category].push(marker);
@@ -6499,6 +6507,15 @@
             }
         }, 100); // Small delay to ensure Leaflet controls are rendered
 
+        // Hide zoom hint on scroll/wheel zoom (Issue #49)
+        const mapContainer = document.getElementById('map');
+        if (mapContainer && zoomHint) {
+            mapContainer.addEventListener('wheel', () => {
+                userHasZoomed = true;
+                zoomHint.classList.add('hidden');
+            }, { passive: true });
+        }
+
         // Save map position before popup opens, restore on close (mobile only)
         let savedMapState = null;
         let popupJustOpened = false; // Prevent immediate close on mobile touch
@@ -6541,7 +6558,8 @@
                 const isMobile = Viewport.isMobile();
                 const mapEl = document.getElementById('map');
                 const isExpanding = isMobile && mapEl && mapEl.classList.contains('map-expanded');
-                const waitTime = isExpanding ? 400 : 100; // 400ms = 350ms CSS + 50ms buffer (no invalidateSize animation now - Issue #34)
+                // Increased mobile wait time for better popup centering on slower devices (Issue #54)
+                const waitTime = isExpanding ? 600 : (isMobile ? 300 : 100);
 
                 // Cancel any pending centering operations to prevent race conditions (Issue #34)
                 if (window.popupCenteringTimeout) {
@@ -6680,7 +6698,7 @@
             }
         });
 
-        // Manual popup close on map click (since autoClose is disabled)
+        // Manual popup close on map click (for closing when tapping empty map area)
         // This provides better control over popup behavior on touch devices
         map.on('click', function(e) {
             if (popupJustOpened) {
@@ -7760,6 +7778,7 @@
                 lastFormSubmission = now;
                 // Show success message - use safe DOM APIs to prevent XSS (Security Fix)
                 const successMsg = document.createElement('p');
+                successMsg.className = 'email-form-success'; // For test detection (Issue #51)
                 successMsg.style.cssText = 'color: var(--deep-brown); font-weight: 600; font-size: 1.1rem;';
                 const firstName = name.split(' ')[0].substring(0, 50); // Limit length
                 successMsg.textContent = 'Thanks, ' + firstName + '! Check your inbox for your road trip guide. 🚗☀️';
@@ -8991,7 +9010,8 @@
 
             // Create initial burst of FAST snowflakes from the top
             // Fast snowflakes (2-6s duration) fill the header area quickly
-            for (let i = 0; i < 25; i++) {
+            // Increased to 50 for better visual density (Issue #48)
+            for (let i = 0; i < 50; i++) {
                 createSnowflake(true); // Fast snowflakes
             }
 
@@ -9196,6 +9216,10 @@
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
                 return;
             }
+            // Clear clipboard data to prevent copying (Issue #50)
+            if (e.clipboardData) {
+                e.clipboardData.setData('text/plain', '');
+            }
             e.preventDefault();
         });
 
@@ -9203,6 +9227,10 @@
             // Allow cutting from input fields
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
                 return;
+            }
+            // Clear clipboard data to prevent cutting (Issue #50)
+            if (e.clipboardData) {
+                e.clipboardData.setData('text/plain', '');
             }
             e.preventDefault();
         });

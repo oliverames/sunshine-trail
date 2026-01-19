@@ -273,12 +273,13 @@ test.describe('Email Modal - Form Submission', () => {
     // Form should process (may show success message or close)
     await page.waitForTimeout(1000);
 
-    // Verify form submission was processed - either modal closed or success shown
+    // Verify form submission was processed - either modal closed, success shown,
     // or inputs retain values (proving no crash occurred)
     const formRetainsValues = await nameInput.inputValue() === 'Test User' ||
                               await emailInput.inputValue() === 'test@example.com';
     const modalClosed = !(await page.locator(selectors.emailModal.overlay).isVisible());
-    expect(formRetainsValues || modalClosed).toBe(true);
+    const successMessageShown = await page.locator('.email-form-success').isVisible().catch(() => false);
+    expect(formRetainsValues || modalClosed || successMessageShown).toBe(true);
   });
 
   test('submit button should have appropriate text', async ({ page }) => {

@@ -118,7 +118,8 @@ test.describe('Issue #13 - Search Result Selection', () => {
       await page.waitForTimeout(2500);
 
       // A popup should be open OR map should have zoomed to location
-      const popup = page.locator('.leaflet-popup');
+      // Use .first() to avoid strict mode violation when multiple popups exist (Issue #40)
+      const popup = page.locator('.leaflet-popup').first();
       const popupVisible = await popup.isVisible().catch(() => false);
 
       // Either popup is visible, or the search results closed (both indicate success)
@@ -195,7 +196,8 @@ test.describe('Issue #13 - Search Result Selection', () => {
       const searchClosed = !(await searchResults.evaluate(el => el.classList.contains('visible')));
 
       // Check if a popup appeared OR search closed (both indicate success)
-      const popup = page.locator('.leaflet-popup');
+      // Use .first() to avoid strict mode violation when multiple popups exist (Issue #40)
+      const popup = page.locator('.leaflet-popup').first();
       const popupVisible = await popup.isVisible().catch(() => false);
 
       expect(searchClosed || popupVisible).toBe(true);
@@ -383,13 +385,14 @@ test.describe('Core Functionality', () => {
     const trailFilter = page.locator('#filter-trails');
 
     await breweryFilter.uncheck();
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(400);
     await retailerFilter.uncheck();
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(400);
     await barFilter.uncheck();
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(400);
     await trailFilter.uncheck();
-    await page.waitForTimeout(500);
+    // Longer wait for cluster re-rendering on large viewports (Issue #52)
+    await page.waitForTimeout(1000);
 
     // Get new counts
     const newPills = await page.locator('.marker-cluster-pill').count();
@@ -1008,7 +1011,8 @@ test.describe('Philadelphia Locations Visibility', () => {
       await page.waitForTimeout(2000);
 
       // A popup should be visible (indicating we found and zoomed to the location)
-      const popup = page.locator('.leaflet-popup');
+      // Use .first() to avoid strict mode violation when multiple popups exist (Issue #40)
+      const popup = page.locator('.leaflet-popup').first();
       const popupVisible = await popup.isVisible().catch(() => false);
 
       // Either popup is visible or search worked

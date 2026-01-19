@@ -250,7 +250,11 @@ test.describe('Touch vs Click Interactions', () => {
     const searchInput = page.locator(selectors.map.searchInput);
     const searchButton = page.locator(selectors.map.searchButton);
 
-    await searchInput.click();
+    // First click search button to expand the input (Issue #41)
+    await searchButton.click();
+    await page.waitForTimeout(300);
+
+    // Now the input should be expanded and interactable
     await searchInput.fill('test');
 
     const box = await searchButton.boundingBox();
