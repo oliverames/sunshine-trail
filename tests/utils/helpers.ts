@@ -93,9 +93,15 @@ export async function hoverElement(page: Page, selector: string): Promise<void> 
 /**
  * Checks if a popup is fully visible within the viewport
  * This is critical for Issue #27 (popup centering)
+ * Uses .last() to handle cases where multiple popups may be visible
  */
 export async function isPopupFullyVisible(page: Page): Promise<boolean> {
-  const popup = page.locator(selectors.map.popup);
+  const popups = page.locator(selectors.map.popup);
+  const count = await popups.count();
+  if (count === 0) return false;
+
+  // Use last popup (most recently opened) when multiple exist
+  const popup = popups.last();
   const isVisible = await popup.isVisible();
   if (!isVisible) return false;
 
@@ -117,11 +123,19 @@ export async function isPopupFullyVisible(page: Page): Promise<boolean> {
 
 /**
  * Gets the visible portion of a popup (for partial visibility testing)
+ * Uses .last() to handle cases where multiple popups may be visible
  */
 export async function getPopupVisibility(
   page: Page
 ): Promise<{ visible: boolean; fullyVisible: boolean; visiblePercent: number }> {
-  const popup = page.locator(selectors.map.popup);
+  const popups = page.locator(selectors.map.popup);
+  const count = await popups.count();
+  if (count === 0) {
+    return { visible: false, fullyVisible: false, visiblePercent: 0 };
+  }
+
+  // Use last popup (most recently opened) when multiple exist
+  const popup = popups.last();
   const isVisible = await popup.isVisible();
   if (!isVisible) {
     return { visible: false, fullyVisible: false, visiblePercent: 0 };
