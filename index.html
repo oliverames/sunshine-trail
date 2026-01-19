@@ -6412,6 +6412,17 @@
                     const userLat = position.coords.latitude;
                     const userLng = position.coords.longitude;
 
+                    // Set protection flag BEFORE map interactions (#61, #72)
+                    // Prevents map click handler from interfering during animation
+                    popupJustOpened = true;
+                    if (popupProtectionTimeout) {
+                        clearTimeout(popupProtectionTimeout);
+                    }
+                    popupProtectionTimeout = setTimeout(() => {
+                        popupJustOpened = false;
+                        popupProtectionTimeout = null;
+                    }, 1500);
+
                     // Store user location for zoom button guidance
                     userMapLocation = { lat: userLat, lng: userLng };
 
@@ -8313,6 +8324,17 @@
                         e.preventDefault();
                         e.stopPropagation();
 
+                        // Set protection flag BEFORE zooming/opening popup (#61, #72)
+                        // This prevents the map click handler from closing the popup
+                        popupJustOpened = true;
+                        if (popupProtectionTimeout) {
+                            clearTimeout(popupProtectionTimeout);
+                        }
+                        popupProtectionTimeout = setTimeout(() => {
+                            popupJustOpened = false;
+                            popupProtectionTimeout = null;
+                        }, 1500); // Extended protection for full zoom + open cycle
+
                         // Close search first
                         collapseSearch();
 
@@ -8423,6 +8445,18 @@
                         // If there's exactly one listing (pin) result, auto-select it
                         if (listingResults.length === 1) {
                             const spot = listingResults[0];
+
+                            // Set protection flag BEFORE zooming/opening popup (#61, #72)
+                            // This prevents the map click handler from closing the popup
+                            popupJustOpened = true;
+                            if (popupProtectionTimeout) {
+                                clearTimeout(popupProtectionTimeout);
+                            }
+                            popupProtectionTimeout = setTimeout(() => {
+                                popupJustOpened = false;
+                                popupProtectionTimeout = null;
+                            }, 1500); // Extended protection for full zoom + open cycle
+
                             collapseSearch();
 
                             // Find and navigate to the marker
