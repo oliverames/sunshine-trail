@@ -3472,12 +3472,21 @@
         }
 
         // Safe URL validation
-        function isValidUrl(url) {
-            if (!url) return false;
+        function isValidUrl(string) {
+            if (!string) return false;
+            // Accept relative paths starting with place-headers/ or assets/
+            if (string.startsWith('place-headers/') || string.startsWith('assets/')) {
+                return true;
+            }
+            // Accept data URLs
+            if (string.startsWith('data:')) {
+                return true;
+            }
+            // Original URL validation for external URLs
             try {
-                const parsed = new URL(url);
-                return parsed.protocol === 'https:' || parsed.protocol === 'http:';
-            } catch {
+                const url = new URL(string);
+                return url.protocol === 'http:' || url.protocol === 'https:';
+            } catch (e) {
                 return false;
             }
         }
