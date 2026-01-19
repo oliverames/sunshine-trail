@@ -6077,7 +6077,7 @@
             }
 
             const marker = L.marker([spot.lat, spot.lng], { icon: icon, category: spot.category })
-                .bindPopup(popupContent, { maxWidth: 320, closeOnClick: false, autoClose: true });
+                .bindPopup(popupContent, { maxWidth: 320, closeOnClick: false, autoClose: false });
 
             // Store marker by category
             markersByCategory[spot.category].push(marker);
@@ -6448,7 +6448,7 @@
                     popupProtectionTimeout = setTimeout(() => {
                         popupJustOpened = false;
                         popupProtectionTimeout = null;
-                    }, 1500);
+                    }, 2000); // Match popupopen handler timeout for consistency (Issue #XX - iPhone popup close)
 
                     // Store user location for zoom button guidance
                     userMapLocation = { lat: userLat, lng: userLng };
@@ -8377,7 +8377,7 @@
                         popupProtectionTimeout = setTimeout(() => {
                             popupJustOpened = false;
                             popupProtectionTimeout = null;
-                        }, 1500); // Extended protection for full zoom + open cycle
+                        }, 2000); // Match popupopen handler timeout for consistency (Issue #XX - iPhone popup close)
 
                         // Close search first
                         collapseSearch();
@@ -8499,7 +8499,7 @@
                             popupProtectionTimeout = setTimeout(() => {
                                 popupJustOpened = false;
                                 popupProtectionTimeout = null;
-                            }, 1500); // Extended protection for full zoom + open cycle
+                            }, 2000); // Match popupopen handler timeout for consistency (Issue #XX - iPhone popup close)
 
                             collapseSearch();
 
