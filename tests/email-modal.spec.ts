@@ -278,6 +278,11 @@ test.describe('Email Modal - Form Submission', () => {
     const emailInput = page.locator(selectors.emailModal.emailInput);
     const submitBtn = page.locator(selectors.emailModal.submitButton);
 
+    // Wait for form elements to be visible and ready
+    await nameInput.waitFor({ state: 'visible', timeout: 5000 });
+    await emailInput.waitFor({ state: 'visible', timeout: 5000 });
+    await submitBtn.waitFor({ state: 'visible', timeout: 5000 });
+
     // Fill form with real typing
     await nameInput.click();
     await nameInput.fill('Test User');
@@ -285,18 +290,26 @@ test.describe('Email Modal - Form Submission', () => {
     await emailInput.click();
     await emailInput.fill('test@example.com');
 
+    // Verify values were entered
+    await expect(nameInput).toHaveValue('Test User');
+    await expect(emailInput).toHaveValue('test@example.com');
+
     // Submit
     await submitBtn.click();
 
     // Form should process (may show success message or close)
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(1500);
 
     // Verify form submission was processed - either modal closed, success shown,
     // or inputs retain values (proving no crash occurred)
-    const formRetainsValues = await nameInput.inputValue() === 'Test User' ||
-                              await emailInput.inputValue() === 'test@example.com';
-    const modalClosed = !(await page.locator(selectors.emailModal.overlay).isVisible());
+    const modalVisible = await page.locator(selectors.emailModal.overlay).isVisible().catch(() => false);
+    const nameValue = await nameInput.inputValue().catch(() => '');
+    const emailValue = await emailInput.inputValue().catch(() => '');
+    const formRetainsValues = nameValue === 'Test User' || emailValue === 'test@example.com';
+    const modalClosed = !modalVisible;
     const successMessageShown = await page.locator('.email-form-success').isVisible().catch(() => false);
+
+    // Test passes if any of these conditions are true
     expect(formRetainsValues || modalClosed || successMessageShown).toBe(true);
   });
 

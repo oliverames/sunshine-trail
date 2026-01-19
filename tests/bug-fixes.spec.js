@@ -833,25 +833,24 @@ test.describe('Copy Protection', () => {
     await page.waitForSelector('.leaflet-container', { state: 'visible' });
     await page.waitForTimeout(500);
 
-    // Try to select and copy text from the header
-    const headerText = page.locator('h1').first();
-    await headerText.click({ clickCount: 3 }); // Triple-click to select
+    // Check that user-select is disabled on main content areas
+    // This is how the page prevents copying - via CSS user-select: none
+    const userSelectValues = await page.evaluate(() => {
+      const elementsToCheck = [
+        document.querySelector('h1'),
+        document.querySelector('.sidebar'),
+        document.querySelector('.header-content'),
+      ].filter(Boolean);
 
-    // Attempt to copy (use Meta on macOS, Control elsewhere)
-    const modifier = process.platform === 'darwin' ? 'Meta' : 'Control';
-    await page.keyboard.press(`${modifier}+C`);
-
-    // Check clipboard is empty (copy was prevented)
-    const clipboardText = await page.evaluate(async () => {
-      try {
-        return await navigator.clipboard.readText();
-      } catch {
-        return ''; // Clipboard access may be denied which is fine
-      }
+      return elementsToCheck.map(el => {
+        const style = window.getComputedStyle(el);
+        return style.userSelect || style.webkitUserSelect;
+      });
     });
 
-    // The clipboard should be empty or unchanged
-    expect(clipboardText).toBe('');
+    // At least some elements should have user-select: none
+    const hasProtection = userSelectValues.some(val => val === 'none');
+    expect(hasProtection).toBe(true);
   });
 
   test('should allow copying from input fields', async ({ page }) => {

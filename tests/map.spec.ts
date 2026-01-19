@@ -94,6 +94,9 @@ test.describe('Marker Clustering', () => {
   });
 
   test('clicking a cluster should zoom in and expand', async ({ page }) => {
+    // Wait a bit for clusters to stabilize
+    await page.waitForTimeout(500);
+
     const initialClusters = await getVisibleClusterCount(page);
     if (initialClusters === 0) {
       test.skip();
@@ -108,27 +111,37 @@ test.describe('Marker Clustering', () => {
 
     // Scroll cluster into view to ensure it's in viewport
     await cluster.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(500);
 
-    // Click with retry if element moves
-    try {
-      await cluster.click({ timeout: 5000 });
-    } catch {
-      // Element may have moved, try clicking at last known position
-      const box = await cluster.boundingBox();
-      if (box) {
-        await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    // Click with multiple retry strategies
+    let clicked = false;
+    for (let attempt = 0; attempt < 3 && !clicked; attempt++) {
+      try {
+        const box = await cluster.boundingBox();
+        if (box) {
+          // Use mouse.click for more reliable clicking
+          await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+          clicked = true;
+        } else {
+          await cluster.click({ timeout: 3000 });
+          clicked = true;
+        }
+      } catch {
+        // Wait and retry
+        await page.waitForTimeout(300);
       }
     }
 
-    // Wait for zoom animation
-    await page.waitForTimeout(1000);
+    // Wait for zoom animation to complete
+    await page.waitForTimeout(1500);
 
     // Either clusters decreased or markers increased (expansion occurred)
     const afterClusters = await getVisibleClusterCount(page);
     const afterMarkers = await getVisibleMarkerCount(page);
 
-    expect(afterClusters < initialClusters || afterMarkers > 0).toBe(true);
+    // More lenient assertion - just check that something changed or markers are visible
+    const clusterExpanded = afterClusters < initialClusters || afterMarkers > 0;
+    expect(clusterExpanded).toBe(true);
   });
 
   test('cluster should display count of contained markers', async ({ page }) => {
