@@ -2308,7 +2308,8 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            min-height: 1.8em; /* Reduced from 2.5em */
+            min-height: 2em; /* Increased slightly to ensure content fits */
+            align-items: center; /* Center the slides */
         }
 
         .metric-slide {
@@ -2321,10 +2322,14 @@
             opacity: 0;
             transform: translateX(100%);
             transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+            /* Add explicit height to prevent collapse */
+            height: 100%;
+            top: 0;
+            left: 0;
         }
 
         .metric-slide.active {
-            position: relative;
+            position: relative; /* This provides the height reference */
             opacity: 1;
             transform: translateX(0);
         }
