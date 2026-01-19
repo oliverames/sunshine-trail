@@ -38,14 +38,15 @@ One of the ideas I've had is to create a campaign that connects Lawson's from Wa
 Every design decision in this project draws directly from Lawson's existing brand language:
 
 **Visual Identity**
-- All colors are pulled directly from Lawson's website using web inspector tools
-- Typography uses Lawson's brand fonts
-- Custom iconography SVGs were extracted from lawsonsfinest.com—I went into the web inspector on Lawson's.com and was able to find the SVGs, the font information, and the color information
-- I even downloaded the style sheets, the CSS files, to understand what makes their site tick
-- Corner radiuses, button styles, and spacing match Lawson's design system
-- The favicon and meta tags mirror the main Lawson's website, so when you share the link, it looks like a Lawson's website
-- The name of the site is rendered the same in the browser as the main Lawson's site
-- Safari's tab bar color matches Lawson's yellow (#f8e849) via theme-color meta tags—a small detail that reinforces brand presence even in the browser chrome
+
+I dove deep into Lawson's website using browser dev tools to extract everything I needed—colors, fonts, SVGs, even their CSS files to understand what makes their site tick. Every design decision draws from this research:
+
+- **Colors** pulled directly from lawsonsfinest.com (including Lawson's yellow #f8e849 for Safari's tab bar via theme-color meta tags)
+- **Typography** uses Lawson's brand fonts throughout
+- **Custom iconography** SVGs extracted from their site—clearly handmade by a designer
+- **Corner radiuses, button styles, and spacing** all match Lawson's design system
+- **The signature wave effect** on buttons—that little wiggle animation Lawson's uses on their website—appears on interactive elements throughout this site
+- **Meta tags and favicon** mirror the main site, so shared links and browser tabs look like official Lawson's content
 
 **Brand Voice**
 - "Mountain communities. Outdoor adventures. Cold beer." — active, place-based, confident without arrogance
@@ -128,9 +129,7 @@ The search button allows you to search for any of the locations on the map. It d
 Since there are so many locations, I made these little pillboxes that contain the icons of each different type of business so that on zoom out, you weren't getting a bunch of icons overlapping each other. The pillboxes show:
 - Icons for each category type present in that area
 - How many of those types of locations are there (visible in the map key)
-- Hover animation with a little wave animation effect—this is actually something Lawson's does on their website
-
-All the buttons on this website have that same wave effect. I've basically duplicated that effect onto this site so that it feels like a Lawson's website.
+- Hover animation with the signature wave effect (see Visual Identity above)
 
 **Clicking Clusters**
 If I click on one of the pillboxes with all the locations, it'll zoom in to show me those locations. It'll zoom in as deep as it needs to to show those locations.
@@ -161,18 +160,14 @@ Eight filterable categories with Lawson's iconography:
 
 | Category | Icon Source | Notes |
 |----------|-------------|-------|
-| Breweries | Lawson's purple brewery icon | Custom SVG pulled from Lawson's website—clearly handmade by a designer |
-| Tasting Rooms | Sun icon | There is technically one tasting room—that's kind of the HQ |
-| Retailers | Two giant beer brewing tanks icon | Custom Lawson's SVG |
-| Bars & Restaurants | Beer brewing tank that's blue with a heart | Custom Lawson's SVG |
-| Trails | Hiker icon | Picked from the Noun Project, designed to fit in with visual identity |
-| River Put-Ins | Kayak icon | Using Lawson's official blue |
-| Community Partners | Lawson's logo | These are people they donate to, people they've worked with in the past |
-| DC Fast Chargers | Recycling icon with a hop in the middle | That's a beer hop |
-
-I'm using their official green for the hiking icon, their official blue for the river put-ins.
-
-Next to each of these categories, I have numbers which are styled to match everything else on this site and the main Lawson site—all in the same font.
+| Breweries | Lawson's purple brewery icon | Custom SVG from Lawson's site |
+| Tasting Rooms | Sun icon | There's technically one tasting room—the HQ |
+| Retailers | Two giant brewing tanks icon | Custom Lawson's SVG |
+| Bars & Restaurants | Blue brewing tank with heart | Custom Lawson's SVG |
+| Trails | Hiker icon | From Noun Project, uses Lawson's official green |
+| River Put-Ins | Kayak icon | Uses Lawson's official blue |
+| Community Partners | Lawson's logo | Organizations they donate to and partner with |
+| DC Fast Chargers | Recycling icon with hop | That's a beer hop in the center |
 
 **DC Fast Chargers Behavior**
 The DC Fast Chargers shows as a category, but you can't select it until you've selected to see the road trip route.
@@ -186,13 +181,13 @@ When you toggle a filter, the checkbox is replaced with a loading spinner while 
 **Community Partners by State**
 Right underneath the categories, you can click "community partners by state" with options for: Vermont, New Hampshire, Maine, Massachusetts, Rhode Island, Connecticut, New York, New Jersey, Pennsylvania, Virginia, North Carolina.
 
-When you mouse over these, you get that same little wiggle effect you'd expect. When you click one of them, the map will zoom in to fit that view so you can see all of those locations in your state. As you click different ones, the map will zoom and pan and move around to the different locations. You can still click on them and learn about any of the individual ones in the popups and close those.
+When you mouse over these, you get the signature wave effect. When you click one of them, the map will zoom in to fit that view so you can see all of those locations in your state. As you click different ones, the map will zoom and pan and move around to the different locations. You can still click on them and learn about any of the individual ones in the popups and close those.
 
 ### Product Advertisement Section
 
 Underneath the filters, I've put an example of a little advertisement spot. I found a PNG on their website of three of their [beers], and when you mouse over them they kind of come forward a little bit and add a drop shadow underneath. Clicking that will bring you to the correct page on the website.
 
-Underneath that it says: **"Have a sip and learn more about our finest and freshest signature liquids, limited releases and taproom regulars"** with an **"Our Beers" button** which has that same button behavior as before.
+Underneath that it says: **"Have a sip and learn more about our finest and freshest signature liquids, limited releases and taproom regulars"** with an **"Our Beers" button**.
 
 ### Live Impact Widget
 
@@ -213,7 +208,7 @@ I wanted it to feel live. That's why you can see it ticking up in real time.
 It has a little green pulsing dot which tells the user that it's live.
 
 **Why No Wave Effect Here**
-These are the only buttons that don't have that little wave effect. The reason they don't have the wave effect on the text is because you can actually see dollars raised and solar generated ticking up in real time—the numbers themselves are already animating.
+These are the only buttons without the signature wave effect—because the numbers themselves are already animating as they tick up in real time.
 
 **Hover Interaction**
 On desktop, hovering over the impact buttons creates a subtle lift effect (translateY with shadow) rather than a scale transform—this feels more tactile and less jarring while maintaining interactivity cues.
@@ -255,24 +250,22 @@ What's really cool is if the user doesn't click "Get Itinerary" after about 30 s
 
 **Modal Contents**
 The modal features:
-- The slightly spinning Lawson's Sun (which once again, you click for emojis, you can spin it with your mouse or your finger)
+- The interactive Lawson's sun (spin it, click it for emojis—same behavior as the header sun)
 - Headline: **"Get your free road trip guide"**
 - Subtext: "Join the Lawson's newsletter to receive a detailed Sunshine Trail road trip plan with recommended stops, local tips, and exclusive brewery news"
 - **Your Name** field
 - **Your Email** field
 
-Everything, every element of this website, including the corner radiuses on things, are designed to match the Lawson's website, which is a new website for them. This is kind of taking that design language and putting it into a campaign-specific site.
-
 **Real Form Functionality**
 One of the cool things is that this actually works. I put my name and email in here, and it uses the actual Lawson's web form to enter that.
 
 **Location Detection**
-Under "Your Name" and "Your Email," there's a button that says **"Send me info about local happenings."** If you click that, the browser will actually detect your location using that same API that we called for initially. It'll fill in your town name—not your GPS coordinates—wherever the town you are is.
+Under "Your Name" and "Your Email," there's a button that says **"Send me info about local happenings."** If you click that, the browser will detect your location (using the same private API mentioned in Location-Aware Zooming above) and fill in your town name—not GPS coordinates.
 
-Of course you can type your own information in here. But what's really cool is that it'll do it for you. We're reducing the friction that someone would have to do to sign up for a newsletter. Because the ultimate goal of a piece of inbound content like this is to get email signatures so that we can get them into our top funnel marketing strategy.
+You can type your own information, but auto-filling reduces friction for newsletter signup—which is the ultimate goal of inbound content like this.
 
 **Call to Action**
-There's a big **"Send My Itinerary"** button, which once again has that little wave effect on it.
+There's a big **"Send My Itinerary"** button with the signature wave effect.
 
 **Privacy Note**
 Right underneath that, it says: "By signing up, you'll join the Lawson's Finest newsletter. Unsubscribe anytime."
@@ -297,7 +290,7 @@ The sidebar has a simple footer with:
 
 ## Showing Impact Through Stories
 
-One of my big goals with this site was to create a really nice way of showing impact stories, because this is one of the key aspects of the Lawson's brand promise.
+This section demonstrates the "showing impact, not telling" philosophy described in the Strategic Foundation above—bringing Lawson's community commitment to life through real stories.
 
 ### Vermont Food Bank Example
 
@@ -312,13 +305,11 @@ The popup for Vermont Food Bank shows:
 
 ### James River Association Example
 
-Since the idea of this site was to create something to show the reach, I looked online to find organizations that would fit with the Lawson's brand promise.
-
-For example, in Richmond, Virginia, I selected the **James River Association**:
+In Richmond, Virginia, I selected the **James River Association**:
 - **Description:** "Protecting and restoring Virginia's historic James River watershed from the mountains to the Chesapeake Bay since 1976"
 - **Testimonial:** "Their paddle trips connect thousands with the river each year. Kayaker Christine says, 'I never knew Richmond had such an amazing river until the James River Association showed me. Now I'm a volunteer river cleaner.'"
 
-So we're showing the impact. What's the beer tie-in? Well, clean drinking water, clean water, a healthy earth is all a part of the Lawson's brand promise. That's an example of why I picked this particular organization.
+The beer tie-in? Clean water and a healthy earth are core to Lawson's brand promise—and to brewing great beer.
 
 ---
 
@@ -343,7 +334,7 @@ So we're showing the impact. What's the beer tie-in? Well, clean drinking water,
 I got tired of hunting down hardcoded "768" values scattered throughout the code whenever I needed to adjust responsive behavior. So I created a `Viewport` utility object that serves as the single source of truth for all responsive checks. Instead of writing `window.innerWidth <= 768` everywhere, I now call `Viewport.isMobile()`. The actual breakpoint values live in `APP_CONFIG`, and there are matching CSS custom properties so the JavaScript and CSS always agree. It's a small thing, but it makes the code so much easier to maintain—change a breakpoint in one place and it updates everywhere.
 
 ### Privacy
-None of your location data is being passed back to us unless you explicitly give it to us in that signup form. The location detection is completely private.
+Location detection is completely private—your data is only shared if you explicitly provide it in the signup form.
 
 ### Making It Look Good When You Share It
 
@@ -397,13 +388,11 @@ The site implements comprehensive SEO best practices:
 - "All the Lawson's locations that I have been able to turn up as well as some additional stuff along the way"
 
 ### Community Partners
-Organizations selected to align with Lawson's brand values:
+Organizations selected to align with Lawson's brand values—clean water, healthy earth, community support:
 - **Food security** (Vermont Foodbank, MANNA FoodBank)
 - **Watershed/river protection** (James River Association, French Broad Riverkeeper)
 - **Trail conservation** (Green Mountain Club, Blue Ridge Parkway Foundation)
 - **Local community organizations** across the distribution footprint
-
-I looked online to find organizations that would fit with the Lawson's brand promise—clean water, healthy earth, community support.
 
 ### Outdoor Locations
 - Hiking trails along the Appalachian corridor
@@ -444,7 +433,7 @@ Since I'm pulling in brand assets, impact stories, and curated content, I wanted
 The snowfall effect took some tweaking to get right. I wanted it to feel like continuous, natural snowfall rather than waves of snowflakes all falling at the same time. So each snowflake has its own random fall duration. I also had an issue where if you hovered in and out of "Cold Beer" really quickly, the animation would kind of crash and restart—that's fixed now, it handles rapid transitions smoothly.
 
 ### Keeping Buttons Consistent
-All the yellow call-to-action buttons (Get Itinerary, Send My Itinerary, Our Beers) use only that wave text animation on hover—no other effects. I wanted them to feel consistent with each other and with the Lawson's website, so I kept the behavior identical across all of them.
+All the yellow call-to-action buttons (Get Itinerary, Send My Itinerary, Our Beers) use only the signature wave effect on hover—no other effects layered on top. I wanted them to feel consistent with each other and with Lawson's website.
 
 ### Little UX Things That Matter
 - The "Zoom for detail" button stays visible until you actually interact with the zoom controls yourself—it doesn't disappear just because the map moved automatically
@@ -507,7 +496,7 @@ I recently went through and cleaned up all the placeholder assertions in the tes
 
 ## Project Status
 
-This is a demonstration project created for a job interview—not operated by or affiliated with Lawson's Finest Liquids. This wasn't part of the prompt they gave me—it's something I cooked up on my own. I'm super proud of it, though there's still some work to do to make it a little less buggy.
+I'm super proud of this project, though there's still some work to do to make it a little less buggy.
 
 **What would change for production:**
 - Real data feeds for live impact metrics
@@ -519,7 +508,7 @@ This is a demonstration project created for a job interview—not operated by or
 
 For my interview demo, I added a password-protected overlay so I can control when people see the site. When you first visit, you see a Lawson's yellow branded gate with a password field. Enter the right password and you get a little "Welcome" animation before the full experience reveals itself. Once you're in, refreshing doesn't kick you out—it remembers for your session.
 
-The password page also has the spinning sun logo, and yes, you can spin it and click it for emojis even there. I thought it would be fun to give people something to fidget with while they enter the password. The sun is sized appropriately for each screen size—smaller on phones, bigger on desktops.
+The password page also has the interactive sun—something to fidget with while entering the password. It's sized appropriately for each screen size (smaller on phones, bigger on desktops).
 
 And I made sure the overlay actually locks the page properly—you can't scroll or drag behind it to sneak a peek at the content before you're authenticated.
 
