@@ -2304,6 +2304,8 @@
             position: relative;
             display: flex;
             flex-direction: column;
+            /* Fixed min-height prevents collapse during slide transitions */
+            min-height: 2.5em;
         }
 
         .metric-slide {
@@ -5943,12 +5945,21 @@
             }
         }
 
+        // Calculate viewport-aware cluster radius (larger screens need larger radius)
+        // Base: 120px for standard screens, scales up for larger displays like iPhone Pro Max
+        const getClusterRadius = () => {
+            const screenWidth = window.innerWidth;
+            if (screenWidth >= 428) return 150;  // Large phones (iPhone Pro Max, etc.)
+            if (screenWidth >= 390) return 135;  // Standard Pro phones
+            return 120;  // Default for smaller screens
+        };
+
         const clusterOptions = {
             showCoverageOnHover: false,
             spiderfyOnMaxZoom: true,  // Spider out only when can't zoom any further
             zoomToBoundsOnClick: false,  // We'll handle this manually with sidebar padding
             disableClusteringAtZoom: 15,  // Separate markers at zoom 15+ (lowered for Philadelphia visibility)
-            maxClusterRadius: 120,  // Standard radius for city-level visibility
+            maxClusterRadius: getClusterRadius(),  // Viewport-aware radius for consistent clustering
             iconCreateFunction: createUnifiedClusterIcon,
             spiderLegPolylineOptions: { weight: 2, color: '#ffc72d', opacity: 0.6 },
             spiderfyDistanceMultiplier: 1.8,  // More spread out spider
