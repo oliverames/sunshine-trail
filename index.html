@@ -6627,12 +6627,12 @@
                     // If popup top is above the safe area, shift down to make it visible
                     if (combinedTop < minTopRequired) {
                         const shiftNeeded = minTopRequired - combinedTop;
-                        yShift = -shiftNeeded; // Negative because we need to pan map UP (move popup down)
+                        yShift = shiftNeeded; // Positive: when subtracted at line 6655, pans map center up, moving popup down
                     }
 
                     // If popup+pin is taller than safe area, prioritize showing top of popup
                     if (combinedHeight > safeHeight) {
-                        yShift = -(minTopRequired - combinedTop); // Show popup top below header
+                        yShift = minTopRequired - combinedTop; // Show popup top below header
                     }
 
                     // If popup+pin is wider than safe area, center it as best we can
