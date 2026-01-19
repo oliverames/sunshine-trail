@@ -4216,7 +4216,7 @@
             inertiaDeceleration: 2000,  // Smooth deceleration
             inertiaMaxSpeed: 2000,
             easeLinearity: 0.2,         // Smoother easing
-            tap: true,
+            tap: false,  // Disabled: fixes iOS Safari double-click bug that causes popup to open then immediately close (Leaflet #7255, #7330)
             touchZoom: true,
             doubleClickZoom: true,
             boxZoom: true
@@ -6530,14 +6530,21 @@
         // Save map position before popup opens, restore on close (mobile only)
         let savedMapState = null;
         let popupJustOpened = false; // Prevent immediate close on mobile touch
+        let popupProtectionTimeout = null; // Track timeout to prevent overlapping protection windows
 
         map.on('popupopen', function(e) {
             // Set protection flag on mobile to prevent immediate close from touch event bubbling
+            // Extended to 1000ms to cover full animation cycle: centering (600ms) + panTo (300ms) + buffer
             if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
                 popupJustOpened = true;
-                setTimeout(() => {
+                // Clear any existing protection timeout to prevent premature expiration from overlapping taps
+                if (popupProtectionTimeout) {
+                    clearTimeout(popupProtectionTimeout);
+                }
+                popupProtectionTimeout = setTimeout(() => {
                     popupJustOpened = false;
-                }, 300); // 300ms protection window
+                    popupProtectionTimeout = null;
+                }, 1000); // Extended from 300ms to cover full centering + pan animation
             }
 
             // Expand map on mobile to show full popup
@@ -6726,6 +6733,17 @@
         });
 
         map.on('popupclose', function(e) {
+            // Clean up pending operations to prevent zombie timeouts
+            if (window.popupCenteringTimeout) {
+                clearTimeout(window.popupCenteringTimeout);
+                window.popupCenteringTimeout = null;
+            }
+            if (popupProtectionTimeout) {
+                clearTimeout(popupProtectionTimeout);
+                popupProtectionTimeout = null;
+            }
+            popupJustOpened = false;
+
             // Collapse map on mobile
             if (Viewport.isMobile()) {
                 const mapEl = document.getElementById('map');
