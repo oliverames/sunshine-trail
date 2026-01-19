@@ -180,9 +180,41 @@ export async function openMarkerPopup(page: Page, markerIndex: number = 0): Prom
 }
 
 /**
+ * Expands the search input if it's collapsed (common on mobile viewports)
+ * On mobile, the search input starts hidden and the button expands it
+ */
+export async function expandSearchInput(page: Page): Promise<void> {
+  const searchInput = page.locator(selectors.map.searchInput);
+  const searchButton = page.locator(selectors.map.searchButton);
+
+  // Small delay to let any animations settle
+  await page.waitForTimeout(200);
+
+  // Check if input is already visible
+  const isInputVisible = await searchInput.isVisible().catch(() => false);
+
+  if (!isInputVisible) {
+    // Click the search button to expand/show the input
+    await searchButton.click();
+
+    // Wait for the input to become visible, with retry
+    try {
+      await expect(searchInput).toBeVisible({ timeout: 2000 });
+    } catch {
+      // If first click didn't work, try clicking again (toggle behavior)
+      await page.waitForTimeout(300);
+      await searchButton.click();
+      await expect(searchInput).toBeVisible({ timeout: 3000 });
+    }
+  }
+}
+
+/**
  * Searches for a location using the map search
+ * Automatically expands the search input if collapsed
  */
 export async function searchLocation(page: Page, query: string): Promise<void> {
+  await expandSearchInput(page);
   await page.locator(selectors.map.searchInput).click();
   await page.locator(selectors.map.searchInput).fill(query);
   await page.locator(selectors.map.searchButton).click();
