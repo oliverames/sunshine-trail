@@ -2196,6 +2196,10 @@
             padding: 0.75rem 0.5rem;
             background: #ffc72d;
             border-radius: 12px;
+            min-height: 85px; /* Consistent height for all metrics */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .metric-value {
@@ -2304,8 +2308,7 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            /* Fixed min-height prevents collapse during slide transitions */
-            min-height: 2.5em;
+            min-height: 1.8em; /* Reduced from 2.5em */
         }
 
         .metric-slide {
