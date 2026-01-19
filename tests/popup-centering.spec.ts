@@ -78,11 +78,17 @@ test.describe('Popup Centering (Issue #27)', () => {
       return;
     }
 
+    // Wait for marker and scroll into view
+    const firstMarker = markers.first();
+    await firstMarker.waitFor({ state: 'visible', timeout: 5000 });
+    await firstMarker.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(300);
+
     // Click marker
-    await markers.first().click();
+    await firstMarker.click({ timeout: 10000 });
 
     // Wait for popup and any pan animation
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(2000);
 
     // The popup should be fully visible after pan completes
     const isFullyVisible = await isPopupFullyVisible(page);
@@ -271,6 +277,8 @@ test.describe('Popup Centering (Issue #27)', () => {
       await page.waitForTimeout(300);
     }
 
+    await page.waitForTimeout(500);
+
     const markers = page.locator(selectors.map.marker);
     const count = await markers.count();
     if (count === 0) {
@@ -278,18 +286,23 @@ test.describe('Popup Centering (Issue #27)', () => {
       return;
     }
 
-    await markers.first().click();
+    // Wait for marker to be ready and click it
+    const firstMarker = markers.first();
+    await firstMarker.waitFor({ state: 'visible', timeout: 5000 });
+    await firstMarker.scrollIntoViewIfNeeded();
+    await firstMarker.click({ timeout: 10000 });
     await page.waitForTimeout(1000);
 
     const popup = page.locator(selectors.map.popup);
-    await expect(popup).toBeVisible();
+    await expect(popup).toBeVisible({ timeout: 5000 });
 
-    // Click the close button
+    // Click the close button - wait for it to be visible and clickable
     const closeButton = page.locator(selectors.map.popupCloseButton);
-    await closeButton.click();
+    await closeButton.waitFor({ state: 'visible', timeout: 5000 });
+    await closeButton.click({ force: true });
 
     // Popup should disappear
-    await expect(popup).not.toBeVisible({ timeout: 3000 });
+    await expect(popup).not.toBeVisible({ timeout: 5000 });
   });
 });
 

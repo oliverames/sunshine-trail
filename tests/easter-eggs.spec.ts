@@ -186,10 +186,26 @@ test.describe('Easter Eggs', () => {
       const initialCount = await page.locator(selectors.effects.snowflakes).count();
       expect(initialCount).toBeGreaterThan(0);
 
-      // Wait for animations to complete (snowflakes have ~6-10s duration)
-      await page.waitForTimeout(12000);
+      // Store initial count in window for the waitForFunction
+      await page.evaluate((count) => {
+        (window as any).__initialSnowflakeCount = count;
+      }, initialCount);
 
-      // Snowflakes should be removed
+      // Wait for some snowflakes to be cleaned up (poll instead of fixed wait)
+      // Snowflakes have 6-10s duration, so wait up to 15s for cleanup to start
+      await page.waitForFunction(
+        (selector) => {
+          const current = document.querySelectorAll(selector).length;
+          return current < (window as any).__initialSnowflakeCount;
+        },
+        selectors.effects.snowflakes,
+        { timeout: 15000, polling: 1000 }
+      ).catch(async () => {
+        // Fallback: just check count decreased after extended wait
+        await page.waitForTimeout(5000);
+      });
+
+      // Snowflakes should be removed (at least some)
       const finalCount = await page.locator(selectors.effects.snowflakes).count();
       expect(finalCount).toBeLessThan(initialCount);
     });

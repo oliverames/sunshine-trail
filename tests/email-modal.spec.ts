@@ -245,14 +245,28 @@ test.describe('Email Modal - Form Submission', () => {
     await setupPage(page);
     await waitForMapReady(page);
 
-    // Open modal
+    // Dismiss any existing modal first
+    await dismissEmailModal(page);
+
+    // Open modal via route toggle -> itinerary button
     const toggle = page.locator(selectors.route.toggleCheckbox);
+
+    // Wait for toggle to be visible and interactable
+    await toggle.waitFor({ state: 'visible', timeout: 5000 });
+
     if (!(await toggle.isChecked())) {
       await toggle.click();
       await page.waitForTimeout(500);
     }
-    await page.locator(selectors.route.itineraryButton).click();
-    await page.waitForTimeout(500);
+
+    // Click itinerary button to open email modal
+    const itineraryBtn = page.locator(selectors.route.itineraryButton);
+    await itineraryBtn.waitFor({ state: 'visible', timeout: 5000 });
+    await itineraryBtn.click();
+
+    // Wait for email modal to actually appear
+    const modal = page.locator(selectors.emailModal.overlay);
+    await expect(modal).toBeVisible({ timeout: 5000 });
   });
 
   test('should be able to fill and submit form', async ({ page }) => {

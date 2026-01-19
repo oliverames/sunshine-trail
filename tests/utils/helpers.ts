@@ -28,14 +28,28 @@ export async function authenticateUser(page: Page): Promise<void> {
 
 /**
  * Dismisses the email modal if it appears
+ * Includes retry logic since modal may appear after initial check
  */
 export async function dismissEmailModal(page: Page): Promise<void> {
   const modal = page.locator(selectors.emailModal.overlay);
-  const isVisible = await modal.isVisible().catch(() => false);
 
-  if (isVisible) {
-    await page.locator(selectors.emailModal.closeButton).click();
-    await expect(modal).not.toBeVisible({ timeout: 2000 });
+  // Check multiple times since modal may appear with delay
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const isVisible = await modal.isVisible().catch(() => false);
+
+    if (isVisible) {
+      const closeButton = page.locator(selectors.emailModal.closeButton);
+      // Wait for close button to be clickable
+      await closeButton.waitFor({ state: 'visible', timeout: 2000 }).catch(() => {});
+      await closeButton.click({ force: true });
+      await expect(modal).not.toBeVisible({ timeout: 2000 });
+      return;
+    }
+
+    // Brief wait before retry
+    if (attempt < 2) {
+      await page.waitForTimeout(200);
+    }
   }
 }
 
@@ -68,7 +82,14 @@ export async function waitForMapReady(page: Page): Promise<void> {
  * Quick click = mousedown + mouseup within 200ms with <10px movement
  */
 export async function quickClick(page: Page, selector: string): Promise<void> {
+  // Ensure email modal is dismissed first
+  await dismissEmailModal(page);
+
   const element = page.locator(selector);
+
+  // Wait for element to be visible and not blocked
+  await element.waitFor({ state: 'visible', timeout: 5000 });
+
   const box = await element.boundingBox();
   if (!box) throw new Error(`Element not found: ${selector}`);
 
@@ -78,7 +99,7 @@ export async function quickClick(page: Page, selector: string): Promise<void> {
   // Perform a real quick click using mouse events
   await page.mouse.move(x, y);
   await page.mouse.down();
-  await page.waitForTimeout(30); // Stay under 200ms threshold
+  await page.waitForTimeout(50); // Stay under 200ms threshold
   await page.mouse.up();
 }
 
@@ -291,7 +312,7 @@ export function getViewportCategory(page: Page): 'mobile' | 'tablet' | 'desktop'
   if (!viewport) return 'desktop';
 
   if (viewport.width < 768) return 'mobile';
-  if (viewport.width < 1024) return 'tablet';
+  if (viewport.width <= 1024) return 'tablet'; // Include iPad Pro 12.9" (1024px)
   return 'desktop';
 }
 

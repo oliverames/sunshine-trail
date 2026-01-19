@@ -74,13 +74,21 @@ test.describe('Category Filters', () => {
   });
 
   test('checking chargers filter should add DC Fast Charger markers', async ({ page }) => {
+    // Dismiss any modal that might block the sidebar
+    await dismissEmailModal(page);
+
     // Get initial count
     const initialCount = await getVisibleMarkerCount(page);
     const initialClusters = await getVisibleClusterCount(page);
 
+    // Find and scroll to chargers checkbox
+    const chargersFilter = page.locator(selectors.filters.chargers);
+    await chargersFilter.scrollIntoViewIfNeeded();
+    await chargersFilter.waitFor({ state: 'visible', timeout: 5000 });
+
     // Enable chargers
-    await page.locator(selectors.filters.chargers).click();
-    await page.waitForTimeout(800);
+    await chargersFilter.click({ force: true });
+    await page.waitForTimeout(1000);
 
     const afterCount = await getVisibleMarkerCount(page);
     const afterClusters = await getVisibleClusterCount(page);

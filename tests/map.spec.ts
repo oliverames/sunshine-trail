@@ -99,12 +99,29 @@ test.describe('Marker Clustering', () => {
       return;
     }
 
-    // Get the first cluster's position
+    // Get the first cluster
     const cluster = page.locator(selectors.map.markerCluster).first();
-    await cluster.click();
+
+    // Wait for cluster to be ready and visible
+    await cluster.waitFor({ state: 'visible', timeout: 5000 });
+
+    // Scroll cluster into view to ensure it's in viewport
+    await cluster.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(300);
+
+    // Click with retry if element moves
+    try {
+      await cluster.click({ timeout: 5000 });
+    } catch {
+      // Element may have moved, try clicking at last known position
+      const box = await cluster.boundingBox();
+      if (box) {
+        await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+      }
+    }
 
     // Wait for zoom animation
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1000);
 
     // Either clusters decreased or markers increased (expansion occurred)
     const afterClusters = await getVisibleClusterCount(page);

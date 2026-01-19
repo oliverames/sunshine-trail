@@ -822,8 +822,9 @@ test.describe('Copy Protection', () => {
     const headerText = page.locator('h1').first();
     await headerText.click({ clickCount: 3 }); // Triple-click to select
 
-    // Attempt to copy
-    await page.keyboard.press('Control+C');
+    // Attempt to copy (use Meta on macOS, Control elsewhere)
+    const modifier = process.platform === 'darwin' ? 'Meta' : 'Control';
+    await page.keyboard.press(`${modifier}+C`);
 
     // Check clipboard is empty (copy was prevented)
     const clipboardText = await page.evaluate(async () => {
