@@ -1331,10 +1331,9 @@
                 display: none;
             }
 
-            /* Hide scroll indicator when map is expanded to prevent overlap with map controls */
-            body:has(#map.map-expanded) .scroll-indicator {
-                display: none !important;
-            }
+            /* When map is expanded, the scroll indicator transforms into "Tap for More" button */
+            /* This is now handled via JS adding .expanded-mode class for smooth animation */
+            /* body:has(#map.map-expanded) .scroll-indicator - no longer hidden */
 
             header {
                 flex-direction: column;
@@ -2923,17 +2922,28 @@
                 position: fixed;
                 bottom: calc(20px + env(safe-area-inset-bottom, 0px));
                 right: 15px;
+                left: auto; /* Explicit for transition */
                 width: 52px;
                 height: 52px;
+                padding: 0;
                 background: rgba(255, 255, 255, 0.88);
                 border: none;
                 border-radius: 10px;
                 cursor: pointer;
                 align-items: center;
                 justify-content: center;
+                gap: 0;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.25);
                 z-index: 9997; /* Below sun rays (9999) and snow (9998) */
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                /* Expanded transition for morphing animation */
+                transition:
+                    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    box-shadow 0.2s ease,
+                    width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    left 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    right 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    gap 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                 -webkit-tap-highlight-color: transparent;
                 pointer-events: auto !important;
             }
@@ -2982,6 +2992,72 @@
 
             .scroll-indicator.bounce {
                 animation: scrollBounce 1.2s ease-in-out;
+            }
+
+            /* Text hidden by default - only visible in expanded map mode */
+            .scroll-indicator-text {
+                display: none;
+                font-family: 'futura-pt', 'Futura', -apple-system, sans-serif;
+                font-size: 0.95rem;
+                font-weight: 600;
+                color: var(--deep-brown);
+                white-space: nowrap;
+                margin-right: 8px;
+            }
+
+            /* ================================================
+               EXPANDED MAP MODE - "Tap for More" button state
+               The scroll indicator transforms into a wider, centered
+               button when the map is in expanded view
+               ================================================ */
+            .scroll-indicator.expanded-mode {
+                /* Center horizontally at bottom of viewport */
+                right: auto;
+                left: 50%;
+                transform: translateX(-50%);
+                /* Expand to fit text + icon */
+                width: auto;
+                padding: 0 20px;
+                gap: 4px;
+                /* Smooth transition for all properties */
+                transition:
+                    width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    left 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    right 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    box-shadow 0.2s ease;
+            }
+
+            /* Show text when in expanded mode */
+            .scroll-indicator.expanded-mode .scroll-indicator-text {
+                display: inline;
+            }
+
+            /* Arrow points up when in expanded mode (to indicate "collapse map") */
+            .scroll-indicator.expanded-mode svg {
+                transform: rotate(180deg);
+            }
+
+            /* Active state in expanded mode */
+            .scroll-indicator.expanded-mode:active {
+                transform: translateX(-50%) scale(0.95);
+            }
+
+            /* Animation for morphing in - text fades in */
+            @keyframes textFadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+
+            .scroll-indicator.expanded-mode .scroll-indicator-text {
+                animation: textFadeIn 0.3s ease 0.15s both;
             }
         }
 
@@ -3263,7 +3339,9 @@
     <button class="snow-close-button" id="snow-close-button" aria-label="Stop snow effect"></button>
 
     <!-- Mobile scroll indicator - floats above content, below effects -->
+    <!-- Transforms into "Tap for More" button when map is expanded -->
     <button class="scroll-indicator" id="scroll-indicator" aria-label="Scroll page">
+        <span class="scroll-indicator-text">Tap for More</span>
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 4v16m0 0l-6-6m6 6l6-6" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -9511,12 +9589,50 @@
         // ============================================
         // MOBILE SCROLL INDICATOR
         // Floating button that scrolls up/down based on position
+        // Transforms into "Tap for More" button when map is expanded
         // ============================================
         const scrollIndicator = document.getElementById('scroll-indicator');
         let scrollBounceInterval = null;
         let scrollUpdatePending = false;
 
         if (scrollIndicator) {
+            // ============================================
+            // MAP EXPANSION SYNC
+            // Watch for map-expanded class and transform scroll indicator
+            // ============================================
+            const mapElementForObserver = document.getElementById('map');
+            if (mapElementForObserver && Viewport.isMobile()) {
+                // Use MutationObserver to watch for map-expanded class changes
+                const mapClassObserver = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.attributeName === 'class') {
+                            const isExpanded = mapElementForObserver.classList.contains('map-expanded');
+                            if (isExpanded) {
+                                // Map just expanded - transform to "Tap for More" button
+                                scrollIndicator.classList.add('expanded-mode');
+                                scrollIndicator.setAttribute('aria-label', 'Tap for more content');
+                            } else {
+                                // Map just collapsed - revert to normal scroll indicator
+                                scrollIndicator.classList.remove('expanded-mode');
+                                scrollIndicator.setAttribute('aria-label', 'Scroll page');
+                            }
+                        }
+                    });
+                });
+
+                // Start observing the map element for class changes
+                mapClassObserver.observe(mapElementForObserver, {
+                    attributes: true,
+                    attributeFilter: ['class']
+                });
+
+                // Check initial state in case map is already expanded
+                if (mapElementForObserver.classList.contains('map-expanded')) {
+                    scrollIndicator.classList.add('expanded-mode');
+                    scrollIndicator.setAttribute('aria-label', 'Tap for more content');
+                }
+            }
+
             // Update arrow direction and color based on scroll position
             // JS runs regardless of viewport - CSS handles visibility via display:none on desktop
             function updateScrollIndicator() {
