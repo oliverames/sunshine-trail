@@ -2912,43 +2912,64 @@
         }
 
         /* Mobile Scroll Indicator - floating button that scrolls up/down */
+        /* GPU-accelerated morphing using transform-only animations */
         .scroll-indicator {
             display: none; /* Hidden on desktop */
         }
 
+        /* Screen reader only utility class for live announcements */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
         @media (max-width: 768px) {
+            /* CSS Custom Properties for animation timing (single source of truth) */
             .scroll-indicator {
+                --morph-duration: 0.35s;
+                --morph-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
                 display: flex;
                 position: fixed;
                 bottom: calc(20px + env(safe-area-inset-bottom, 0px));
                 right: 15px;
-                left: auto; /* Explicit for transition */
+                /* Fixed dimensions - never animate width/height */
                 width: 52px;
                 height: 52px;
-                padding: 0;
+                padding: 0 14px;
                 background: rgba(255, 255, 255, 0.88);
                 border: none;
                 border-radius: 10px;
                 cursor: pointer;
                 align-items: center;
                 justify-content: center;
-                gap: 0;
+                gap: 8px;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-                z-index: 9997; /* Below sun rays (9999) and snow (9998) */
-                /* Expanded transition for morphing animation */
+                z-index: 9997;
+                /* SINGLE transition definition - compositor-friendly properties only */
                 transition:
-                    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    transform var(--morph-duration) var(--morph-easing),
                     box-shadow 0.2s ease,
-                    width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                    left 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                    right 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                    padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                    gap 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    background-color 0.2s ease;
                 -webkit-tap-highlight-color: transparent;
                 pointer-events: auto !important;
+                /* GPU acceleration hints */
+                will-change: transform;
+                contain: layout style;
+                /* Touch optimization */
+                touch-action: manipulation;
+                /* Transform origin for expanded mode centering */
+                transform-origin: center center;
             }
 
-            /* Hover state - lift and add shadow, don't change color */
+            /* Hover state - lift and add shadow */
             @media (hover: hover) {
                 .scroll-indicator:hover {
                     transform: translateY(-3px);
@@ -2956,15 +2977,22 @@
                 }
             }
 
-            /* When over yellow backgrounds, use fully opaque white with subtle border for better contrast */
+            /* When over yellow backgrounds */
             .scroll-indicator.over-yellow {
                 background: rgba(255, 255, 255, 0.98);
                 border: 1px solid rgba(45, 42, 38, 0.12);
                 box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
             }
 
-            .scroll-indicator:active {
+            .scroll-indicator:active,
+            .scroll-indicator[data-pressed="true"] {
                 transform: scale(0.95);
+            }
+
+            /* Focus state for keyboard accessibility */
+            .scroll-indicator:focus-visible {
+                outline: 2px solid var(--deep-brown);
+                outline-offset: 2px;
             }
 
             .scroll-indicator svg {
@@ -2973,7 +3001,9 @@
                 fill: none;
                 stroke: var(--deep-brown);
                 stroke-width: 2.5px;
-                transition: transform 0.3s ease;
+                flex-shrink: 0;
+                /* Transform-based rotation */
+                transition: transform var(--morph-duration) var(--morph-easing);
                 pointer-events: none;
             }
 
@@ -2982,7 +3012,7 @@
                 transform: rotate(180deg);
             }
 
-            /* Bounce animation to draw attention - larger and more noticeable */
+            /* Bounce animation - using transform only */
             @keyframes scrollBounce {
                 0%, 100% { transform: translateY(0); }
                 25% { transform: translateY(-12px); }
@@ -2994,70 +3024,85 @@
                 animation: scrollBounce 1.2s ease-in-out;
             }
 
-            /* Text hidden by default - only visible in expanded map mode */
+            /* Text - uses opacity for visibility (compositor-friendly) */
             .scroll-indicator-text {
-                display: none;
                 font-family: 'futura-pt', 'Futura', -apple-system, sans-serif;
                 font-size: 0.95rem;
                 font-weight: 600;
                 color: var(--deep-brown);
                 white-space: nowrap;
-                margin-right: 8px;
+                /* Hidden by default using opacity and width collapse */
+                opacity: 0;
+                max-width: 0;
+                overflow: hidden;
+                /* Transition for smooth fade */
+                transition:
+                    opacity var(--morph-duration) var(--morph-easing),
+                    max-width var(--morph-duration) var(--morph-easing);
             }
 
             /* ================================================
                EXPANDED MAP MODE - "Tap for More" button state
-               The scroll indicator transforms into a wider, centered
-               button when the map is in expanded view
+               GPU-accelerated morphing using transforms only
                ================================================ */
             .scroll-indicator.expanded-mode {
-                /* Center horizontally at bottom of viewport */
+                /* Allow button to expand to fit text */
+                width: auto;
+                /* Move from right to center using transform (no left/right animation) */
+                /* Position at center: move left from right position */
                 right: auto;
                 left: 50%;
                 transform: translateX(-50%);
-                /* Expand to fit text + icon */
-                width: auto;
-                padding: 0 20px;
-                gap: 4px;
-                /* Smooth transition for all properties */
-                transition:
-                    width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                    left 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                    right 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                    padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                    box-shadow 0.2s ease;
             }
 
             /* Show text when in expanded mode */
             .scroll-indicator.expanded-mode .scroll-indicator-text {
-                display: inline;
+                opacity: 1;
+                max-width: 120px; /* Enough for "Tap for More" */
             }
 
-            /* Arrow points up when in expanded mode (to indicate "collapse map") */
+            /* Arrow points up when in expanded mode */
             .scroll-indicator.expanded-mode svg {
                 transform: rotate(180deg);
             }
 
+            /* Hover in expanded mode */
+            @media (hover: hover) {
+                .scroll-indicator.expanded-mode:hover {
+                    transform: translateX(-50%) translateY(-3px);
+                    box-shadow: 0 6px 16px rgba(0,0,0,0.30);
+                }
+            }
+
             /* Active state in expanded mode */
-            .scroll-indicator.expanded-mode:active {
+            .scroll-indicator.expanded-mode:active,
+            .scroll-indicator.expanded-mode[data-pressed="true"] {
                 transform: translateX(-50%) scale(0.95);
             }
 
-            /* Animation for morphing in - text fades in */
-            @keyframes textFadeIn {
-                from {
-                    opacity: 0;
-                    transform: translateX(-10px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateX(0);
-                }
+            /* Bounce in expanded mode */
+            .scroll-indicator.expanded-mode.bounce {
+                animation: scrollBounceExpanded 1.2s ease-in-out;
             }
 
-            .scroll-indicator.expanded-mode .scroll-indicator-text {
-                animation: textFadeIn 0.3s ease 0.15s both;
+            @keyframes scrollBounceExpanded {
+                0%, 100% { transform: translateX(-50%) translateY(0); }
+                25% { transform: translateX(-50%) translateY(-12px); }
+                50% { transform: translateX(-50%) translateY(-8px); }
+                75% { transform: translateX(-50%) translateY(-14px); }
+            }
+        }
+
+        /* ================================================
+           PREFERS-REDUCED-MOTION SUPPORT
+           Respects user preference for reduced animations
+           ================================================ */
+        @media (prefers-reduced-motion: reduce) {
+            .scroll-indicator,
+            .scroll-indicator svg,
+            .scroll-indicator-text {
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
             }
         }
 
@@ -9590,48 +9635,213 @@
         // MOBILE SCROLL INDICATOR
         // Floating button that scrolls up/down based on position
         // Transforms into "Tap for More" button when map is expanded
+        //
+        // FIXES IMPLEMENTED:
+        // - MutationObserver cleanup on page unload/visibility change
+        // - matchMedia for reactive mobile detection (not just once at load)
+        // - ARIA attributes (aria-expanded, aria-controls) for accessibility
+        // - Live region for screen reader announcements
+        // - Pointer events for touch debouncing (prevents double-fire)
+        // - prefers-reduced-motion support
         // ============================================
         const scrollIndicator = document.getElementById('scroll-indicator');
         let scrollBounceInterval = null;
         let scrollUpdatePending = false;
 
+        // State management for scroll indicator
+        const scrollIndicatorState = {
+            mapClassObserver: null,
+            mobileMediaQuery: null,
+            reducedMotionQuery: null,
+            liveRegion: null,
+            isMobile: false,
+            isExpanded: false,
+            isProcessingInteraction: false,
+            prefersReducedMotion: false,
+            cleanupHandlers: []
+        };
+
         if (scrollIndicator) {
+            // ============================================
+            // ACCESSIBILITY: Create live region for announcements
+            // ============================================
+            scrollIndicatorState.liveRegion = document.createElement('div');
+            scrollIndicatorState.liveRegion.setAttribute('aria-live', 'polite');
+            scrollIndicatorState.liveRegion.setAttribute('aria-atomic', 'true');
+            scrollIndicatorState.liveRegion.className = 'sr-only scroll-indicator-announcer';
+            document.body.appendChild(scrollIndicatorState.liveRegion);
+
+            // Function to announce state changes to screen readers
+            function announceToScreenReader(message) {
+                if (!scrollIndicatorState.liveRegion) return;
+                // Clear and set with delay to ensure announcement
+                scrollIndicatorState.liveRegion.textContent = '';
+                setTimeout(() => {
+                    scrollIndicatorState.liveRegion.textContent = message;
+                }, 100);
+            }
+
+            // ============================================
+            // ACCESSIBILITY: Setup ARIA attributes
+            // ============================================
+            const mapElementForObserver = document.getElementById('map');
+            if (mapElementForObserver) {
+                // Ensure map has ID for aria-controls
+                if (!mapElementForObserver.id) {
+                    mapElementForObserver.id = 'map';
+                }
+                scrollIndicator.setAttribute('aria-controls', 'map');
+                scrollIndicator.setAttribute('aria-expanded', 'false');
+                scrollIndicator.setAttribute('role', 'button');
+                scrollIndicator.setAttribute('tabindex', '0');
+            }
+
+            // ============================================
+            // REDUCED MOTION DETECTION
+            // ============================================
+            scrollIndicatorState.reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+            scrollIndicatorState.prefersReducedMotion = scrollIndicatorState.reducedMotionQuery.matches;
+
+            function handleReducedMotionChange(e) {
+                scrollIndicatorState.prefersReducedMotion = e.matches;
+                scrollIndicator.setAttribute('data-reduced-motion', e.matches);
+            }
+
+            scrollIndicatorState.reducedMotionQuery.addEventListener('change', handleReducedMotionChange);
+            scrollIndicator.setAttribute('data-reduced-motion', scrollIndicatorState.prefersReducedMotion);
+            scrollIndicatorState.cleanupHandlers.push(() => {
+                scrollIndicatorState.reducedMotionQuery.removeEventListener('change', handleReducedMotionChange);
+            });
+
+            // ============================================
+            // RESPONSIVE MOBILE DETECTION (reactive, not one-time)
+            // ============================================
+            scrollIndicatorState.mobileMediaQuery = window.matchMedia('(max-width: 768px)');
+            scrollIndicatorState.isMobile = scrollIndicatorState.mobileMediaQuery.matches;
+
+            function handleMobileChange(e) {
+                scrollIndicatorState.isMobile = e.matches;
+                updateExpandedState();
+            }
+
+            // Modern API with legacy fallback
+            if (scrollIndicatorState.mobileMediaQuery.addEventListener) {
+                scrollIndicatorState.mobileMediaQuery.addEventListener('change', handleMobileChange);
+                scrollIndicatorState.cleanupHandlers.push(() => {
+                    scrollIndicatorState.mobileMediaQuery.removeEventListener('change', handleMobileChange);
+                });
+            } else {
+                // Legacy Safari
+                scrollIndicatorState.mobileMediaQuery.addListener(handleMobileChange);
+                scrollIndicatorState.cleanupHandlers.push(() => {
+                    scrollIndicatorState.mobileMediaQuery.removeListener(handleMobileChange);
+                });
+            }
+
             // ============================================
             // MAP EXPANSION SYNC
             // Watch for map-expanded class and transform scroll indicator
             // ============================================
-            const mapElementForObserver = document.getElementById('map');
-            if (mapElementForObserver && Viewport.isMobile()) {
+            function updateExpandedState() {
+                if (!mapElementForObserver) return;
+
+                const wasExpanded = scrollIndicatorState.isExpanded;
+                scrollIndicatorState.isExpanded = mapElementForObserver.classList.contains('map-expanded');
+
+                if (scrollIndicatorState.isExpanded && scrollIndicatorState.isMobile) {
+                    scrollIndicator.classList.add('expanded-mode');
+                    scrollIndicator.setAttribute('aria-label', 'Tap for more content. Map is expanded.');
+                    scrollIndicator.setAttribute('aria-expanded', 'true');
+
+                    // Announce state change if it actually changed
+                    if (!wasExpanded) {
+                        announceToScreenReader('Map expanded. Tap for more to see additional content.');
+                    }
+                } else {
+                    scrollIndicator.classList.remove('expanded-mode');
+                    scrollIndicator.setAttribute('aria-label', 'Scroll page');
+                    scrollIndicator.setAttribute('aria-expanded', 'false');
+
+                    // Announce state change if it actually changed
+                    if (wasExpanded && scrollIndicatorState.isMobile) {
+                        announceToScreenReader('Map collapsed. Scroll indicator available.');
+                    }
+                }
+            }
+
+            if (mapElementForObserver) {
                 // Use MutationObserver to watch for map-expanded class changes
-                const mapClassObserver = new MutationObserver((mutations) => {
-                    mutations.forEach((mutation) => {
+                scrollIndicatorState.mapClassObserver = new MutationObserver((mutations) => {
+                    for (const mutation of mutations) {
                         if (mutation.attributeName === 'class') {
-                            const isExpanded = mapElementForObserver.classList.contains('map-expanded');
-                            if (isExpanded) {
-                                // Map just expanded - transform to "Tap for More" button
-                                scrollIndicator.classList.add('expanded-mode');
-                                scrollIndicator.setAttribute('aria-label', 'Tap for more content');
-                            } else {
-                                // Map just collapsed - revert to normal scroll indicator
-                                scrollIndicator.classList.remove('expanded-mode');
-                                scrollIndicator.setAttribute('aria-label', 'Scroll page');
-                            }
+                            updateExpandedState();
+                            break; // Only need to process once per batch
                         }
-                    });
+                    }
                 });
 
                 // Start observing the map element for class changes
-                mapClassObserver.observe(mapElementForObserver, {
+                scrollIndicatorState.mapClassObserver.observe(mapElementForObserver, {
                     attributes: true,
                     attributeFilter: ['class']
                 });
 
                 // Check initial state in case map is already expanded
-                if (mapElementForObserver.classList.contains('map-expanded')) {
-                    scrollIndicator.classList.add('expanded-mode');
-                    scrollIndicator.setAttribute('aria-label', 'Tap for more content');
+                updateExpandedState();
+            }
+
+            // ============================================
+            // CLEANUP HANDLERS
+            // Properly disconnect observer on page unload/hide
+            // ============================================
+            function cleanupScrollIndicator() {
+                // Disconnect MutationObserver
+                if (scrollIndicatorState.mapClassObserver) {
+                    scrollIndicatorState.mapClassObserver.disconnect();
+                    scrollIndicatorState.mapClassObserver = null;
+                }
+
+                // Clear bounce interval
+                if (scrollBounceInterval) {
+                    clearInterval(scrollBounceInterval);
+                    scrollBounceInterval = null;
+                }
+
+                // Remove live region
+                if (scrollIndicatorState.liveRegion && scrollIndicatorState.liveRegion.parentNode) {
+                    scrollIndicatorState.liveRegion.parentNode.removeChild(scrollIndicatorState.liveRegion);
+                    scrollIndicatorState.liveRegion = null;
+                }
+
+                // Run all registered cleanup handlers
+                scrollIndicatorState.cleanupHandlers.forEach(handler => handler());
+                scrollIndicatorState.cleanupHandlers = [];
+            }
+
+            function handleVisibilityChange() {
+                if (document.visibilityState === 'hidden') {
+                    // Pause observer when page is hidden to save resources
+                    if (scrollIndicatorState.mapClassObserver) {
+                        scrollIndicatorState.mapClassObserver.disconnect();
+                    }
+                } else if (document.visibilityState === 'visible') {
+                    // Reconnect when page becomes visible
+                    if (scrollIndicatorState.mapClassObserver && mapElementForObserver) {
+                        scrollIndicatorState.mapClassObserver.observe(mapElementForObserver, {
+                            attributes: true,
+                            attributeFilter: ['class']
+                        });
+                        updateExpandedState();
+                    }
                 }
             }
+
+            window.addEventListener('beforeunload', cleanupScrollIndicator);
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            scrollIndicatorState.cleanupHandlers.push(() => {
+                window.removeEventListener('beforeunload', cleanupScrollIndicator);
+                document.removeEventListener('visibilitychange', handleVisibilityChange);
+            });
 
             // Update arrow direction and color based on scroll position
             // JS runs regardless of viewport - CSS handles visibility via display:none on desktop
@@ -9700,9 +9910,13 @@
             }
 
             // Scroll handler - scroll up or down, also collapse map when expanded
+            // Respects prefers-reduced-motion setting
             function handleScrollClick(e) {
                 e.preventDefault();
                 e.stopPropagation();
+
+                // Respect reduced motion preference
+                const scrollBehavior = scrollIndicatorState.prefersReducedMotion ? 'auto' : 'smooth';
 
                 // If map is expanded, collapse it and scroll down
                 const mapEl = document.getElementById('map');
@@ -9719,44 +9933,98 @@
                     mapEl.classList.remove('map-expanded');
                     // Notify Leaflet of size change
                     setTimeout(() => {
-                        if (window.map) window.map.invalidateSize({ animate: true });
-                    }, 350);
+                        if (window.map) window.map.invalidateSize({ animate: !scrollIndicatorState.prefersReducedMotion });
+                    }, scrollIndicatorState.prefersReducedMotion ? 0 : 350);
                     // Scroll to route section after a short delay
                     setTimeout(() => {
                         const routeSection = document.querySelector('.route-toggle-section');
                         if (routeSection) {
                             const sectionTop = routeSection.getBoundingClientRect().top + (window.scrollY || window.pageYOffset || 0);
-                            window.scrollTo({ top: sectionTop - 20, behavior: 'smooth' });
+                            window.scrollTo({ top: sectionTop - 20, behavior: scrollBehavior });
                         }
-                    }, 100);
+                        // Announce scroll action
+                        announceToScreenReader('Scrolled to route section.');
+                    }, scrollIndicatorState.prefersReducedMotion ? 0 : 100);
                     return;
                 }
 
                 const isUp = scrollIndicator.classList.contains('up');
                 if (isUp) {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    window.scrollTo({ top: 0, behavior: scrollBehavior });
+                    announceToScreenReader('Scrolled to top of page.');
                 } else {
                     // Scroll to "The Sunshine Trail Route" section
                     const routeSection = document.querySelector('.route-toggle-section');
                     if (routeSection) {
                         const sectionTop = routeSection.getBoundingClientRect().top + (window.scrollY || window.pageYOffset || 0);
-                        window.scrollTo({ top: sectionTop - 20, behavior: 'smooth' });
+                        window.scrollTo({ top: sectionTop - 20, behavior: scrollBehavior });
+                        announceToScreenReader('Scrolled to route section.');
                     }
                 }
             }
 
-            // Prevent touchstart from interfering
-            scrollIndicator.addEventListener('touchstart', function(e) {
-                e.stopPropagation();
-            }, { passive: true });
+            // ============================================
+            // POINTER EVENTS FOR UNIFIED TOUCH/MOUSE HANDLING
+            // Prevents double-fire issue with separate click/touchend
+            // ============================================
+            function handlePointerDown(e) {
+                if (scrollIndicatorState.isProcessingInteraction) return;
+                scrollIndicatorState.isProcessingInteraction = true;
+                // Visual feedback
+                scrollIndicator.setAttribute('data-pressed', 'true');
+            }
 
-            // Add both click and touch events for reliable mobile interaction
-            scrollIndicator.addEventListener('click', handleScrollClick);
-            scrollIndicator.addEventListener('touchend', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
+            function handlePointerUp(e) {
+                if (!scrollIndicatorState.isProcessingInteraction) return;
+
+                // Remove visual feedback
+                scrollIndicator.removeAttribute('data-pressed');
+
+                // Handle the interaction
                 handleScrollClick(e);
-            }, { passive: false });
+
+                // Reset processing flag after a brief delay to catch duplicate events
+                requestAnimationFrame(() => {
+                    scrollIndicatorState.isProcessingInteraction = false;
+                });
+            }
+
+            function handlePointerCancel() {
+                scrollIndicator.removeAttribute('data-pressed');
+                scrollIndicatorState.isProcessingInteraction = false;
+            }
+
+            // Keyboard accessibility
+            function handleKeydown(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleScrollClick(e);
+                }
+            }
+
+            // Use pointer events for unified handling
+            scrollIndicator.addEventListener('pointerdown', handlePointerDown);
+            scrollIndicator.addEventListener('pointerup', handlePointerUp);
+            scrollIndicator.addEventListener('pointercancel', handlePointerCancel);
+            scrollIndicator.addEventListener('pointerleave', handlePointerCancel);
+            scrollIndicator.addEventListener('keydown', handleKeydown);
+
+            // Fallback click handler for older browsers without pointer events
+            scrollIndicator.addEventListener('click', function(e) {
+                // Only handle if not already processed by pointer events
+                if (!scrollIndicatorState.isProcessingInteraction) {
+                    handleScrollClick(e);
+                }
+            });
+
+            // Register cleanup for event listeners
+            scrollIndicatorState.cleanupHandlers.push(() => {
+                scrollIndicator.removeEventListener('pointerdown', handlePointerDown);
+                scrollIndicator.removeEventListener('pointerup', handlePointerUp);
+                scrollIndicator.removeEventListener('pointercancel', handlePointerCancel);
+                scrollIndicator.removeEventListener('pointerleave', handlePointerCancel);
+                scrollIndicator.removeEventListener('keydown', handleKeydown);
+            });
 
             // Update on scroll - listen to multiple sources for cross-browser compatibility
             window.addEventListener('scroll', requestScrollUpdate, { passive: true });
