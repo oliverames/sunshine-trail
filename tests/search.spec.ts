@@ -65,10 +65,10 @@ test.describe('Search Functionality', () => {
     // Wait for results
     await page.waitForTimeout(1000);
 
-    // Search should have been submitted
-    const results = page.locator(selectors.map.searchResults);
-    // Results may or may not be visible depending on matches
-    expect(await results.isVisible() || true).toBe(true);
+    // Search should have been submitted - map should still be functional
+    // and input should retain value (proving search was processed)
+    await expect(searchInput).toHaveValue('brewery');
+    await expect(page.locator(selectors.map.container)).toBeVisible();
   });
 
   test('clicking search result should navigate to location', async ({ page }) => {
@@ -124,9 +124,13 @@ test.describe('Search Functionality', () => {
     await searchInput.fill('');
     await searchButton.click();
 
-    // Should not crash, results may be empty or show all
+    // Should not crash - verify page is still functional
     await page.waitForTimeout(500);
-    expect(true).toBe(true);
+
+    // Search input should still be accessible and functional
+    await expect(searchInput).toBeVisible();
+    // Map container should still be present (no crash)
+    await expect(page.locator(selectors.map.container)).toBeVisible();
   });
 
   test('search should handle special characters', async ({ page }) => {
@@ -137,9 +141,13 @@ test.describe('Search Functionality', () => {
     await searchInput.fill("O'Brien's & Co.");
     await searchButton.click();
 
-    // Should not crash
+    // Should not crash - verify page is still functional
     await page.waitForTimeout(500);
-    expect(true).toBe(true);
+
+    // Search input should retain the special characters
+    await expect(searchInput).toHaveValue("O'Brien's & Co.");
+    // Map container should still be present (no XSS crash)
+    await expect(page.locator(selectors.map.container)).toBeVisible();
   });
 
   test('search placeholder text should be visible', async ({ page }) => {
@@ -184,8 +192,8 @@ test.describe('Search Functionality', () => {
     await page.waitForTimeout(1000);
 
     const lowerResults = page.locator(selectors.map.searchResults);
-    const lowerHasContent =
-      (await lowerResults.isVisible()) && (await lowerResults.textContent())?.length;
+    const lowerVisible = await lowerResults.isVisible();
+    const lowerText = lowerVisible ? await lowerResults.textContent() : '';
 
     // Clear and search uppercase
     await searchInput.clear();
@@ -194,11 +202,17 @@ test.describe('Search Functionality', () => {
     await page.waitForTimeout(1000);
 
     const upperResults = page.locator(selectors.map.searchResults);
-    const upperHasContent =
-      (await upperResults.isVisible()) && (await upperResults.textContent())?.length;
+    const upperVisible = await upperResults.isVisible();
+    const upperText = upperVisible ? await upperResults.textContent() : '';
 
-    // Both should return similar results (or both empty)
-    expect(!!lowerHasContent === !!upperHasContent || true).toBe(true);
+    // Both searches should behave consistently (both find results or both don't)
+    // If results exist, both should find "Lawson" regardless of case
+    expect(lowerVisible).toBe(upperVisible);
+    if (lowerVisible && upperVisible) {
+      // Both should contain similar content (Lawson-related results)
+      expect(lowerText?.toLowerCase()).toContain('lawson');
+      expect(upperText?.toLowerCase()).toContain('lawson');
+    }
   });
 });
 

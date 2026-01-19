@@ -285,14 +285,12 @@ test.describe('State Filters', () => {
         : null;
     });
 
-    // Bounds should have changed (map zoomed to NC area)
-    if (initialBounds && newBounds) {
-      const boundsChanged =
-        Math.abs(initialBounds.north - newBounds.north) > 0.1 ||
-        Math.abs(initialBounds.south - newBounds.south) > 0.1;
-
-      expect(boundsChanged || true).toBe(true); // Map may or may not auto-zoom
-    }
+    // Verify state filter was applied and map is functional
+    // Bounds may or may not change depending on implementation
+    await expect(page.locator(selectors.map.container)).toBeVisible();
+    // NC button should be active
+    const ncButton = page.locator(selectors.stateFilters.buttonByState('NC'));
+    await expect(ncButton).toHaveClass(/active/);
   });
 });
 
@@ -303,20 +301,22 @@ test.describe('Filter Interactions', () => {
     await waitForMapReady(page);
   });
 
-  test('filters should show loading spinner when processing', async ({ page }) => {
-    // Some implementations show spinners during filter updates
-    const spinner = page.locator('.filter-spinner');
-    const spinnerExists = (await spinner.count()) > 0;
+  test('filters should remain functional during processing', async ({ page }) => {
+    // Toggle a filter and verify it processes correctly
+    const checkbox = page.locator(selectors.filters.breweries);
+    const wasChecked = await checkbox.isChecked();
 
-    if (spinnerExists) {
-      // Toggle a filter
-      await page.locator(selectors.filters.breweries).click();
-      // Spinner may appear briefly
-      await page.waitForTimeout(100);
-    }
+    await checkbox.click();
+    await page.waitForTimeout(500);
 
-    // Test passes regardless - just checking for spinners if they exist
-    expect(true).toBe(true);
+    const isNowChecked = await checkbox.isChecked();
+
+    // Verify filter toggle worked
+    expect(isNowChecked).toBe(!wasChecked);
+
+    // Restore state
+    await checkbox.click();
+    await expect(checkbox).toBeChecked();
   });
 
   test('filter labels should be clickable', async ({ page }) => {

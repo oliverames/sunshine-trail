@@ -101,8 +101,8 @@ test.describe('Email Modal - UI Elements', () => {
       await page.waitForTimeout(500);
     }
 
-    // Modal may or may not close depending on implementation
-    expect(true).toBe(true);
+    // Verify page is still functional (modal may or may not close)
+    await expect(page.locator(selectors.map.container)).toBeVisible();
   });
 });
 
@@ -273,8 +273,12 @@ test.describe('Email Modal - Form Submission', () => {
     // Form should process (may show success message or close)
     await page.waitForTimeout(1000);
 
-    // Test passes if no errors occurred
-    expect(true).toBe(true);
+    // Verify form submission was processed - either modal closed or success shown
+    // or inputs retain values (proving no crash occurred)
+    const formRetainsValues = await nameInput.inputValue() === 'Test User' ||
+                              await emailInput.inputValue() === 'test@example.com';
+    const modalClosed = !(await page.locator(selectors.emailModal.overlay).isVisible());
+    expect(formRetainsValues || modalClosed).toBe(true);
   });
 
   test('submit button should have appropriate text', async ({ page }) => {
@@ -312,9 +316,9 @@ test.describe('Email Modal - Accessibility', () => {
     await page.keyboard.press('Escape');
     await page.waitForTimeout(500);
 
-    // Modal may or may not close with Escape depending on implementation
-    // Just verify no errors
-    expect(true).toBe(true);
+    // Verify page remains functional after Escape press
+    // Modal may or may not close depending on implementation
+    await expect(page.locator(selectors.map.container)).toBeVisible();
   });
 
   test('form inputs should be focusable via Tab', async ({ page }) => {
@@ -326,12 +330,11 @@ test.describe('Email Modal - Accessibility', () => {
     // Tab to next field
     await page.keyboard.press('Tab');
 
-    // Email should be focused
-    const emailInput = page.locator(selectors.emailModal.emailInput);
-    const isEmailFocused = await emailInput.evaluate((el) => document.activeElement === el);
+    // Verify focus moved (not still on name input)
+    const isNameStillFocused = await nameInput.evaluate((el) => document.activeElement === el);
 
-    // Either email is focused or we're on the checkbox
-    expect(isEmailFocused || true).toBe(true);
+    // Focus should have moved from name input
+    expect(isNameStillFocused).toBe(false);
   });
 });
 
@@ -363,7 +366,9 @@ test.describe('Email Modal - Fidget Sun', () => {
       await page.mouse.up();
     }
 
-    // Should not crash
-    expect(true).toBe(true);
+    // Verify sun is still visible and functional after interaction
+    await expect(sun).toBeVisible();
+    // Modal should still be open
+    await expect(page.locator(selectors.emailModal.overlay)).toBeVisible();
   });
 });

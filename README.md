@@ -84,6 +84,8 @@ The famous Lawson's sun logo rotates very slowly by default. Users can:
 
 The rainbow emoji was intentionally included because I do think that Lawson's cares about DEI and LGBTQ+ rights, so I've included that there.
 
+**Technical Note on the Fidget Sun:** I ended up with multiple fidget suns across the site (header, password page, email modal), and the code was getting unwieldy. So I consolidated everything into a single `FidgetSunSpinner` class—about 250 lines that handle all the physics, momentum, emoji bursts, and idle rotation. Each instance can be configured differently (different sizes, different emoji mixes), but they all share the same underlying behavior. It made the code much easier to maintain and ensures all the suns feel consistent.
+
 **Cold Beer Text**
 Hovering over "Cold Beer" triggers two effects:
 - The whole page kind of gets this light blue filter over it
@@ -337,6 +339,9 @@ So we're showing the impact. What's the beer tie-in? Well, clean drinking water,
 - Safe area concept ensures markers aren't hidden under UI elements
 - Adaptive zoom levels based on viewport size
 
+**Single Source of Truth for Breakpoints**
+I got tired of hunting down hardcoded "768" values scattered throughout the code whenever I needed to adjust responsive behavior. So I created a `Viewport` utility object that serves as the single source of truth for all responsive checks. Instead of writing `window.innerWidth <= 768` everywhere, I now call `Viewport.isMobile()`. The actual breakpoint values live in `APP_CONFIG`, and there are matching CSS custom properties so the JavaScript and CSS always agree. It's a small thing, but it makes the code so much easier to maintain—change a breakpoint in one place and it updates everywhere.
+
 ### Privacy
 None of your location data is being passed back to us unless you explicitly give it to us in that signup form. The location detection is completely private.
 
@@ -463,6 +468,9 @@ I built out a pretty comprehensive test suite to make sure everything actually w
 And because responsive design is such a big part of this, I test across 15 different screen sizes: five mobile sizes (from iPhone SE all the way up to iPhone 14 Pro Max), four tablet sizes (iPad Mini through iPad Pro), and six desktop sizes (from small laptops up to ultrawide monitors).
 
 The tests verify that things like the route display, scroll indicator, search expansion, and hover states all work correctly at every breakpoint. It's probably overkill for a demo project, but I wanted to make sure it actually worked well everywhere.
+
+**Test Quality Improvements**
+I recently went through and cleaned up all the placeholder assertions in the test suite. You know those `expect(true).toBe(true)` patterns that developers sometimes write when they're in a hurry? I had a bunch of those. They were basically saying "the test ran without crashing" rather than actually verifying the behavior. I replaced them all with meaningful assertions—checking that elements are actually visible, that state changes happened correctly, that the page remains functional after interactions. The tests are much more useful now for catching actual regressions.
 
 ---
 
