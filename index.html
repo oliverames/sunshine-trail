@@ -4204,7 +4204,7 @@
             center: [39.5, -77.5],
             zoom: 6,
             zoomControl: false,  // We'll add it manually to bottom-right
-            scrollWheelZoom: true,
+            scrollWheelZoom: !Viewport.isMobile(),  // Disable on mobile to prevent zoom when scrolling sidebar
             zoomSnap: 0.1,              // Allow finer zoom levels
             zoomDelta: 0.25,            // Smaller zoom steps for smoother feel
             wheelPxPerZoomLevel: 100,   // More wheel movement per zoom level
