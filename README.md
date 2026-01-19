@@ -356,6 +356,37 @@ I also added some structured data (JSON-LD) that helps search engines understand
 - I purchased the custom domain, which is pretty cool—you can navigate to thesunshinetrail.com in any browser
 - **Development workflow:** When I develop on my laptop, I'm not developing through GitHub Pages—I'm basically spooling up a local web development server and using that to test. Then when I feel like I've reached a good point, I push that up to GitHub and then GitHub renders the page for me so I can see
 
+### Search Engine Optimization
+
+The site implements comprehensive SEO best practices:
+
+**Meta Tags**
+- Descriptive title and meta description optimized for search
+- Canonical URL to prevent duplicate content issues
+- Geographic meta tags (geo.region, geo.placename, geo.position) for local search
+- Mobile-friendly viewport configuration
+
+**Open Graph & Twitter Cards**
+- Full Open Graph implementation for Facebook/LinkedIn sharing
+- Twitter Card meta tags for rich previews
+- Custom preview image (1200x630) with Sip of Sunshine branding
+
+**Structured Data (JSON-LD)**
+- Schema.org WebSite, Organization, and WebPage types
+- TouristTrip schema describing the road trip itinerary
+- Proper entity relationships via @id references
+
+**Technical SEO**
+- Semantic HTML5 with proper heading hierarchy (H1 > H2 > H3)
+- ARIA labels for accessibility and screen readers
+- Descriptive alt text on images
+- Clean URL structure
+
+**Performance Factors**
+- Resource preloading for critical assets
+- DNS prefetch for external domains
+- Lazy loading on below-fold images
+
 ---
 
 ## Content Sources
