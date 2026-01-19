@@ -891,6 +891,16 @@
             background: transparent !important;
         }
 
+        /* iOS Safari fix: disable double-tap-to-zoom on interactive map elements
+           This eliminates the 300ms tap delay and prevents accidental zoom (Leaflet #7255) */
+        .leaflet-marker-icon,
+        .marker-cluster-pill,
+        .leaflet-popup,
+        .leaflet-control-zoom a,
+        .search-result-item {
+            touch-action: manipulation;
+        }
+
         /* Only apply hover effects on devices that support hover (not touch) */
         @media (hover: hover) and (pointer: fine) {
             .leaflet-marker-icon {
@@ -6561,19 +6571,18 @@
         let popupProtectionTimeout = null; // Track timeout to prevent overlapping protection windows
 
         map.on('popupopen', function(e) {
-            // Set protection flag on mobile to prevent immediate close from touch event bubbling
-            // Extended to 1000ms to cover full animation cycle: centering (600ms) + panTo (300ms) + buffer
-            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-                popupJustOpened = true;
-                // Clear any existing protection timeout to prevent premature expiration from overlapping taps
-                if (popupProtectionTimeout) {
-                    clearTimeout(popupProtectionTimeout);
-                }
-                popupProtectionTimeout = setTimeout(() => {
-                    popupJustOpened = false;
-                    popupProtectionTimeout = null;
-                }, 1000); // Extended from 300ms to cover full centering + pan animation
+            // Set protection flag to prevent immediate close from touch event bubbling
+            // Also protects against Safari's simulated events (Leaflet #7255)
+            // Extended to 2000ms to handle slower iOS devices and complex animation cycles
+            popupJustOpened = true;
+            // Clear any existing protection timeout to prevent premature expiration from overlapping taps
+            if (popupProtectionTimeout) {
+                clearTimeout(popupProtectionTimeout);
             }
+            popupProtectionTimeout = setTimeout(() => {
+                popupJustOpened = false;
+                popupProtectionTimeout = null;
+            }, 2000); // Extended from 1000ms for iOS Safari compatibility
 
             // Expand map on mobile to show full popup
             if (Viewport.isMobile()) {
@@ -6747,6 +6756,18 @@
         // Manual popup close on map click (for closing when tapping empty map area)
         // This provides better control over popup behavior on touch devices
         map.on('click', function(e) {
+            // iOS Safari emits duplicate click events - one real and one simulated
+            // Filter out simulated events to prevent accidental popup close (Leaflet #7255)
+            if (e.originalEvent) {
+                // Skip Safari's simulated events (isTrusted is false for simulated)
+                if (e.originalEvent.isTrusted === false) return;
+                // Skip Safari's webkitForce=0 events (another indicator of simulated events)
+                if (e.originalEvent.webkitForce === 0) return;
+            }
+
+            // Don't close during zoom animations - iOS pinch-zoom can fire click events (#7465)
+            if (map._animatingZoom) return;
+
             if (popupJustOpened) {
                 // Don't close popup that was just opened (prevents immediate close on touch)
                 return;
