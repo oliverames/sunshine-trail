@@ -8105,11 +8105,13 @@
         const mapSearchInput = document.getElementById('map-search-input');
         const mapSearchResults = document.getElementById('map-search-results');
         // searchExpanded is defined globally at the top of the script
+        let isCollapsing = false;
 
         // Helper function to collapse search (closes input and results)
         // This is called when user interacts with other UI elements
         // Always hides results regardless of searchExpanded state to handle edge cases
         function collapseSearch() {
+            isCollapsing = true;
             searchExpanded = false;
             if (mapSearchInput) {
                 mapSearchInput.classList.remove('expanded');
@@ -8118,7 +8120,7 @@
             }
             if (mapSearchResults) {
                 mapSearchResults.classList.remove('visible');
-                mapSearchResults.innerHTML = ''; // Clear results content
+                mapSearchResults.textContent = ''; // Clear results content
             }
             // Collapse map on mobile when search is closed (unless popup is open)
             if (Viewport.isMobile()) {
@@ -8131,6 +8133,8 @@
                     }, 350);
                 }
             }
+            // Reset flag after a tick to allow any pending renders to be blocked
+            setTimeout(() => { isCollapsing = false; }, 100);
         }
 
         // Expose collapseSearch globally so other sections can use it
@@ -8293,6 +8297,8 @@
 
             // Render search results
             function renderSearchResults(listings, locations) {
+                if (isCollapsing) return; // Don't render while collapsing
+
                 mapSearchResults.innerHTML = '';
 
                 if (listings.length === 0 && locations.length === 0) {
