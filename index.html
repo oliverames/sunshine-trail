@@ -9252,19 +9252,48 @@
 
         // Request permission for iOS 13+ devices
         function requestAccelerometerPermission() {
+            // iOS 13+ requires permission for DeviceOrientationEvent
             if (typeof DeviceOrientationEvent !== 'undefined' &&
                 typeof DeviceOrientationEvent.requestPermission === 'function') {
-                // iOS 13+ requires permission
                 DeviceOrientationEvent.requestPermission()
                     .then(permission => {
                         if (permission === 'granted') {
-                            window.addEventListener('deviceorientation', handleDeviceOrientation);
+                            window.addEventListener('deviceorientation', handleDeviceOrientation, true);
                         }
                     })
                     .catch(console.error);
-            } else {
-                // Non-iOS or older iOS - just add listener
-                window.addEventListener('deviceorientation', handleDeviceOrientation);
+            }
+
+            // iOS 26+ may also require permission for DeviceMotionEvent separately
+            if (typeof DeviceMotionEvent !== 'undefined' &&
+                typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission()
+                    .then(permission => {
+                        if (permission === 'granted') {
+                            window.addEventListener('devicemotion', handleDeviceMotion, true);
+                        }
+                    })
+                    .catch(console.error);
+            }
+
+            // Android and older iOS - just add listener directly
+            if (!('requestPermission' in (DeviceOrientationEvent || {})) &&
+                !('requestPermission' in (DeviceMotionEvent || {}))) {
+                window.addEventListener('deviceorientation', handleDeviceOrientation, true);
+            }
+        }
+
+        // Handle device motion events (iOS 26+ fallback)
+        function handleDeviceMotion(event) {
+            if (!isSnowing || snowflakes.length === 0) return;
+
+            // Use accelerationIncludingGravity for tilt detection
+            const accel = event.accelerationIncludingGravity;
+            if (accel && accel.x !== null) {
+                // x-axis gives left-right tilt similar to gamma
+                const tilt = accel.x * 9; // Scale to approximate gamma range
+                const clampedTilt = Math.max(-50, Math.min(50, tilt));
+                targetWindOffset = clampedTilt * 4;
             }
         }
 
@@ -9285,7 +9314,7 @@
         // Also try to enable on page load for Android/non-iOS
         if (typeof DeviceOrientationEvent !== 'undefined' &&
             typeof DeviceOrientationEvent.requestPermission !== 'function') {
-            window.addEventListener('deviceorientation', handleDeviceOrientation);
+            window.addEventListener('deviceorientation', handleDeviceOrientation, true);
         }
 
         // ============================================
@@ -9539,8 +9568,9 @@
             });
             snowflakes = [];
 
-            // Remove device orientation listener
-            window.removeEventListener('deviceorientation', handleDeviceOrientation);
+            // Remove device orientation and motion listeners
+            window.removeEventListener('deviceorientation', handleDeviceOrientation, true);
+            window.removeEventListener('devicemotion', handleDeviceMotion, true);
 
             // Disconnect IntersectionObserver (Bug Fix #34)
             if (beerImageObserver) {
