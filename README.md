@@ -460,11 +460,20 @@ There's a floating arrow button in the corner on mobile that helps you navigate 
 **"Tap for More" Button When Map is Expanded**
 When the map expands to show a popup or search results, the floating arrow transforms into a centered "Tap for More" button. This gives users an obvious way to collapse the map and see the rest of the page content. The button:
 - Smoothly animates from the corner position to center-bottom
-- Shows "Tap for More" text with an upward-pointing arrow
+- Shows "Tap for More" text with a downward-pointing arrow (indicating "tap to see content below")
 - Collapses the map when tapped and scrolls to the sidebar content
 - Morphs back into the corner arrow button when the map collapses
 
 This transformation uses GPU-accelerated CSS animations (transforms and opacity only) for smooth 60fps performance even on older devices. The implementation includes full accessibility support with `aria-expanded`, `aria-controls`, live region announcements for screen readers, and keyboard navigation (Enter/Space).
+
+**Scroll Indicator Test Coverage** (`tests/scroll-indicator.spec.ts`)
+The "Tap for More" feature has comprehensive Playwright tests with video recording for animation review:
+- Basic functionality tests (visibility on mobile, ARIA attributes)
+- Map expansion transform tests (button morphing, arrow direction verification)
+- Collapse behavior tests (clicking the button collapses map and scrolls)
+- Keyboard accessibility tests (Enter and Space key support)
+- Animation recording tests (full expand/collapse cycle captured on video)
+- Screen reader accessibility tests (live region, accessible names)
 
 **The Email Popup Goes Full Screen**
 On mobile, when the email signup modal appears, it covers the whole screen. This keeps you focused on signing up without distractions.

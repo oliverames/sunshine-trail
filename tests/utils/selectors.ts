@@ -155,6 +155,16 @@ export const selectors = {
     brandLink: '.bottom-brand-link',
     disclaimer: 'footer .demo-disclaimer',
   },
+
+  // ═══════════════════════════════════════════════════════════════
+  // SCROLL INDICATOR (Mobile "Tap for More" button)
+  // ═══════════════════════════════════════════════════════════════
+  scrollIndicator: {
+    button: '.scroll-indicator',
+    text: '.scroll-indicator-text',
+    svg: '.scroll-indicator svg',
+    liveRegion: '.scroll-indicator-announcer',
+  },
 } as const;
 
 /**
