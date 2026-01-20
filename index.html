@@ -55,11 +55,10 @@
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         script-src 'self' 'unsafe-inline' https://unpkg.com;
-        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.typekit.net https://unpkg.com;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.typekit.net https://p.typekit.net https://unpkg.com;
         font-src 'self' https://fonts.gstatic.com https://use.typekit.net data:;
         img-src 'self' data: blob: https:;
         connect-src 'self' https://nominatim.openstreetmap.org https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org;
-        frame-ancestors 'self';
     ">
 
     <!-- Early auth check - runs before body parses to prevent any flash of password page -->
@@ -3811,17 +3810,21 @@
             isDesktop: () => window.innerWidth >= APP_CONFIG.BREAKPOINTS.DESKTOP,
             isShortViewport: () => window.innerHeight < APP_CONFIG.MIN_VIEWPORT_HEIGHT,
 
-            // Sidebar width calculation (0 on mobile, varies on desktop)
+            // Sidebar width calculation - detects actual CSS layout state
+            // Returns 0 if sidebar is stacked below map (mobile/tablet)
+            // Returns actual width if sidebar overlays the map (desktop)
             getSidebarWidth: () => {
-                if (Viewport.isMobile()) return 0;
-                const w = window.innerWidth;
-                if (w >= APP_CONFIG.BREAKPOINTS.SIDEBAR_XLARGE) {
-                    return APP_CONFIG.SIDEBAR_WIDTHS.XLARGE;
-                }
-                if (w >= APP_CONFIG.BREAKPOINTS.SIDEBAR_LARGE) {
-                    return APP_CONFIG.SIDEBAR_WIDTHS.LARGE;
-                }
-                return APP_CONFIG.SIDEBAR_WIDTHS.DEFAULT;
+                const sidebar = document.querySelector('.sidebar');
+                if (!sidebar) return 0;
+
+                // Check if sidebar actually overlays the map (position: absolute/fixed)
+                // On mobile/tablet, CSS sets position: relative (sidebar stacks below map)
+                // On desktop, CSS sets position: absolute (sidebar floats over map)
+                const sidebarStyle = getComputedStyle(sidebar);
+                const overlaysMap = sidebarStyle.position === 'absolute' ||
+                                    sidebarStyle.position === 'fixed';
+
+                return overlaysMap ? sidebar.offsetWidth : 0;
             },
 
             // Map safe area - the usable map width after sidebar overlap
@@ -6370,6 +6373,13 @@
 
         // Custom cluster click handler - zoom with sidebar padding
         unifiedCluster.on('clusterclick', function(e) {
+            // Hide zoom hint on cluster click (user is interacting with map)
+            const zoomHintEl = document.getElementById('zoom-hint');
+            if (zoomHintEl) {
+                zoomHintEl.classList.add('hidden');
+            }
+            userHasZoomed = true;
+
             const cluster = e.layer;
             const currentZoom = map.getZoom();
             const childCount = cluster.getChildCount();
@@ -6865,185 +6875,67 @@
                     clearTimeout(window.popupCenteringTimeout);
                 }
 
-                window.popupCenteringTimeout = setTimeout(() => {
-                    // Bug Fix: Check if popup is still open before processing (Race Condition Fix)
-                    if (!e.popup || !map.hasLayer(e.popup)) return;
-
-                    // Skip centering if map is mid-animation (from zoomToShowLayer)
-                    // This prevents the "double-jump" visual glitch when selecting search results
-                    // The zoomToShowLayer has already positioned the map reasonably
-                    if (map._animatingZoom || map._panAnim) return;
-
-                    // Force map layout recalculation before measuring to ensure accurate dimensions
-                    map.invalidateSize();
-
-                    // Use requestAnimationFrame for smooth rendering (Issue #34, #37)
-                    requestAnimationFrame(() => {
-                        // Double-check popup still exists after rAF (another race condition check)
-                        if (!e.popup || !map.hasLayer(e.popup)) return;
-                        const popupEl = e.popup.getElement();
-                        if (!popupEl) return;
-
-                        // Force layout reflow before measuring to ensure accurate values (Issue #34)
-                        const mapContainerEl = map.getContainer();
-                        if (!mapContainerEl) return;
-                        mapContainerEl.offsetHeight;
-
-                        const popupRect = popupEl.getBoundingClientRect();
-                    const mapContainer = document.getElementById('map');
-                    if (!mapContainer) return; // Null check
-                    const mapRect = mapContainer.getBoundingClientRect();
-
-                    // Get marker position on screen
-                    const markerPoint = map.latLngToContainerPoint(e.popup._latlng);
-                    const markerScreenY = mapRect.top + markerPoint.y;
-                    const markerScreenX = mapRect.left + markerPoint.x;
-
-                    // Calculate combined bounding box of popup + marker pin
-                    // Popup is above the marker, pin extends ~35px below the popup anchor
-                    const pinHeight = 35; // Approximate marker pin height
-                    const combinedTop = popupRect.top;
-                    const combinedBottom = markerScreenY + pinHeight;
-                    const combinedLeft = Math.min(popupRect.left, markerScreenX - 20);
-                    const combinedRight = Math.max(popupRect.right, markerScreenX + 20);
-                    const combinedHeight = combinedBottom - combinedTop;
-                    const combinedWidth = combinedRight - combinedLeft;
-
-                    // For horizontal centering, use the popup center (more visually important)
-                    const popupCenterX = (popupRect.left + popupRect.right) / 2;
-                    const combinedCenterX = popupCenterX;
-
-                    // For vertical centering, weight towards the popup content rather than geometric center
-                    // The popup is the main visual element; pin is just a small anchor point
-                    // Use 80% popup center, 20% pin position for visual balance
-                    const popupCenterY = (popupRect.top + popupRect.bottom) / 2;
-                    const pinWeight = 0.2;
-                    const combinedCenterY = popupCenterY * (1 - pinWeight) + markerScreenY * pinWeight;
-
-                    // Calculate visible safe area (accounting for sidebar on desktop and header)
-                    // Use smaller padding on mobile to maximize available space for popup centering
-                    const padding = isMobile ? 20 : 30; // Padding from edges
-                    let safeLeft = mapRect.left + padding;
-                    let safeRight = mapRect.right - padding;
-
-                    // Account for sticky header that overlays the map
-                    // Header is approximately 85px on mobile, need to keep popup below it
-                    const header = document.querySelector('header');
-                    const headerHeight = header ? header.offsetHeight : 85;
-                    const safeTop = mapRect.top + headerHeight + padding;
-                    const safeBottom = mapRect.bottom - padding;
-
-                    // On desktop, account for sidebar overlay
-                    if (!isMobile) {
-                        const sidebar = document.querySelector('.sidebar');
-                        if (sidebar) {
-                            const sidebarWidth = sidebar.offsetWidth;
-                            safeLeft = mapRect.left + sidebarWidth + padding;
-                        }
-                    }
-
-                    // Calculate center of the safe area
-                    const safeCenterX = (safeLeft + safeRight) / 2;
-                    const safeCenterY = (safeTop + safeBottom) / 2;
-
-                    // Debug logging for popup centering calculations (can be removed after testing)
-                    if (isMobile && isExpanding) {
-                        console.log('Popup Centering Debug:', {
-                            safeArea: { left: safeLeft, right: safeRight, top: safeTop, bottom: safeBottom },
-                            safeCenter: { x: safeCenterX, y: safeCenterY },
-                            combinedBounds: { left: combinedLeft, right: combinedRight, top: combinedTop, bottom: combinedBottom },
-                            combinedCenter: { x: combinedCenterX, y: combinedCenterY },
-                            headerHeight: headerHeight,
-                            padding: padding
-                        });
-                    }
-
-                    // Calculate shift needed to center the popup+pin unit in safe area
-                    // xShift: positive = popup needs to move right, negative = popup needs to move left
-                    let xShift = safeCenterX - combinedCenterX;
-                    let yShift = safeCenterY - combinedCenterY;
-
-                    // Check if combined unit fits within safe area, if not just ensure it's visible
-                    const safeWidth = safeRight - safeLeft;
-                    const safeHeight = safeBottom - safeTop;
-
-                    // CRITICAL: Always ensure popup top (close button) is below the header
-                    // The close button is at the very top of the popup, so we need padding there
-                    const closeButtonPadding = 15; // Extra padding to ensure close button is clickable
-                    const minTopRequired = safeTop + closeButtonPadding;
-
-                    // If popup top is above the safe area, shift down to make it visible
-                    if (combinedTop < minTopRequired) {
-                        const shiftNeeded = minTopRequired - combinedTop;
-                        yShift = shiftNeeded; // Positive: when subtracted at line 6655, pans map center up, moving popup down
-                    }
-
-                    // If popup+pin is taller than safe area, prioritize showing top of popup
-                    if (combinedHeight > safeHeight) {
-                        yShift = minTopRequired - combinedTop; // Show popup top below header
-                    }
-
-                    // If popup+pin is wider than safe area, center it as best we can
-                    if (combinedWidth > safeWidth) {
-                        xShift = safeCenterX - combinedCenterX;
-                    }
-
-                    // Check if popup is already well-positioned within safe area
-                    // If popup is fully visible and reasonably centered, skip panning entirely
-                    const isWithinSafeArea = combinedTop >= safeTop &&
-                                             combinedBottom <= safeBottom &&
-                                             combinedLeft >= safeLeft &&
-                                             combinedRight <= safeRight;
-                    const isReasonablyCentered = Math.abs(xShift) < 50 && Math.abs(yShift) < 50;
-
-                    if (isWithinSafeArea && isReasonablyCentered) {
-                        // Popup is already well-positioned, skip panning to avoid jitter
+                // Function to perform the actual centering
+                const performCentering = (attempt = 1) => {
+                    // Check if popup is still open
+                    if (!e.popup || !map.hasLayer(e.popup)) {
                         return;
                     }
 
-                    // Only pan if we need to adjust significantly (avoid jitter)
-                    // Increased threshold from 10px to 25px to reduce small jittery adjustments
-                    if (Math.abs(xShift) > 25 || Math.abs(yShift) > 25) {
-                        // Bound shift values to prevent extreme jumps (COTS -> Montreal bug fix)
-                        // Max shift should be no more than half the map container size
-                        const maxShift = Math.min(mapRect.width, mapRect.height) / 2;
-                        xShift = Math.max(-maxShift, Math.min(maxShift, xShift));
-                        yShift = Math.max(-maxShift, Math.min(maxShift, yShift));
-
-                        const center = map.getCenter();
-                        const point = map.latLngToContainerPoint(center);
-                        // To center popup: we need to pan in the OPPOSITE direction of the shift
-                        // xShift positive = popup left of center, need map center to move left (decrease x)
-                        // xShift negative = popup right of center, need map center to move right (increase x)
-                        // So we SUBTRACT xShift from point.x
-                        // yShift positive = popup above center, need map center to move down (increase y) to move content up
-                        // Wait - we want popup to move DOWN, so map pans UP (decrease y)
-                        // So we SUBTRACT yShift from point.y
-                        const newPoint = L.point(point.x - xShift, point.y - yShift);
-                        const newLatLng = map.containerPointToLatLng(newPoint);
-
-                        // Final sanity check: don't pan more than ~2 degrees from the marker location
-                        // This prevents jumping to completely different regions
-                        const markerLat = e.popup._latlng.lat;
-                        const markerLng = e.popup._latlng.lng;
-                        const latDiff = Math.abs(newLatLng.lat - markerLat);
-                        const lngDiff = Math.abs(newLatLng.lng - markerLng);
-
-                        if (latDiff < 2 && lngDiff < 2) {
-                            // Safe to pan - within reasonable distance of marker
-                            // Reduced duration from 0.4s to 0.3s for snappier feel (Issue #37)
-                            map.panTo(newLatLng, { animate: true, duration: 0.3, easeLinearity: 0.2 });
-                        } else {
-                            // Shift is too extreme - just center on marker with slight offset for popup
-                            const simpleOffset = map.getSize().y * 0.15; // 15% offset for popup above marker
-                            const offsetCenter = map.containerPointToLatLng(
-                                map.latLngToContainerPoint(e.popup._latlng).add([0, simpleOffset])
-                            );
-                            map.panTo(offsetCenter, { animate: true, duration: 0.3, easeLinearity: 0.2 });
-                        }
+                    // If map is animating, wait and retry (max 5 attempts)
+                    if ((map._animatingZoom || map._panAnim) && attempt < 5) {
+                        setTimeout(() => performCentering(attempt + 1), 100);
+                        return;
                     }
-                    }); // Close requestAnimationFrame
-                }, waitTime);
+
+                    // Get map container dimensions
+                    const mapContainer = document.getElementById('map');
+                    if (!mapContainer) return;
+                    const mapRect = mapContainer.getBoundingClientRect();
+
+                    // Calculate the safe area (visible map region)
+                    const sidebarWidth = Viewport.getSidebarWidth();
+                    const header = document.querySelector('header');
+                    const headerHeight = header ? header.offsetHeight : 85;
+                    const padding = isMobile ? 20 : 40;
+
+                    // Safe area boundaries in container coordinates (relative to map container)
+                    const safeLeft = sidebarWidth + padding;
+                    const safeRight = mapRect.width - padding;
+                    const safeTop = headerHeight + padding;
+                    const safeBottom = mapRect.height - padding;
+
+                    // Calculate center of safe area in container coordinates
+                    const safeCenterX = (safeLeft + safeRight) / 2;
+                    const safeCenterY = (safeTop + safeBottom) / 2;
+
+                    // Offset marker position: place it below center to leave room for popup above
+                    // Popup is typically ~250-350px tall, so offset marker down by ~25% of safe height
+                    const popupOffset = (safeBottom - safeTop) * 0.25;
+                    const targetMarkerY = safeCenterY + popupOffset;
+
+                    // Get current marker position in container coords
+                    const markerLatLng = e.popup._latlng;
+                    const markerPoint = map.latLngToContainerPoint(markerLatLng);
+
+                    // Calculate how far the marker is from target position
+                    const dx = safeCenterX - markerPoint.x;
+                    const dy = targetMarkerY - markerPoint.y;
+
+                    // Only pan if marker is significantly off-center (>20px)
+                    if (Math.abs(dx) > 20 || Math.abs(dy) > 20) {
+                        // Calculate new map center by shifting current center
+                        const currentCenter = map.getCenter();
+                        const currentCenterPoint = map.latLngToContainerPoint(currentCenter);
+                        const newCenterPoint = L.point(currentCenterPoint.x - dx, currentCenterPoint.y - dy);
+                        const newCenter = map.containerPointToLatLng(newCenterPoint);
+
+                        map.panTo(newCenter, { animate: true, duration: 0.3 });
+                    }
+                };
+
+                // Start centering after initial delay
+                window.popupCenteringTimeout = setTimeout(() => performCentering(1), waitTime);
             }
         });
 
@@ -8511,7 +8403,8 @@
 
         // Helper function to fully collapse and reset search
         // This is called when selecting a result or pressing Escape
-        function collapseSearch() {
+        function collapseSearch(options = {}) {
+            const { keepMapExpanded = false } = options;
             isCollapsing = true;
             searchExpanded = false;
             searchUserInteracted = false; // Reset interaction flag
@@ -8524,8 +8417,9 @@
                 mapSearchResults.classList.remove('visible');
                 mapSearchResults.textContent = ''; // Clear results content
             }
-            // Collapse map on mobile when search is closed (unless popup is open)
-            if (Viewport.isMobile()) {
+            // Collapse map on mobile when search is closed (unless popup is open or keepMapExpanded is set)
+            // keepMapExpanded is used when selecting a search result - popup will open shortly
+            if (Viewport.isMobile() && !keepMapExpanded) {
                 const mapEl = document.getElementById('map');
                 const hasOpenPopup = document.querySelector('.leaflet-popup');
                 if (mapEl && mapEl.classList.contains('map-expanded') && !hasOpenPopup) {
@@ -8901,7 +8795,8 @@
                                 popupProtectionTimeout = null;
                             }, 1000); // Match popupopen handler timeout (reduced from 2000ms)
 
-                            collapseSearch();
+                            // Keep map expanded since we're about to show a popup
+                            collapseSearch({ keepMapExpanded: true });
 
                             // Find and navigate to the marker
                             let targetMarker = null;
@@ -8933,7 +8828,8 @@
                                 popupProtectionTimeout = null;
                             }, 1000);
 
-                            collapseSearch();
+                            // Keep map expanded since we're about to show a popup
+                            collapseSearch({ keepMapExpanded: true });
 
                             // Find and navigate to the first result
                             let targetMarker = null;
