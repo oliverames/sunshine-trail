@@ -8,14 +8,14 @@
     <meta name="keywords" content="Lawson's Finest Liquids, Sip of Sunshine, craft beer, Vermont brewery, hiking trails, Blue Ridge Parkway, Skyline Drive, Route 100, Appalachian trail, beer finder, outdoor adventures">
     <meta name="author" content="Lawson's Finest Liquids">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://sunshine-trail.demo.com/">
+    <link rel="canonical" href="https://thesunshinetrail.com/">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://sunshine-trail.demo.com/">
+    <meta property="og:url" content="https://thesunshinetrail.com/">
     <meta property="og:title" content="The Sunshine Trail | Lawson's Finest Liquids">
     <meta property="og:description" content="Explore Sunshine Spots from Waitsfield, VT to Asheville, NC. Interactive map of retailers, hiking trails, river put-ins, and community partners along the Appalachian corridor.">
-    <meta property="og:image" content="https://sunshine-trail.demo.com/assets/images/og-image.png">
+    <meta property="og:image" content="https://thesunshinetrail.com/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="The Sunshine Trail">
@@ -23,10 +23,10 @@
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://sunshine-trail.demo.com/">
+    <meta name="twitter:url" content="https://thesunshinetrail.com/">
     <meta name="twitter:title" content="The Sunshine Trail | Lawson's Finest Liquids">
     <meta name="twitter:description" content="Explore Sunshine Spots from Waitsfield, VT to Asheville, NC. Interactive map of retailers, hiking trails, and community partners.">
-    <meta name="twitter:image" content="https://sunshine-trail.demo.com/assets/images/og-image.png">
+    <meta name="twitter:image" content="https://thesunshinetrail.com/assets/images/og-image.png">
 
     <!-- Additional SEO Meta Tags -->
     <meta name="format-detection" content="telephone=no">
@@ -85,17 +85,17 @@
         "@graph": [
             {
                 "@type": "WebSite",
-                "@id": "https://sunshine-trail.demo.com/#website",
-                "url": "https://sunshine-trail.demo.com/",
+                "@id": "https://thesunshinetrail.com/#website",
+                "url": "https://thesunshinetrail.com/",
                 "name": "The Sunshine Trail",
                 "description": "Interactive map of Sunshine Spots along the Appalachian corridor",
                 "publisher": {
-                    "@id": "https://sunshine-trail.demo.com/#organization"
+                    "@id": "https://thesunshinetrail.com/#organization"
                 }
             },
             {
                 "@type": "Organization",
-                "@id": "https://sunshine-trail.demo.com/#organization",
+                "@id": "https://thesunshinetrail.com/#organization",
                 "name": "Lawson's Finest Liquids",
                 "url": "https://www.lawsonsfinest.com",
                 "slogan": "Finest. Freshest. Always Kept Cold.™",
@@ -118,19 +118,19 @@
             },
             {
                 "@type": "WebPage",
-                "@id": "https://sunshine-trail.demo.com/#webpage",
-                "url": "https://sunshine-trail.demo.com/",
+                "@id": "https://thesunshinetrail.com/#webpage",
+                "url": "https://thesunshinetrail.com/",
                 "name": "The Sunshine Trail | Lawson's Finest Liquids",
                 "description": "Explore Sunshine Spots from Waitsfield, VT to Asheville, NC. Interactive map of retailers, hiking trails, river put-ins, and community partners.",
                 "isPartOf": {
-                    "@id": "https://sunshine-trail.demo.com/#website"
+                    "@id": "https://thesunshinetrail.com/#website"
                 },
                 "about": {
-                    "@id": "https://sunshine-trail.demo.com/#organization"
+                    "@id": "https://thesunshinetrail.com/#organization"
                 },
                 "primaryImageOfPage": {
                     "@type": "ImageObject",
-                    "url": "https://sunshine-trail.demo.com/assets/images/og-image.png"
+                    "url": "https://thesunshinetrail.com/assets/images/og-image.png"
                 }
             },
             {
@@ -863,9 +863,8 @@
             top: 0;
             right: 0;
             bottom: 0;
-            /* Offset map to right of sidebar on desktop (Issue #53) */
-            /* Sidebar is 420px + 1.25rem left margin = ~440px */
-            left: 460px;
+            /* Map extends full width - sidebar floats over it */
+            left: 0;
         }
 
         /* Smooth Leaflet transitions */
@@ -1521,9 +1520,10 @@
         .zoom-hint {
             position: absolute;
             bottom: 100px;
-            /* Center in map safe area: sidebar width + half of remaining space */
-            /* Default sidebar: 420px, so safe area center = 420 + (100% - 420) / 2 */
-            left: calc(var(--sidebar-width-default) + (100% - var(--sidebar-width-default)) / 2);
+            /* Center in map safe area: sidebar occupancy + half of remaining space */
+            /* Sidebar occupancy = sidebar width (420px) + margin (1.25rem = 20px) = 440px */
+            /* Safe area center = 440 + (100% - 440) / 2 */
+            left: calc(var(--sidebar-width-default) + 1.25rem + (100% - var(--sidebar-width-default) - 1.25rem) / 2);
             transform: translateX(-50%);
             background: rgba(45, 42, 38, 0.95);
             color: var(--cream);
@@ -1543,13 +1543,13 @@
         /* Adjust zoom hint position for larger sidebar at wide viewports */
         @media (min-width: 1400px) {
             .zoom-hint {
-                left: calc(var(--sidebar-width-large) + (100% - var(--sidebar-width-large)) / 2);
+                left: calc(var(--sidebar-width-large) + 1.25rem + (100% - var(--sidebar-width-large) - 1.25rem) / 2);
             }
         }
 
         @media (min-width: 1800px) {
             .zoom-hint {
-                left: calc(var(--sidebar-width-xlarge) + (100% - var(--sidebar-width-xlarge)) / 2);
+                left: calc(var(--sidebar-width-xlarge) + 1.25rem + (100% - var(--sidebar-width-xlarge) - 1.25rem) / 2);
             }
         }
 
@@ -1660,7 +1660,7 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
             pointer-events: auto !important; /* Ensure clickable */
             -webkit-tap-highlight-color: transparent;
             align-self: center; /* Ensure vertical alignment in flex container */
@@ -1669,13 +1669,11 @@
         }
 
         .map-search-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            background: #d4c73a; /* Darker yellow (not orange) */
         }
 
         .map-search-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            background: #c4b82a; /* Even darker yellow for pressed state */
         }
 
         .map-search-btn svg {
@@ -2278,10 +2276,10 @@
 
         .metric-item {
             text-align: center;
-            padding: 0.75rem 0.5rem;
+            padding: 0.5rem 0.5rem;
             background: #ffc72d;
             border-radius: 12px;
-            height: 95px; /* Fixed height for all metrics - ensures equal sizing */
+            height: 72px; /* Reduced height for tighter layout */
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -2394,8 +2392,9 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            min-height: 2em; /* Increased slightly to ensure content fits */
+            min-height: 1.8em; /* Match other metric value heights */
             align-items: center; /* Center the slides */
+            justify-content: center;
         }
 
         .metric-slide {
@@ -2936,28 +2935,32 @@
                 --morph-duration: 0.35s;
                 --morph-easing: cubic-bezier(0.4, 0, 0.2, 1);
 
-                display: flex;
+                /* Hidden until map has expanded at least once */
+                display: none;
+                place-items: center;
                 position: fixed;
                 bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+                /* Collapsed state: positioned at right edge */
                 right: 15px;
-                /* Fixed dimensions - never animate width/height */
+                left: auto;
+                /* Fixed dimensions */
                 width: 52px;
                 height: 52px;
-                padding: 0 14px;
-                background: rgba(255, 255, 255, 0.88);
+                padding: 0;
+                background: rgba(255, 255, 255, 0.95);
                 border: none;
                 border-radius: 10px;
                 cursor: pointer;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.25);
                 z-index: 9997;
-                /* SINGLE transition definition - compositor-friendly properties only */
+                /* Transition for smooth morphing */
                 transition:
                     transform var(--morph-duration) var(--morph-easing),
                     box-shadow 0.2s ease,
-                    background-color 0.2s ease;
+                    background-color 0.2s ease,
+                    width var(--morph-duration) var(--morph-easing),
+                    left var(--morph-duration) var(--morph-easing),
+                    right var(--morph-duration) var(--morph-easing);
                 -webkit-tap-highlight-color: transparent;
                 pointer-events: auto !important;
                 /* GPU acceleration hints */
@@ -2965,20 +2968,25 @@
                 contain: layout style;
                 /* Touch optimization */
                 touch-action: manipulation;
-                /* Transform origin for expanded mode centering */
-                transform-origin: center center;
             }
 
-            /* Hover state - lift and add shadow */
-            @media (hover: hover) {
-                .scroll-indicator:hover {
-                    transform: translateY(-3px);
-                    box-shadow: 0 6px 16px rgba(0,0,0,0.30);
-                }
+            /* Hover state - wave text animation only, no lift or shadow */
+            /* Wave animation is handled via JS like other buttons */
+
+            /* Wave text animation support for scroll indicator text */
+            .scroll-indicator-text.wave-text span {
+                display: inline-block;
+                animation: letterWave 0.4s ease-in-out;
+                animation-fill-mode: both;
             }
 
-            /* When over yellow backgrounds */
-            .scroll-indicator.over-yellow {
+            /* Show scroll indicator once map has expanded at least once */
+            .scroll-indicator.has-expanded {
+                display: grid;
+            }
+
+            /* When over yellow backgrounds (collapsed state only) */
+            .scroll-indicator.over-yellow:not(.expanded-mode) {
                 background: rgba(255, 255, 255, 0.98);
                 border: 1px solid rgba(45, 42, 38, 0.12);
                 box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
@@ -3024,21 +3032,20 @@
                 animation: scrollBounce 1.2s ease-in-out;
             }
 
-            /* Text - uses opacity for visibility (compositor-friendly) */
+            /* Text - hidden by default using position absolute to not affect grid centering */
             .scroll-indicator-text {
                 font-family: 'futura-pt', 'Futura', -apple-system, sans-serif;
                 font-size: 0.95rem;
                 font-weight: 600;
                 color: var(--deep-brown);
                 white-space: nowrap;
-                /* Hidden by default using opacity and width collapse */
+                /* Position absolute so it doesn't affect grid layout when hidden */
+                position: absolute;
+                /* Hidden by default using opacity */
                 opacity: 0;
-                max-width: 0;
-                overflow: hidden;
+                pointer-events: none;
                 /* Transition for smooth fade */
-                transition:
-                    opacity var(--morph-duration) var(--morph-easing),
-                    max-width var(--morph-duration) var(--morph-easing);
+                transition: opacity var(--morph-duration) var(--morph-easing);
             }
 
             /* ================================================
@@ -3046,19 +3053,29 @@
                GPU-accelerated morphing using transforms only
                ================================================ */
             .scroll-indicator.expanded-mode {
-                /* Allow button to expand to fit text */
-                width: auto;
-                /* Move from right to center using transform (no left/right animation) */
-                /* Position at center: move left from right position */
+                /* Fixed width for smooth animation */
+                width: 170px;
+                /* Slightly translucent Lawson's yellow for expanded mode */
+                background: rgba(248, 232, 73, 0.92);
+                /* Use flexbox for expanded mode to properly align icon + text */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                padding: 0 16px;
+                /* Center in viewport */
                 right: auto;
                 left: 50%;
                 transform: translateX(-50%);
+                /* Enhanced shadow for yellow background visibility */
+                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.20);
             }
 
-            /* Show text when in expanded mode */
+            /* Show text when in expanded mode - reset from absolute to participate in flexbox */
             .scroll-indicator.expanded-mode .scroll-indicator-text {
+                position: static;
                 opacity: 1;
-                max-width: 120px; /* Enough for "Tap for More" */
+                pointer-events: auto;
             }
 
             /* Arrow points down in expanded mode - indicates "tap to see content below" */
@@ -3066,13 +3083,8 @@
                 transform: rotate(0deg);
             }
 
-            /* Hover in expanded mode */
-            @media (hover: hover) {
-                .scroll-indicator.expanded-mode:hover {
-                    transform: translateX(-50%) translateY(-3px);
-                    box-shadow: 0 6px 16px rgba(0,0,0,0.30);
-                }
-            }
+            /* Hover in expanded mode - wave text animation, no lift/shadow */
+            /* Wave animation is handled via JS like other buttons */
 
             /* Active state in expanded mode */
             .scroll-indicator.expanded-mode:active,
@@ -6100,9 +6112,10 @@
                 return [20, 40, 380, 40]; // [top, right, bottom, left]
             }
             const sidebarWidth = getSidebarWidth();
-            const margin = 20; // sidebar left margin
-            const buffer = 80; // extra buffer for pill radius
-            return [60, 60, 60, sidebarWidth + margin + buffer];
+            const sidebarMargin = 20; // 1.25rem sidebar left margin
+            const rightGap = 20; // gap between sidebar and map safe area
+            const pillBuffer = 100; // extra buffer for pill radius
+            return [60, 60, 60, sidebarWidth + sidebarMargin + rightGap + pillBuffer];
         }
 
         // Custom fitBounds that treats the visible map area (right of sidebar) as the target
@@ -6121,10 +6134,14 @@
             }
 
             // Calculate padding dynamically based on actual sidebar width
+            // Sidebar occupies: sidebar width + left margin (1.25rem = 20px) + right gap
             // Pill clusters can be 150-200px wide, so we need generous padding
-            const leftPadding = viewport.sidebarWidth + 120; // sidebar + margin + pill buffer
-            const rightPadding = 140; // buffer for pill clusters on right edge
-            const topPadding = 80;
+            const sidebarMargin = 20; // 1.25rem sidebar left margin
+            const rightGap = 20; // gap between sidebar and map safe area
+            const pillBuffer = 100; // buffer for pill cluster radius
+            const leftPadding = viewport.sidebarWidth + sidebarMargin + rightGap + pillBuffer;
+            const rightPadding = 100; // buffer for pill clusters on right edge
+            const topPadding = 60;
             const bottomPadding = 140; // space for zoom hint button
 
             map.fitBounds(bounds, {
@@ -6304,7 +6321,7 @@
             }
 
             const marker = L.marker([spot.lat, spot.lng], { icon: icon, category: spot.category })
-                .bindPopup(popupContent, { maxWidth: 320, closeOnClick: false, autoClose: true });
+                .bindPopup(popupContent, { maxWidth: 320, closeOnClick: false, autoClose: true, autoPan: false });
 
             // Store marker by category
             markersByCategory[spot.category].push(marker);
@@ -6840,8 +6857,8 @@
                 const isMobile = Viewport.isMobile();
                 const mapEl = document.getElementById('map');
                 const isExpanding = isMobile && mapEl && mapEl.classList.contains('map-expanded');
-                // Increased mobile wait time for better popup centering on slower devices (Issue #54)
-                const waitTime = isExpanding ? 600 : (isMobile ? 300 : 100);
+                // Increased mobile wait time to 700ms to account for 300ms CSS transition + invalidateSize + layout recalculation
+                const waitTime = isExpanding ? 700 : (isMobile ? 300 : 100);
 
                 // Cancel any pending centering operations to prevent race conditions (Issue #34)
                 if (window.popupCenteringTimeout) {
@@ -6851,6 +6868,14 @@
                 window.popupCenteringTimeout = setTimeout(() => {
                     // Bug Fix: Check if popup is still open before processing (Race Condition Fix)
                     if (!e.popup || !map.hasLayer(e.popup)) return;
+
+                    // Skip centering if map is mid-animation (from zoomToShowLayer)
+                    // This prevents the "double-jump" visual glitch when selecting search results
+                    // The zoomToShowLayer has already positioned the map reasonably
+                    if (map._animatingZoom || map._panAnim) return;
+
+                    // Force map layout recalculation before measuring to ensure accurate dimensions
+                    map.invalidateSize();
 
                     // Use requestAnimationFrame for smooth rendering (Issue #34, #37)
                     requestAnimationFrame(() => {
@@ -6875,7 +6900,7 @@
                     const markerScreenX = mapRect.left + markerPoint.x;
 
                     // Calculate combined bounding box of popup + marker pin
-                    // Popup is above the marker, pin extends ~20px below the popup anchor
+                    // Popup is above the marker, pin extends ~35px below the popup anchor
                     const pinHeight = 35; // Approximate marker pin height
                     const combinedTop = popupRect.top;
                     const combinedBottom = markerScreenY + pinHeight;
@@ -6883,11 +6908,21 @@
                     const combinedRight = Math.max(popupRect.right, markerScreenX + 20);
                     const combinedHeight = combinedBottom - combinedTop;
                     const combinedWidth = combinedRight - combinedLeft;
-                    const combinedCenterX = combinedLeft + combinedWidth / 2;
-                    const combinedCenterY = combinedTop + combinedHeight / 2;
+
+                    // For horizontal centering, use the popup center (more visually important)
+                    const popupCenterX = (popupRect.left + popupRect.right) / 2;
+                    const combinedCenterX = popupCenterX;
+
+                    // For vertical centering, weight towards the popup content rather than geometric center
+                    // The popup is the main visual element; pin is just a small anchor point
+                    // Use 80% popup center, 20% pin position for visual balance
+                    const popupCenterY = (popupRect.top + popupRect.bottom) / 2;
+                    const pinWeight = 0.2;
+                    const combinedCenterY = popupCenterY * (1 - pinWeight) + markerScreenY * pinWeight;
 
                     // Calculate visible safe area (accounting for sidebar on desktop and header)
-                    const padding = 30; // Padding from edges
+                    // Use smaller padding on mobile to maximize available space for popup centering
+                    const padding = isMobile ? 20 : 30; // Padding from edges
                     let safeLeft = mapRect.left + padding;
                     let safeRight = mapRect.right - padding;
 
@@ -6910,6 +6945,18 @@
                     // Calculate center of the safe area
                     const safeCenterX = (safeLeft + safeRight) / 2;
                     const safeCenterY = (safeTop + safeBottom) / 2;
+
+                    // Debug logging for popup centering calculations (can be removed after testing)
+                    if (isMobile && isExpanding) {
+                        console.log('Popup Centering Debug:', {
+                            safeArea: { left: safeLeft, right: safeRight, top: safeTop, bottom: safeBottom },
+                            safeCenter: { x: safeCenterX, y: safeCenterY },
+                            combinedBounds: { left: combinedLeft, right: combinedRight, top: combinedTop, bottom: combinedBottom },
+                            combinedCenter: { x: combinedCenterX, y: combinedCenterY },
+                            headerHeight: headerHeight,
+                            padding: padding
+                        });
+                    }
 
                     // Calculate shift needed to center the popup+pin unit in safe area
                     // xShift: positive = popup needs to move right, negative = popup needs to move left
@@ -6941,8 +6988,22 @@
                         xShift = safeCenterX - combinedCenterX;
                     }
 
+                    // Check if popup is already well-positioned within safe area
+                    // If popup is fully visible and reasonably centered, skip panning entirely
+                    const isWithinSafeArea = combinedTop >= safeTop &&
+                                             combinedBottom <= safeBottom &&
+                                             combinedLeft >= safeLeft &&
+                                             combinedRight <= safeRight;
+                    const isReasonablyCentered = Math.abs(xShift) < 50 && Math.abs(yShift) < 50;
+
+                    if (isWithinSafeArea && isReasonablyCentered) {
+                        // Popup is already well-positioned, skip panning to avoid jitter
+                        return;
+                    }
+
                     // Only pan if we need to adjust significantly (avoid jitter)
-                    if (Math.abs(xShift) > 10 || Math.abs(yShift) > 10) {
+                    // Increased threshold from 10px to 25px to reduce small jittery adjustments
+                    if (Math.abs(xShift) > 25 || Math.abs(yShift) > 25) {
                         // Bound shift values to prevent extreme jumps (COTS -> Montreal bug fix)
                         // Max shift should be no more than half the map container size
                         const maxShift = Math.min(mapRect.width, mapRect.height) / 2;
@@ -6951,9 +7012,14 @@
 
                         const center = map.getCenter();
                         const point = map.latLngToContainerPoint(center);
-                        // Add xShift to move content left when popup is right of safe center
-                        // Subtract yShift to move content down when popup is above safe center
-                        const newPoint = L.point(point.x + xShift, point.y - yShift);
+                        // To center popup: we need to pan in the OPPOSITE direction of the shift
+                        // xShift positive = popup left of center, need map center to move left (decrease x)
+                        // xShift negative = popup right of center, need map center to move right (increase x)
+                        // So we SUBTRACT xShift from point.x
+                        // yShift positive = popup above center, need map center to move down (increase y) to move content up
+                        // Wait - we want popup to move DOWN, so map pans UP (decrease y)
+                        // So we SUBTRACT yShift from point.y
+                        const newPoint = L.point(point.x - xShift, point.y - yShift);
                         const newLatLng = map.containerPointToLatLng(newPoint);
 
                         // Final sanity check: don't pan more than ~2 degrees from the marker location
@@ -8367,6 +8433,43 @@
             }
         }, true);
 
+        // Wave animation for scroll-indicator (Tap for More button)
+        // Special handling because the text is in a child span, not the button itself
+        const scrollIndicatorForWave = document.getElementById('scroll-indicator');
+        if (scrollIndicatorForWave) {
+            const scrollIndicatorText = scrollIndicatorForWave.querySelector('.scroll-indicator-text');
+            if (scrollIndicatorText) {
+                const originalScrollText = scrollIndicatorText.textContent;
+
+                scrollIndicatorForWave.addEventListener('mouseenter', () => {
+                    // Only animate when in expanded mode (text is visible)
+                    if (scrollIndicatorForWave.classList.contains('expanded-mode')) {
+                        // Apply wave animation to the text span using safe DOM methods
+                        const text = scrollIndicatorText.textContent;
+                        // Clear existing content safely
+                        while (scrollIndicatorText.firstChild) {
+                            scrollIndicatorText.removeChild(scrollIndicatorText.firstChild);
+                        }
+                        scrollIndicatorText.classList.add('wave-text');
+
+                        const chars = [...text];
+                        const totalChars = chars.length;
+                        chars.forEach((char, index) => {
+                            const span = document.createElement('span');
+                            span.textContent = char === ' ' ? '\u00A0' : char;
+                            span.style.animationDelay = `${(totalChars - 1 - index) * 0.03}s`;
+                            scrollIndicatorText.appendChild(span);
+                        });
+                    }
+                });
+
+                scrollIndicatorForWave.addEventListener('mouseleave', () => {
+                    scrollIndicatorText.classList.remove('wave-text');
+                    scrollIndicatorText.textContent = originalScrollText;
+                });
+            }
+        }
+
         // ============================================
         // MAP SEARCH FUNCTIONALITY
         // Search listings and locations
@@ -8376,13 +8479,42 @@
         const mapSearchResults = document.getElementById('map-search-results');
         // searchExpanded is defined globally at the top of the script
         let isCollapsing = false;
+        let searchUserInteracted = false; // Tracks if user has clicked/typed in search
 
-        // Helper function to collapse search (closes input and results)
-        // This is called when user interacts with other UI elements
-        // Always hides results regardless of searchExpanded state to handle edge cases
+        // Helper function to hide search UI while preserving state
+        // Called when user interacts with map - allows resuming search later
+        function hideSearchPreserveState() {
+            isCollapsing = true;
+            searchExpanded = false;
+            if (mapSearchInput) {
+                mapSearchInput.classList.remove('expanded');
+                mapSearchInput.blur();
+                // Don't clear value - preserve for when user reopens
+            }
+            if (mapSearchResults) {
+                mapSearchResults.classList.remove('visible');
+                // Don't clear results - preserve for when user reopens
+            }
+            // Collapse map on mobile when search is closed (unless popup is open)
+            if (Viewport.isMobile()) {
+                const mapEl = document.getElementById('map');
+                const hasOpenPopup = document.querySelector('.leaflet-popup');
+                if (mapEl && mapEl.classList.contains('map-expanded') && !hasOpenPopup) {
+                    mapEl.classList.remove('map-expanded');
+                    setTimeout(() => {
+                        if (window.map) window.map.invalidateSize({ animate: true });
+                    }, 350);
+                }
+            }
+            setTimeout(() => { isCollapsing = false; }, 500);
+        }
+
+        // Helper function to fully collapse and reset search
+        // This is called when selecting a result or pressing Escape
         function collapseSearch() {
             isCollapsing = true;
             searchExpanded = false;
+            searchUserInteracted = false; // Reset interaction flag
             if (mapSearchInput) {
                 mapSearchInput.classList.remove('expanded');
                 mapSearchInput.value = '';
@@ -8403,8 +8535,8 @@
                     }, 350);
                 }
             }
-            // Reset flag after a tick to allow any pending renders to be blocked
-            setTimeout(() => { isCollapsing = false; }, 100);
+            // Reset flag after enough time for any pending async geocode to complete
+            setTimeout(() => { isCollapsing = false; }, 500);
         }
 
         // Expose collapseSearch globally so other sections can use it
@@ -8437,6 +8569,13 @@
                     searchExpanded = true;
                     mapSearchInput.classList.add('expanded');
                     mapSearchInput.focus();
+
+                    // If there's a preserved query, show the results again
+                    const preservedQuery = mapSearchInput.value.trim();
+                    if (preservedQuery.length >= 2 && mapSearchResults.children.length > 0) {
+                        mapSearchResults.classList.add('visible');
+                    }
+
                     // Hide zoom hint when search is expanded (#11)
                     const zoomHintEl = document.getElementById('zoom-hint');
                     if (zoomHintEl) {
@@ -8474,12 +8613,36 @@
                 toggleSearch(e);
             });
 
+            // Track when user interacts with the search input
+            mapSearchInput.addEventListener('click', () => {
+                searchUserInteracted = true;
+            });
+            mapSearchInput.addEventListener('input', () => {
+                searchUserInteracted = true;
+            });
+
             // Close search when clicking outside search control
-            // Check both searchExpanded state AND if results are visible (handles edge cases)
+            // Behavior:
+            // - If user hasn't interacted with search yet, don't close on map click
+            // - If user has interacted (clicked/typed), close on map click but preserve state
+            // - Clicking elsewhere (sidebar) always closes search
             document.addEventListener('click', (e) => {
                 const resultsVisible = mapSearchResults.classList.contains('visible');
-                if ((searchExpanded || resultsVisible) && !e.target.closest('#map-search-control')) {
-                    collapseSearch();
+                const clickedOnMap = e.target.closest('#map');
+                const clickedOnSearchControl = e.target.closest('#map-search-control');
+
+                if (clickedOnSearchControl) return; // Never close when clicking on search itself
+
+                if (clickedOnMap) {
+                    // Map click: only close if user has interacted with search
+                    if (searchUserInteracted && (searchExpanded || resultsVisible)) {
+                        hideSearchPreserveState(); // Preserve state for resuming later
+                    }
+                } else {
+                    // Non-map click: close search if expanded or results visible
+                    if (searchExpanded || resultsVisible) {
+                        collapseSearch();
+                    }
                 }
             });
 
@@ -8569,7 +8732,8 @@
 
             // Render search results
             function renderSearchResults(listings, locations) {
-                if (isCollapsing) return; // Don't render while collapsing
+                // Don't render if search is collapsing or already collapsed
+                if (isCollapsing || !searchExpanded) return;
 
                 mapSearchResults.innerHTML = '';
 
@@ -8715,6 +8879,8 @@
             mapSearchInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
+                    // Clear any pending debounced search to prevent re-rendering after selection
+                    clearTimeout(searchTimeout);
                     const query = mapSearchInput.value.trim();
                     if (query.length >= 2) {
                         // Check if we already have results displayed
@@ -8754,13 +8920,41 @@
                             } else {
                                 flyToWithOffset(L.latLng(spot.lat, spot.lng), 17);
                             }
+                        } else if (listingResults.length > 1) {
+                            // Multiple listing results - select the first one
+                            const spot = listingResults[0];
+
+                            popupJustOpened = true;
+                            if (popupProtectionTimeout) {
+                                clearTimeout(popupProtectionTimeout);
+                            }
+                            popupProtectionTimeout = setTimeout(() => {
+                                popupJustOpened = false;
+                                popupProtectionTimeout = null;
+                            }, 1000);
+
+                            collapseSearch();
+
+                            // Find and navigate to the first result
+                            let targetMarker = null;
+                            unifiedCluster.eachLayer(layer => {
+                                if (layer.getLatLng &&
+                                    Math.abs(layer.getLatLng().lat - spot.lat) < 0.0001 &&
+                                    Math.abs(layer.getLatLng().lng - spot.lng) < 0.0001) {
+                                    targetMarker = layer;
+                                }
+                            });
+
+                            if (targetMarker) {
+                                unifiedCluster.zoomToShowLayer(targetMarker, () => {
+                                    setTimeout(() => targetMarker.openPopup(), 100);
+                                });
+                            } else {
+                                flyToWithOffset(L.latLng(spot.lat, spot.lng), 17);
+                            }
                         } else {
-                            // Multiple or no results - trigger search immediately
-                            clearTimeout(searchTimeout);
-                            (async () => {
-                                const locationResults = await geocodeLocation(query);
-                                renderSearchResults(listingResults, locationResults);
-                            })();
+                            // No listing results - just close search
+                            collapseSearch();
                         }
                     }
                 }
@@ -9742,6 +9936,8 @@
             // MAP EXPANSION SYNC
             // Watch for map-expanded class and transform scroll indicator
             // ============================================
+            let mapHasEverExpanded = false; // Track if map has ever expanded
+
             function updateExpandedState() {
                 if (!mapElementForObserver) return;
 
@@ -9749,15 +9945,23 @@
                 scrollIndicatorState.isExpanded = mapElementForObserver.classList.contains('map-expanded');
 
                 if (scrollIndicatorState.isExpanded && scrollIndicatorState.isMobile) {
+                    // Map is expanded - show as "Tap for More"
                     scrollIndicator.classList.add('expanded-mode');
                     scrollIndicator.setAttribute('aria-label', 'Tap for more content. Map is expanded.');
                     scrollIndicator.setAttribute('aria-expanded', 'true');
+
+                    // Mark that map has expanded at least once (makes scroll indicator visible)
+                    if (!mapHasEverExpanded) {
+                        mapHasEverExpanded = true;
+                        scrollIndicator.classList.add('has-expanded');
+                    }
 
                     // Announce state change if it actually changed
                     if (!wasExpanded) {
                         announceToScreenReader('Map expanded. Tap for more to see additional content.');
                     }
                 } else {
+                    // Map is collapsed - show as arrow (only if map has expanded before)
                     scrollIndicator.classList.remove('expanded-mode');
                     scrollIndicator.setAttribute('aria-label', 'Scroll page');
                     scrollIndicator.setAttribute('aria-expanded', 'false');
@@ -9768,6 +9972,34 @@
                     }
                 }
             }
+
+            // ============================================
+            // SIDEBAR SCROLL LISTENER
+            // Collapse "Tap for More" to arrow when user scrolls sidebar
+            // ============================================
+            const sidebarForScroll = document.getElementById('sidebar');
+            if (sidebarForScroll) {
+                sidebarForScroll.addEventListener('scroll', () => {
+                    // Only collapse if currently in expanded mode
+                    if (scrollIndicator.classList.contains('expanded-mode')) {
+                        scrollIndicator.classList.remove('expanded-mode');
+                        scrollIndicator.setAttribute('aria-label', 'Scroll page');
+                        scrollIndicator.setAttribute('aria-expanded', 'false');
+                    }
+                }, { passive: true });
+            }
+
+            // Also listen for page scroll (when sidebar scrolls with page on mobile)
+            window.addEventListener('scroll', () => {
+                // Only collapse if on mobile, map is not expanded, and in expanded mode
+                if (scrollIndicatorState.isMobile &&
+                    !mapElementForObserver?.classList.contains('map-expanded') &&
+                    scrollIndicator.classList.contains('expanded-mode')) {
+                    scrollIndicator.classList.remove('expanded-mode');
+                    scrollIndicator.setAttribute('aria-label', 'Scroll page');
+                    scrollIndicator.setAttribute('aria-expanded', 'false');
+                }
+            }, { passive: true });
 
             if (mapElementForObserver) {
                 // Use MutationObserver to watch for map-expanded class changes
@@ -9970,6 +10202,7 @@
             function handlePointerDown(e) {
                 if (scrollIndicatorState.isProcessingInteraction) return;
                 scrollIndicatorState.isProcessingInteraction = true;
+                scrollIndicatorState.pointerEventsUsed = true; // Track that pointer events are working
                 // Visual feedback
                 scrollIndicator.setAttribute('data-pressed', 'true');
             }
@@ -9991,7 +10224,11 @@
 
             function handlePointerCancel() {
                 scrollIndicator.removeAttribute('data-pressed');
-                scrollIndicatorState.isProcessingInteraction = false;
+                // Don't reset isProcessingInteraction immediately to prevent click fallback from firing
+                // Use a short timeout to allow any pending click events to be ignored
+                setTimeout(() => {
+                    scrollIndicatorState.isProcessingInteraction = false;
+                }, 300);
             }
 
             // Keyboard accessibility
@@ -10012,7 +10249,8 @@
             // Fallback click handler for older browsers without pointer events
             scrollIndicator.addEventListener('click', function(e) {
                 // Only handle if not already processed by pointer events
-                if (!scrollIndicatorState.isProcessingInteraction) {
+                // Skip entirely if pointer events have been used (to prevent hover triggering scroll)
+                if (!scrollIndicatorState.isProcessingInteraction && !scrollIndicatorState.pointerEventsUsed) {
                     handleScrollClick(e);
                 }
             });

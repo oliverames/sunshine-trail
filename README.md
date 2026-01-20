@@ -463,6 +463,10 @@ When the map expands to show a popup or search results, the floating arrow trans
 - Shows "Tap for More" text with a downward-pointing arrow (indicating "tap to see content below")
 - Collapses the map when tapped and scrolls to the sidebar content
 - Morphs back into the corner arrow button when the map collapses
+- Uses the same wave text animation on hover as the "Our Beers" button—characters animate right-to-left with a subtle bounce
+- Has a slightly translucent background (92% opacity) for visual polish
+- Only appears after the map has expanded at least once (not visible on initial page load)
+- Collapses back to the arrow when the user scrolls the sidebar (but not when scrolling/panning the map)
 
 This transformation uses GPU-accelerated CSS animations (transforms and opacity only) for smooth 60fps performance even on older devices. The implementation includes full accessibility support with `aria-expanded`, `aria-controls`, live region announcements for screen readers, and keyboard navigation (Enter/Space).
 
