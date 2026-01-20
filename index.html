@@ -1812,6 +1812,14 @@
                 bottom: 55px; /* Position above the 48px search input + gap */
                 max-height: 200px;
             }
+
+            /* Hide zoom and search controls when popup is open on mobile */
+            #map.popup-open .leaflet-control-zoom,
+            #map.popup-open .map-search-control {
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.2s ease;
+            }
         }
 
         /* Extra narrow mobile viewports */
@@ -3850,6 +3858,27 @@
                 return 'desktop-xlarge';
             }
         };
+
+        // ============================================
+        // MOBILE MAP EXPANSION HELPER
+        // Expands the map overlay on mobile when user interacts
+        // ============================================
+        function expandMapOnMobile() {
+            if (!Viewport.isMobile()) return false;
+
+            const mapEl = document.getElementById('map');
+            if (!mapEl || mapEl.classList.contains('map-expanded')) return false;
+
+            mapEl.classList.add('map-expanded');
+            // Scroll map into view smoothly
+            mapEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Tell Leaflet the container size changed
+            setTimeout(() => {
+                if (window.map) window.map.invalidateSize({ animate: false });
+            }, 350); // Wait for CSS transition
+
+            return true;
+        }
 
         // Shared emoji array for fidget sun burst animations (#51 - consolidate duplicates)
         const FIDGET_SUN_EMOJIS = ['😊', '😁', '🍺', '🍻', '☀️', '🧊', '🌈'];
@@ -6380,6 +6409,9 @@
             }
             userHasZoomed = true;
 
+            // Expand map on mobile when user clicks a cluster
+            expandMapOnMobile();
+
             const cluster = e.layer;
             const currentZoom = map.getZoom();
             const childCount = cluster.getChildCount();
@@ -6681,6 +6713,9 @@
 
         // Click handler - find nearest Sunshine Spot (with null check)
         if (zoomHint) zoomHint.addEventListener('click', () => {
+            // Expand map on mobile when zoom hint is clicked
+            expandMapOnMobile();
+
             if (!navigator.geolocation) {
                 alert('Geolocation is not supported by your browser');
                 return;
@@ -6793,6 +6828,7 @@
         // Zoom hint should only hide when user explicitly clicks zoom buttons.
 
         // Hide zoom hint when Leaflet zoom buttons are explicitly clicked
+        // Also expand map on mobile when zoom buttons are clicked
         setTimeout(() => {
             const zoomInBtn = document.querySelector('.leaflet-control-zoom-in');
             const zoomOutBtn = document.querySelector('.leaflet-control-zoom-out');
@@ -6800,12 +6836,14 @@
                 zoomInBtn.addEventListener('click', () => {
                     userHasZoomed = true;
                     zoomHint.classList.add('hidden');
+                    expandMapOnMobile();
                 });
             }
             if (zoomOutBtn) {
                 zoomOutBtn.addEventListener('click', () => {
                     userHasZoomed = true;
                     zoomHint.classList.add('hidden');
+                    expandMapOnMobile();
                 });
             }
         }, 100); // Small delay to ensure Leaflet controls are rendered
@@ -6825,6 +6863,9 @@
         let popupProtectionTimeout = null; // Track timeout to prevent overlapping protection windows
 
         map.on('popupopen', function(e) {
+            // Add class to map for CSS styling (hide controls on mobile when popup open)
+            document.getElementById('map').classList.add('popup-open');
+
             // Set protection flag to prevent immediate close from touch event bubbling
             // Also protects against Safari's simulated events (Leaflet #7255)
             // Protection timeout prevents immediate close from touch event bubbling
@@ -6839,18 +6880,7 @@
             }, 1000); // Reduced from 2000ms - 1s is sufficient for iOS Safari while improving UX
 
             // Expand map on mobile to show full popup
-            if (Viewport.isMobile()) {
-                const mapEl = document.getElementById('map');
-                if (mapEl && !mapEl.classList.contains('map-expanded')) {
-                    mapEl.classList.add('map-expanded');
-                    // Scroll map into view smoothly
-                    mapEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    // Tell Leaflet the container size changed
-                    setTimeout(() => {
-                        map.invalidateSize({ animate: false });  // No animation for cleaner timing (Issue #37)
-                    }, 350); // Wait for CSS transition
-                }
-            }
+            expandMapOnMobile();
 
             // Only save state on mobile/tablet (not full desktop)
             if (!Viewport.isDesktop()) {
@@ -6867,24 +6897,45 @@
                 const isMobile = Viewport.isMobile();
                 const mapEl = document.getElementById('map');
                 const isExpanding = isMobile && mapEl && mapEl.classList.contains('map-expanded');
-                // Increased mobile wait time to 700ms to account for 300ms CSS transition + invalidateSize + layout recalculation
-                const waitTime = isExpanding ? 700 : (isMobile ? 300 : 100);
 
                 // Cancel any pending centering operations to prevent race conditions (Issue #34)
                 if (window.popupCenteringTimeout) {
                     clearTimeout(window.popupCenteringTimeout);
                 }
+                if (window.popupMoveEndHandler) {
+                    map.off('moveend', window.popupMoveEndHandler);
+                    window.popupMoveEndHandler = null;
+                }
+
+                // Reset user interaction flag - centering is allowed until user starts dragging
+                window.userInteractedDuringPopup = false;
+
+                // Set up drag listener to cancel centering if user starts interacting
+                const cancelCenteringOnDrag = () => {
+                    window.userInteractedDuringPopup = true;
+                    if (window.popupCenteringTimeout) {
+                        clearTimeout(window.popupCenteringTimeout);
+                        window.popupCenteringTimeout = null;
+                    }
+                    if (window.popupMoveEndHandler) {
+                        map.off('moveend', window.popupMoveEndHandler);
+                        window.popupMoveEndHandler = null;
+                    }
+                    map.off('dragstart', cancelCenteringOnDrag);
+                    map.off('zoomstart', cancelCenteringOnDrag);
+                };
+                map.once('dragstart', cancelCenteringOnDrag);
+                map.once('zoomstart', cancelCenteringOnDrag);
 
                 // Function to perform the actual centering
-                const performCentering = (attempt = 1) => {
-                    // Check if popup is still open
-                    if (!e.popup || !map.hasLayer(e.popup)) {
+                const performCentering = () => {
+                    // Skip if user started interacting with the map
+                    if (window.userInteractedDuringPopup) {
                         return;
                     }
 
-                    // If map is animating, wait and retry (max 5 attempts)
-                    if ((map._animatingZoom || map._panAnim) && attempt < 5) {
-                        setTimeout(() => performCentering(attempt + 1), 100);
+                    // Check if popup is still open
+                    if (!e.popup || !map.hasLayer(e.popup)) {
                         return;
                     }
 
@@ -6902,17 +6953,47 @@
                     // Safe area boundaries in container coordinates (relative to map container)
                     const safeLeft = sidebarWidth + padding;
                     const safeRight = mapRect.width - padding;
-                    const safeTop = headerHeight + padding;
-                    const safeBottom = mapRect.height - padding;
+
+                    // On mobile when map is expanded, the header scrolls out of view
+                    // so we don't need to account for full header height
+                    // Just leave room for the "Tap for More" button (~50px top, ~60px bottom)
+                    let safeTop, safeBottom;
+                    if (isMobile && isExpanding) {
+                        // Mobile expanded: header scrolled out, account for Tap for More buttons
+                        safeTop = 50;
+                        safeBottom = mapRect.height - 60; // Room for bottom Tap for More button
+                    } else {
+                        // Desktop or mobile not expanded: header overlaps map
+                        safeTop = headerHeight + padding;
+                        safeBottom = mapRect.height - padding;
+                    }
 
                     // Calculate center of safe area in container coordinates
                     const safeCenterX = (safeLeft + safeRight) / 2;
                     const safeCenterY = (safeTop + safeBottom) / 2;
+                    const safeAreaHeight = safeBottom - safeTop;
 
-                    // Offset marker position: place it below center to leave room for popup above
-                    // Popup is typically ~250-350px tall, so offset marker down by ~25% of safe height
-                    const popupOffset = (safeBottom - safeTop) * 0.25;
-                    const targetMarkerY = safeCenterY + popupOffset;
+                    // Calculate popup height if available, otherwise estimate
+                    const popupEl = e.popup._container;
+                    const popupHeight = popupEl ? popupEl.offsetHeight : (isMobile ? 400 : 350);
+
+                    // Position the marker so popup + marker fits in safe area
+                    // On mobile, position marker lower to give more room for tall popups
+                    // Target: popup top near safeTop, marker below it
+                    const markerHeight = 40; // approximate pin height
+                    const totalUnitHeight = popupHeight + markerHeight;
+
+                    // If popup+marker fits in safe area, center the unit
+                    // Otherwise, position marker at bottom third to maximize popup visibility
+                    let targetMarkerY;
+                    if (totalUnitHeight < safeAreaHeight) {
+                        // Center the popup+marker unit in safe area
+                        const unitTop = safeTop + (safeAreaHeight - totalUnitHeight) / 2;
+                        targetMarkerY = unitTop + popupHeight + markerHeight / 2;
+                    } else {
+                        // Tall popup: put marker at bottom third to maximize popup visibility
+                        targetMarkerY = safeTop + safeAreaHeight * (isMobile ? 0.7 : 0.65);
+                    }
 
                     // Get current marker position in container coords
                     const markerLatLng = e.popup._latlng;
@@ -6922,20 +7003,31 @@
                     const dx = safeCenterX - markerPoint.x;
                     const dy = targetMarkerY - markerPoint.y;
 
-                    // Only pan if marker is significantly off-center (>20px)
-                    if (Math.abs(dx) > 20 || Math.abs(dy) > 20) {
+                    // Only pan if marker is significantly off-center (>30px to reduce micro-adjustments)
+                    if (Math.abs(dx) > 30 || Math.abs(dy) > 30) {
                         // Calculate new map center by shifting current center
                         const currentCenter = map.getCenter();
                         const currentCenterPoint = map.latLngToContainerPoint(currentCenter);
                         const newCenterPoint = L.point(currentCenterPoint.x - dx, currentCenterPoint.y - dy);
                         const newCenter = map.containerPointToLatLng(newCenterPoint);
 
-                        map.panTo(newCenter, { animate: true, duration: 0.3 });
+                        // On mobile when map just expanded, use instant pan to avoid double-animation jank
+                        // When map is already expanded, animate smoothly
+                        const shouldAnimate = !isExpanding;
+                        map.panTo(newCenter, {
+                            animate: shouldAnimate,
+                            duration: shouldAnimate ? 0.25 : 0,
+                            easeLinearity: 0.5
+                        });
                     }
                 };
 
-                // Start centering after initial delay
-                window.popupCenteringTimeout = setTimeout(() => performCentering(1), waitTime);
+                // Always use a fixed timeout - moveend event is unreliable when popup opens
+                // after zoomToShowLayer callback (the moveend already fired before we listen)
+                // Longer wait when map is expanding (CSS transition) or detected as animating
+                const isAnimating = map._animatingZoom || map._panAnim;
+                const waitTime = isExpanding ? 400 : (isAnimating ? 300 : (isMobile ? 150 : 50));
+                window.popupCenteringTimeout = setTimeout(performCentering, waitTime);
             }
         });
 
@@ -6958,16 +7050,29 @@
                 // Don't close popup that was just opened (prevents immediate close on touch)
                 return;
             }
-            // Only close if clicking directly on map, not on a marker/cluster/popup
-            if (e.originalEvent &&
+
+            // Check if clicking on empty map area (not markers/clusters/popups)
+            const isEmptyMapClick = e.originalEvent &&
                 !e.originalEvent.target.closest('.leaflet-marker-icon') &&
                 !e.originalEvent.target.closest('.leaflet-popup') &&
-                !e.originalEvent.target.closest('.marker-cluster-pill')) {
+                !e.originalEvent.target.closest('.marker-cluster-pill');
+
+            // Expand map on mobile when user taps empty map area (only if no popup to close)
+            const hasOpenPopup = document.querySelector('.leaflet-popup');
+            if (isEmptyMapClick && !hasOpenPopup) {
+                expandMapOnMobile();
+            }
+
+            // Close popup if clicking on empty map area
+            if (isEmptyMapClick) {
                 map.closePopup();
             }
         });
 
         map.on('popupclose', function(e) {
+            // Remove popup-open class from map
+            document.getElementById('map').classList.remove('popup-open');
+
             // Clean up pending operations to prevent zombie timeouts
             if (window.popupCenteringTimeout) {
                 clearTimeout(window.popupCenteringTimeout);
@@ -8464,6 +8569,9 @@
                     mapSearchInput.classList.add('expanded');
                     mapSearchInput.focus();
 
+                    // Expand map on mobile when search is activated
+                    expandMapOnMobile();
+
                     // If there's a preserved query, show the results again
                     const preservedQuery = mapSearchInput.value.trim();
                     if (preservedQuery.length >= 2 && mapSearchResults.children.length > 0) {
@@ -8474,18 +8582,6 @@
                     const zoomHintEl = document.getElementById('zoom-hint');
                     if (zoomHintEl) {
                         zoomHintEl.classList.add('hidden');
-                    }
-                    // Expand map on mobile to show more search results
-                    if (Viewport.isMobile()) {
-                        const mapEl = document.getElementById('map');
-                        if (mapEl && !mapEl.classList.contains('map-expanded')) {
-                            mapEl.classList.add('map-expanded');
-                            // Scroll map into view smoothly - better than window.scrollTo which fights with keyboard
-                            mapEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            setTimeout(() => {
-                                if (window.map) window.map.invalidateSize({ animate: true });
-                            }, 350);
-                        }
                     }
                 } else {
                     // Collapse search - use helper function for consistency
