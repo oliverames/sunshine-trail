@@ -457,6 +457,15 @@ When you tap the search button on mobile, the search input expands to fill the w
 **A Little Floating Arrow to Help Navigate**
 There's a floating arrow button in the corner on mobile that helps you navigate the page. It points down when you're at the top (tap to scroll to content) and flips to point up when you're at the bottom (tap to scroll back to map). It even bounces a little to get your attention, and changes color when it's over the yellow Live Impact section so you can still see it.
 
+**"Tap for More" Button When Map is Expanded**
+When the map expands to show a popup or search results, the floating arrow transforms into a centered "Tap for More" button. This gives users an obvious way to collapse the map and see the rest of the page content. The button:
+- Smoothly animates from the corner position to center-bottom
+- Shows "Tap for More" text with an upward-pointing arrow
+- Collapses the map when tapped and scrolls to the sidebar content
+- Morphs back into the corner arrow button when the map collapses
+
+This transformation uses GPU-accelerated CSS animations (transforms and opacity only) for smooth 60fps performance even on older devices. The implementation includes full accessibility support with `aria-expanded`, `aria-controls`, live region announcements for screen readers, and keyboard navigation (Enter/Space).
+
 **The Email Popup Goes Full Screen**
 On mobile, when the email signup modal appears, it covers the whole screen. This keeps you focused on signing up without distractions.
 
@@ -467,7 +476,7 @@ On phones, I removed the hover effects from the Live Impact buttons because they
 Since you can't hover on mobile, the beer cans image automatically does its little "come forward" animation when it scrolls into view. It's a nice way to draw attention to the CTA without requiring hover.
 
 **Map Expands When You Need More Room**
-This one's pretty cool—on mobile, when you tap a marker or open search, the map automatically expands to fill more of the screen so you have room to see the popup or search results. When you close the popup or dismiss search, it shrinks back down. The scroll indicator arrow also collapses the expanded map and scrolls you to the sidebar content, making it easy to go back and forth.
+This one's pretty cool—on mobile, when you tap a marker or open search, the map automatically expands to fill more of the screen so you have room to see the popup or search results. When you close the popup or dismiss search, it shrinks back down. When expanded, the scroll indicator transforms into a centered "Tap for More" button (described above), giving users an obvious exit point to collapse the map and explore the sidebar content.
 
 ### Some Technical Stuff Under the Hood
 
