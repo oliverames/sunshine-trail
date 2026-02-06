@@ -189,4 +189,4 @@ export const CATEGORY_FILTERS = {
 /**
  * Password for the demo site
  */
-export const DEMO_PASSWORD = 'hireme';
+export const DEMO_PASSWORD = 'linkedin';

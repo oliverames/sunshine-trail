@@ -12,7 +12,7 @@
 
 | # | Issue | File:Line | Agent | Fix Complexity |
 |---|-------|-----------|-------|----------------|
-| 1 | **Hardcoded plaintext password** (`const correctPassword = 'hireme'`) | index.html:3417 | Security | Low |
+| 1 | **Hardcoded plaintext password** (`const correctPassword = 'linkedin'`) | index.html:3417 | Security | Low |
 | 2 | **Client-side auth bypass** via localStorage manipulation | index.html:51,3462,3476 | Security | Medium |
 | 3 | **XSS via innerHTML** in email form thank-you message | index.html:7151 | Security, Code Review | Low |
 | 4 | **XSS in popup content** - unescaped spot data | index.html:5523-5562 | Security, Code Review | Medium |
