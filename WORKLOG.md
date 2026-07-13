@@ -1,3 +1,11 @@
+## 2026-07-13 - Approval confirmed
+
+**Current state**: Oliver confirmed that The Sunshine Trail received approval for its current use. That closes the approval and asset-review gate recorded earlier today. The public documentation now says that plainly instead of describing the project as unapproved. CI and the GitHub Pages deployment pass on phone, tablet, and desktop at commit `c7beaa4`.
+
+**Reuse boundary**: Approval for this project does not make the repository open source or give third parties permission to reuse its code, brand assets, photography, or content. The all-rights-reserved notice stays in place, and the rendered map must keep OpenStreetMap and CARTO attribution visible.
+
+---
+
 ## 2026-07-13 - Public release readiness pass
 
 **What changed**: Added hosted Playwright and secret-scan CI, corrected package metadata to `UNLICENSED`, documented the reuse boundary, restored visible OpenStreetMap and CARTO attribution, and added a private security reporting policy. The site metadata now identifies Oliver Ames as the author and labels the work as an independent concept. The prototype form no longer asks for location or claims to submit data, modeled impact figures are labeled as projections, and unsourced first-person testimonials were removed. Two images with explicit restrictive metadata were removed from the current tree.

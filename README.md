@@ -17,7 +17,7 @@ An independent interactive map concept connecting Lawson's Finest Liquids from W
 **Live Site:** [thesunshinetrail.com](https://thesunshinetrail.com)
 **GitHub Pages:** [oliverames.github.io/sunshine-trail](https://oliverames.github.io/sunshine-trail/)
 
-This is an independent demonstration. Lawson's Finest Liquids did not commission, approve, or operate it. The repository is not open source; read [RIGHTS.md](RIGHTS.md) before reusing anything here.
+This project has received approval for its current use. I developed it independently and still operate the site. The repository is not open source; read [RIGHTS.md](RIGHTS.md) before reusing anything here.
 
 ---
 
@@ -159,7 +159,7 @@ Clicking any marker opens a popup showing:
 There's interesting logic built in here: when you close the popup, the map actually goes back to the previous perspective before you opened the popup. I'm trying to make it super easy for folks to use and make the map and pins follow the kind of behavior you'd expect on a site like this.
 
 **Image Sourcing**
-The prototype mixes stock photography with images found on organization websites. The source inventory is useful research, but it does not prove permission to republish an image. Two files with explicit restrictive metadata were removed from the current tree. The rest still need a formal rights review before production use; see [RIGHTS.md](RIGHTS.md).
+The prototype mixes stock photography with images found on organization websites. The current project has received approval, but that approval does not give anyone else permission to republish the images. The source inventory remains useful for tracing where each image came from; see [RIGHTS.md](RIGHTS.md).
 
 ### Filter by Category
 
