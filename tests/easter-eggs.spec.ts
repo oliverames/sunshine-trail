@@ -187,6 +187,10 @@ test.describe('Easter Eggs', () => {
       const initialCount = await page.locator(selectors.effects.snowflakes).count();
       expect(initialCount).toBeGreaterThan(0);
 
+      // Leave the trigger so the app stops creating new flakes before we
+      // measure animation cleanup.
+      await page.mouse.move(0, 0);
+
       // Store initial count in window for the waitForFunction
       await page.evaluate((count) => {
         (window as any).__initialSnowflakeCount = count;

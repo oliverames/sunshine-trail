@@ -501,9 +501,9 @@
       },
       {
         "name": "Craggy Gardens",
-        "filename": "craggy-gardens.jpg",
+        "filename": null,
         "source": "nps.gov",
-        "status": "sourced"
+        "status": "removed-rights-review"
       },
       {
         "name": "Looking Glass Rock",
@@ -577,9 +577,9 @@
     "community": [
       {
         "name": "Vermont Foodbank",
-        "filename": "vermont-foodbank.jpg",
+        "filename": null,
         "source": "vtfoodbank.org",
-        "status": "sourced"
+        "status": "removed-rights-review"
       },
       {
         "name": "Upper Valley Haven",

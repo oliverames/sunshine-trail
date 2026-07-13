@@ -1,6 +1,20 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { selectors } from './utils/selectors';
 import { setupPage, dismissEmailModal, waitForMapReady } from './utils/helpers';
+
+async function revealCollapsedScrollIndicator(page: Page) {
+  const scrollIndicator = page.locator(selectors.scrollIndicator.button);
+  const zoomIn = page.locator('.leaflet-control-zoom-in');
+
+  await expect(scrollIndicator).toBeHidden();
+  await zoomIn.click();
+  await expect(scrollIndicator).toBeVisible();
+  await expect(scrollIndicator).toHaveClass(/expanded-mode/);
+
+  await scrollIndicator.click();
+  await expect(scrollIndicator).toBeVisible();
+  await expect(scrollIndicator).not.toHaveClass(/expanded-mode/);
+}
 
 /**
  * Scroll Indicator / "Tap for More" Button Tests
@@ -22,7 +36,7 @@ test.describe('Scroll Indicator - Basic Functionality', () => {
     await waitForMapReady(page);
   });
 
-  test('scroll indicator should be visible on mobile', async ({ page }) => {
+  test('scroll indicator should stay hidden until the map first expands', async ({ page }) => {
     const viewport = page.viewportSize();
     const isMobile = viewport && viewport.width < 768;
 
@@ -32,7 +46,7 @@ test.describe('Scroll Indicator - Basic Functionality', () => {
     }
 
     const scrollIndicator = page.locator(selectors.scrollIndicator.button);
-    await expect(scrollIndicator).toBeVisible({ timeout: 5000 });
+    await expect(scrollIndicator).toBeHidden();
   });
 
   test('scroll indicator should have correct ARIA attributes', async ({ page }) => {
@@ -45,7 +59,6 @@ test.describe('Scroll Indicator - Basic Functionality', () => {
     }
 
     const scrollIndicator = page.locator(selectors.scrollIndicator.button);
-    await expect(scrollIndicator).toBeVisible({ timeout: 5000 });
 
     // Check ARIA attributes
     await expect(scrollIndicator).toHaveAttribute('role', 'button');
@@ -89,7 +102,7 @@ test.describe('Scroll Indicator - Map Expansion Transform', () => {
     }
 
     const scrollIndicator = page.locator(selectors.scrollIndicator.button);
-    await expect(scrollIndicator).toBeVisible({ timeout: 5000 });
+    await expect(scrollIndicator).toBeHidden();
 
     // Zoom in to get individual markers
     const zoomIn = page.locator('.leaflet-control-zoom-in');
@@ -136,7 +149,7 @@ test.describe('Scroll Indicator - Map Expansion Transform', () => {
     }
 
     const scrollIndicator = page.locator(selectors.scrollIndicator.button);
-    await expect(scrollIndicator).toBeVisible({ timeout: 5000 });
+    await expect(scrollIndicator).toBeHidden();
 
     // Zoom in to get individual markers
     const zoomIn = page.locator('.leaflet-control-zoom-in');
@@ -186,7 +199,7 @@ test.describe('Scroll Indicator - Map Expansion Transform', () => {
     }
 
     const scrollIndicator = page.locator(selectors.scrollIndicator.button);
-    await expect(scrollIndicator).toBeVisible({ timeout: 5000 });
+    await expect(scrollIndicator).toBeHidden();
 
     // Zoom in and click a marker
     const zoomIn = page.locator('.leaflet-control-zoom-in');
@@ -243,7 +256,7 @@ test.describe('Scroll Indicator - Keyboard Accessibility', () => {
     }
 
     const scrollIndicator = page.locator(selectors.scrollIndicator.button);
-    await expect(scrollIndicator).toBeVisible({ timeout: 5000 });
+    await revealCollapsedScrollIndicator(page);
 
     // Focus the scroll indicator
     await scrollIndicator.focus();
@@ -268,7 +281,7 @@ test.describe('Scroll Indicator - Keyboard Accessibility', () => {
     }
 
     const scrollIndicator = page.locator(selectors.scrollIndicator.button);
-    await expect(scrollIndicator).toBeVisible({ timeout: 5000 });
+    await revealCollapsedScrollIndicator(page);
 
     // Focus the scroll indicator
     await scrollIndicator.focus();
@@ -306,7 +319,7 @@ test.describe('Scroll Indicator - Animation Recording', () => {
     }
 
     const scrollIndicator = page.locator(selectors.scrollIndicator.button);
-    await expect(scrollIndicator).toBeVisible({ timeout: 5000 });
+    await expect(scrollIndicator).toBeHidden();
 
     // Capture initial state
     await page.waitForTimeout(1000);
@@ -363,7 +376,7 @@ test.describe('Scroll Indicator - Animation Recording', () => {
     }
 
     const scrollIndicator = page.locator(selectors.scrollIndicator.button);
-    await expect(scrollIndicator).toBeVisible({ timeout: 5000 });
+    await expect(scrollIndicator).toBeHidden();
 
     // Zoom in
     const zoomIn = page.locator('.leaflet-control-zoom-in');
@@ -431,7 +444,7 @@ test.describe('Scroll Indicator - Screen Reader Accessibility', () => {
     }
 
     const scrollIndicator = page.locator(selectors.scrollIndicator.button);
-    await expect(scrollIndicator).toBeVisible({ timeout: 5000 });
+    await revealCollapsedScrollIndicator(page);
 
     // Check for accessible name (aria-label or visible text)
     const ariaLabel = await scrollIndicator.getAttribute('aria-label');

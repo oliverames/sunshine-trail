@@ -57,20 +57,20 @@ export async function dismissEmailModal(page: Page): Promise<void> {
  * Sets up the page by authenticating and dismissing modal
  */
 export async function setupPage(page: Page): Promise<void> {
-  await page.goto('/');
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
   await authenticateUser(page);
   // Give small buffer for any animations
   await page.waitForTimeout(500);
 }
 
 /**
- * Waits for the map to be fully loaded and interactive
+ * Waits for the map application to be initialized and interactive.
+ * Tile imagery comes from a third-party network, so it is not a prerequisite
+ * for testing local markers and controls.
  */
 export async function waitForMapReady(page: Page): Promise<void> {
   // Wait for Leaflet map container to exist
   await page.waitForSelector(selectors.map.container);
-  // Wait for map tiles to load
-  await page.waitForSelector('.leaflet-tile-loaded', { timeout: 10000 });
   // Wait for markers or clusters to appear
   await page.waitForSelector(`${selectors.map.marker}, ${selectors.map.markerCluster}`, {
     timeout: 10000,

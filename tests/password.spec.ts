@@ -12,7 +12,7 @@ import { selectors, DEMO_PASSWORD } from './utils/selectors';
 test.describe.skip('Password Overlay', () => {
   test.beforeEach(async ({ page }) => {
     // Start fresh without any cached authentication
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     // Clear localStorage to ensure overlay shows
     await page.evaluate(() => localStorage.clear());
     await page.reload();
@@ -169,7 +169,7 @@ test.describe.skip('Password Overlay', () => {
 // SKIPPED: Password tests have passed consistently - Issue #73
 test.describe.skip('Password Overlay - Accessibility', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.evaluate(() => localStorage.clear());
     await page.reload();
   });

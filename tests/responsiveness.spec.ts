@@ -126,7 +126,7 @@ test.describe('Responsive Layout - Desktop', () => {
     }
   });
 
-  test('map should be on right on desktop', async ({ page }) => {
+  test('map should fill the viewport behind the floating sidebar on desktop', async ({ page }) => {
     const viewport = page.viewportSize();
     if (!viewport || viewport.width < 1024) {
       test.skip();
@@ -134,22 +134,15 @@ test.describe('Responsive Layout - Desktop', () => {
     }
 
     const map = page.locator(selectors.map.container);
-    const sidebar = page.locator(selectors.sidebar.container);
-
     // Wait for layout to stabilize - CSS layout can take time
     await map.waitFor({ state: 'visible', timeout: 5000 });
-    await sidebar.waitFor({ state: 'visible', timeout: 5000 });
     await page.waitForTimeout(1000);
 
     const mapBox = await map.boundingBox();
-    const sidebarBox = await sidebar.boundingBox();
 
-    if (mapBox && sidebarBox) {
-      // Map should be positioned to the right of the sidebar
-      // Check map's left edge is at or after sidebar's right edge (with generous tolerance)
-      // Layout might overlap slightly due to CSS grid/flex behavior
-      const sidebarRight = sidebarBox.x + sidebarBox.width;
-      expect(mapBox.x).toBeGreaterThanOrEqual(sidebarRight - 100);
+    if (mapBox) {
+      expect(mapBox.x).toBe(0);
+      expect(mapBox.width).toBeGreaterThanOrEqual(viewport.width - 1);
     }
   });
 

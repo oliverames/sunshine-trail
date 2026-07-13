@@ -273,7 +273,7 @@ test.describe('Email Modal - Form Submission', () => {
     await expect(modal).toBeVisible({ timeout: 5000 });
   });
 
-  test('should be able to fill and submit form', async ({ page }) => {
+  test('should preview the form without sending data', async ({ page }) => {
     const nameInput = page.locator(selectors.emailModal.nameInput);
     const emailInput = page.locator(selectors.emailModal.emailInput);
     const submitBtn = page.locator(selectors.emailModal.submitButton);
@@ -297,26 +297,15 @@ test.describe('Email Modal - Form Submission', () => {
     // Submit
     await submitBtn.click();
 
-    // Form should process (may show success message or close)
-    await page.waitForTimeout(1500);
-
-    // Verify form submission was processed - either modal closed, success shown,
-    // or inputs retain values (proving no crash occurred)
-    const modalVisible = await page.locator(selectors.emailModal.overlay).isVisible().catch(() => false);
-    const nameValue = await nameInput.inputValue().catch(() => '');
-    const emailValue = await emailInput.inputValue().catch(() => '');
-    const formRetainsValues = nameValue === 'Test User' || emailValue === 'test@example.com';
-    const modalClosed = !modalVisible;
-    const successMessageShown = await page.locator('.email-form-success').isVisible().catch(() => false);
-
-    // Test passes if any of these conditions are true
-    expect(formRetainsValues || modalClosed || successMessageShown).toBe(true);
+    const successMessage = page.locator('.email-form-success');
+    await expect(successMessage).toBeVisible();
+    await expect(successMessage).toHaveText('Prototype complete. Nothing was sent or stored.');
   });
 
   test('submit button should have appropriate text', async ({ page }) => {
     const submitBtn = page.locator(selectors.emailModal.submitButton);
     const text = await submitBtn.textContent();
-    expect(text?.toLowerCase()).toContain('send');
+    expect(text?.toLowerCase()).toContain('preview');
   });
 });
 

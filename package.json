@@ -1,8 +1,8 @@
 {
   "name": "sunshine-trail",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "description": "Independent interactive map concept connecting Vermont and North Carolina.",
   "scripts": {
     "test": "playwright test",
     "test:headed": "playwright test --headed",
@@ -13,16 +13,21 @@
     "type": "git",
     "url": "git+https://github.com/oliverames/sunshine-trail.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "interactive-map",
+    "leaflet",
+    "road-trip",
+    "vermont"
+  ],
+  "author": "Oliver Ames",
+  "license": "UNLICENSED",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/oliverames/sunshine-trail/issues"
   },
-  "homepage": "https://github.com/oliverames/sunshine-trail#readme",
+  "homepage": "https://thesunshinetrail.com/",
   "devDependencies": {
-    "@playwright/test": "^1.57.0",
-    "serve": "^14.2.5"
+    "@playwright/test": "^1.61.1",
+    "serve": "^14.2.6"
   }
 }
