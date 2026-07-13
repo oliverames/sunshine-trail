@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Locator } from '@playwright/test';
 import { selectors } from './utils/selectors';
 import {
   setupPage,
@@ -102,46 +102,38 @@ test.describe('Marker Clustering', () => {
       test.skip();
       return;
     }
+    const initialZoom = await page.evaluate(() => (window as any).map.getZoom());
 
-    // Get the first cluster
-    const cluster = page.locator(selectors.map.markerCluster).first();
+    // Choose a cluster whose center is not covered by the floating sidebar.
+    // Clicking screen coordinates for an obscured cluster can activate a link
+    // in the sidebar instead of the map marker.
+    const clusters = page.locator(selectors.map.markerCluster);
+    let cluster: Locator | null = null;
+    for (let index = 0; index < await clusters.count(); index++) {
+      const candidate = clusters.nth(index);
+      const box = await candidate.boundingBox();
+      if (!box) continue;
 
-    // Wait for cluster to be ready and visible
-    await cluster.waitFor({ state: 'visible', timeout: 5000 });
+      const center = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+      const receivesPointer = await candidate.evaluate((element, point) => {
+        const hitTarget = document.elementFromPoint(point.x, point.y);
+        return Boolean(hitTarget && (element === hitTarget || element.contains(hitTarget)));
+      }, center);
 
-    // Scroll cluster into view to ensure it's in viewport
-    await cluster.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(500);
-
-    // Click with multiple retry strategies
-    let clicked = false;
-    for (let attempt = 0; attempt < 3 && !clicked; attempt++) {
-      try {
-        const box = await cluster.boundingBox();
-        if (box) {
-          // Use mouse.click for more reliable clicking
-          await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-          clicked = true;
-        } else {
-          await cluster.click({ timeout: 3000 });
-          clicked = true;
-        }
-      } catch {
-        // Wait and retry
-        await page.waitForTimeout(300);
+      if (receivesPointer) {
+        cluster = candidate;
+        break;
       }
     }
+    expect(cluster).not.toBeNull();
+    await cluster!.click();
 
-    // Wait for zoom animation to complete
-    await page.waitForTimeout(1500);
-
-    // Either clusters decreased or markers increased (expansion occurred)
-    const afterClusters = await getVisibleClusterCount(page);
-    const afterMarkers = await getVisibleMarkerCount(page);
-
-    // More lenient assertion - just check that something changed or markers are visible
-    const clusterExpanded = afterClusters < initialClusters || afterMarkers > 0;
-    expect(clusterExpanded).toBe(true);
+    // A cluster can be replaced by another cluster with the same count on a
+    // small screen, so the map's zoom is the stable interaction outcome.
+    await expect.poll(
+      () => page.evaluate(() => (window as any).map.getZoom()),
+      { timeout: 5000 }
+    ).toBeGreaterThan(initialZoom);
   });
 
   test('cluster should display count of contained markers', async ({ page }) => {

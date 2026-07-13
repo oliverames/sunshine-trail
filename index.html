@@ -6400,6 +6400,18 @@
                     maxZoom: 15,  // Don't zoom in too far, let user click again if needed
                     padding: [60, 60]  // Generous padding to keep markers visible
                 });
+
+                // Large tablet sidebars can make fitBounds choose a lower zoom
+                // than the current view. A cluster click should always drill in,
+                // so preserve the sidebar offset and advance at least one level.
+                if (map.getZoom() <= currentZoom) {
+                    const nextZoom = Math.min(currentZoom + 1, 15);
+                    const offsetCenter = getOffsetCenter(clusterLatLng, nextZoom);
+                    map.setView(offsetCenter, nextZoom, {
+                        animate: !Viewport.isMobile(),
+                        duration: 0.4
+                    });
+                }
             }
 
             // Update tracking
