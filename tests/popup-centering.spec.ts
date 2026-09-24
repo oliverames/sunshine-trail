@@ -18,6 +18,44 @@ import {
  * Uses REAL user interactions - no JavaScript simulation.
  */
 
+// Select a real, unobscured marker after each zoom finishes. DOM order does
+// not imply that a marker is outside the sidebar or even inside the viewport.
+async function openPopupFromVisibleMarker(page: import('@playwright/test').Page) {
+  const markers = page.locator(selectors.map.marker);
+  const clusters = page.locator(selectors.map.markerCluster);
+  const clickableIndex = (locator: import('@playwright/test').Locator) => locator.evaluateAll((elements) => elements.findIndex((element) => {
+    const box = element.getBoundingClientRect();
+    const target = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
+    return box.width > 0 && box.height > 0 && target !== null &&
+      (target === element || element.contains(target));
+  }));
+  let markerIndex = await clickableIndex(markers);
+  // Follow visible clusters toward their data rather than zooming the map
+  // center until all points leave the exposed map area.
+  for (let i = 0; markerIndex < 0 && i < 8; i++) {
+    let clusterIndex = -1;
+    await expect.poll(async () => {
+      clusterIndex = await clickableIndex(clusters);
+      return clusterIndex;
+    }, { message: 'Expected an unobscured cluster to navigate toward markers' }).toBeGreaterThanOrEqual(0);
+    const previousZoom = await page.evaluate(() => (window as any).map.getZoom());
+    await clusters.nth(clusterIndex).click();
+    await page.waitForFunction((previous) => {
+      const map = (window as any).map;
+      return map.getZoom() > previous && !map._animatingZoom && !map._panAnim?._inProgress;
+    }, previousZoom);
+    markerIndex = await clickableIndex(markers);
+  }
+  await expect.poll(async () => {
+    markerIndex = await clickableIndex(markers);
+    return markerIndex;
+  }, { message: 'Expected a marker that can receive a real pointer click' }).toBeGreaterThanOrEqual(0);
+  await markers.nth(markerIndex).click();
+  const popup = page.locator(selectors.map.popup);
+  await expect(popup).toBeVisible();
+  return popup;
+}
+
 test.describe('Popup Centering (Issue #27)', () => {
   test.beforeEach(async ({ page }) => {
     await setupPage(page);
@@ -26,305 +64,47 @@ test.describe('Popup Centering (Issue #27)', () => {
   });
 
   test('popup should be fully visible when opened from marker click', async ({ page }) => {
-    // Zoom in to see individual markers
-    const zoomIn = page.locator(selectors.map.zoomInButton);
-    for (let i = 0; i < 6; i++) {
-      await zoomIn.click();
-      await page.waitForTimeout(300);
-    }
-
-    await page.waitForTimeout(500);
-
-    const markers = page.locator(selectors.map.marker);
-    const count = await markers.count();
-
-    if (count === 0) {
-      test.skip();
-      return;
-    }
-
-    // Click on a marker
-    await markers.first().click();
-
-    // Wait for popup to appear and map to adjust
-    await page.waitForTimeout(1000);
-
-    const popup = page.locator(selectors.map.popup);
-    await expect(popup).toBeVisible({ timeout: 5000 });
-
-    // Critical check: popup should be fully visible
-    const visibility = await getPopupVisibility(page);
-    expect(visibility.visible).toBe(true);
-
-    // At least 90% of popup should be visible (allowing for minor edge cases)
-    expect(visibility.visiblePercent).toBeGreaterThanOrEqual(90);
+    await openPopupFromVisibleMarker(page);
+    await expect.poll(async () => (await getPopupVisibility(page)).visiblePercent).toBeGreaterThanOrEqual(90);
   });
 
   test('popup should remain visible after map pans to accommodate it', async ({ page }) => {
-    // Zoom in
-    const zoomIn = page.locator(selectors.map.zoomInButton);
-    for (let i = 0; i < 5; i++) {
-      await zoomIn.click();
-      await page.waitForTimeout(300);
-    }
-
-    await page.waitForTimeout(500);
-
-    const markers = page.locator(selectors.map.marker);
-    const count = await markers.count();
-
-    if (count === 0) {
-      test.skip();
-      return;
-    }
-
-    // Wait for marker and scroll into view
-    const firstMarker = markers.first();
-    await firstMarker.waitFor({ state: 'visible', timeout: 5000 });
-    await firstMarker.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(300);
-
-    // Click marker
-    await firstMarker.click({ timeout: 10000 });
-
-    // Wait for popup and any pan animation
-    await page.waitForTimeout(2000);
-
-    // The popup should be fully visible after pan completes
-    const isFullyVisible = await isPopupFullyVisible(page);
-
-    // Take screenshot for debugging if test fails
-    if (!isFullyVisible) {
-      await page.screenshot({
-        path: `./test-results/popup-centering-failure-${Date.now()}.png`,
-      });
-    }
-
-    expect(isFullyVisible).toBe(true);
+    await openPopupFromVisibleMarker(page);
+    await expect.poll(() => isPopupFullyVisible(page)).toBe(true);
   });
 
-  test('popup should not be cut off at top of viewport', async ({ page }) => {
-    // Zoom in
-    const zoomIn = page.locator(selectors.map.zoomInButton);
-    for (let i = 0; i < 6; i++) {
-      await zoomIn.click();
-      await page.waitForTimeout(300);
-    }
-
-    const markers = page.locator(selectors.map.marker);
-    const count = await markers.count();
-    if (count === 0) {
-      test.skip();
-      return;
-    }
-
-    // Try to find a marker near the top of the viewport
-    // Click different markers and check popup visibility
-    for (let i = 0; i < Math.min(count, 5); i++) {
-      await markers.nth(i).click();
-      await page.waitForTimeout(1000);
-
-      const popup = page.locator(selectors.map.popup);
-      if (await popup.isVisible()) {
-        const popupBox = await popup.boundingBox();
-        if (popupBox) {
-          // Popup top should not be above viewport (y >= 0)
-          expect(popupBox.y).toBeGreaterThanOrEqual(0);
-        }
-        break;
-      }
-    }
-  });
-
-  test('popup should not be cut off at bottom of viewport', async ({ page }) => {
-    const viewport = page.viewportSize();
-    if (!viewport) {
-      test.skip();
-      return;
-    }
-
-    // Zoom in
-    const zoomIn = page.locator(selectors.map.zoomInButton);
-    for (let i = 0; i < 6; i++) {
-      await zoomIn.click();
-      await page.waitForTimeout(300);
-    }
-
-    const markers = page.locator(selectors.map.marker);
-    const count = await markers.count();
-    if (count === 0) {
-      test.skip();
-      return;
-    }
-
-    await markers.first().click();
-    await page.waitForTimeout(1000);
-
-    const popup = page.locator(selectors.map.popup);
-    if (await popup.isVisible()) {
-      const popupBox = await popup.boundingBox();
-      if (popupBox) {
-        // Popup bottom should not exceed viewport
-        expect(popupBox.y + popupBox.height).toBeLessThanOrEqual(viewport.height);
-      }
-    }
-  });
-
-  test('popup should not be cut off on left side', async ({ page }) => {
-    // Zoom in
-    const zoomIn = page.locator(selectors.map.zoomInButton);
-    for (let i = 0; i < 6; i++) {
-      await zoomIn.click();
-      await page.waitForTimeout(300);
-    }
-
-    const markers = page.locator(selectors.map.marker);
-    const count = await markers.count();
-    if (count === 0) {
-      test.skip();
-      return;
-    }
-
-    await markers.first().click();
-    await page.waitForTimeout(1000);
-
-    const popup = page.locator(selectors.map.popup);
-    if (await popup.isVisible()) {
-      const popupBox = await popup.boundingBox();
-      if (popupBox) {
-        // Popup left edge should not be negative
-        expect(popupBox.x).toBeGreaterThanOrEqual(0);
-      }
-    }
-  });
-
-  test('popup should not be cut off on right side', async ({ page }) => {
-    const viewport = page.viewportSize();
-    if (!viewport) {
-      test.skip();
-      return;
-    }
-
-    // Zoom in
-    const zoomIn = page.locator(selectors.map.zoomInButton);
-    for (let i = 0; i < 6; i++) {
-      await zoomIn.click();
-      await page.waitForTimeout(300);
-    }
-
-    const markers = page.locator(selectors.map.marker);
-    const count = await markers.count();
-    if (count === 0) {
-      test.skip();
-      return;
-    }
-
-    await markers.first().click();
-    await page.waitForTimeout(1000);
-
-    const popup = page.locator(selectors.map.popup);
-    if (await popup.isVisible()) {
-      const popupBox = await popup.boundingBox();
-      if (popupBox) {
-        // Popup right edge should not exceed viewport
-        expect(popupBox.x + popupBox.width).toBeLessThanOrEqual(viewport.width);
-      }
-    }
-  });
+  for (const edge of ['top', 'bottom', 'left', 'right'] as const) {
+    const title = edge === 'top' || edge === 'bottom'
+      ? `popup should not be cut off at ${edge} of viewport`
+      : `popup should not be cut off on ${edge} side`;
+    test(title, async ({ page }) => {
+      const popup = await openPopupFromVisibleMarker(page);
+      const viewport = page.viewportSize();
+      expect(viewport).not.toBeNull();
+      await expect.poll(async () => {
+        const box = await popup.boundingBox();
+        if (!box) return false;
+        if (edge === 'top') return box.y >= 0;
+        if (edge === 'left') return box.x >= 0;
+        if (edge === 'bottom') return box.y + box.height <= viewport!.height;
+        return box.x + box.width <= viewport!.width;
+      }, { message: `Popup must remain within the ${edge} viewport edge` }).toBe(true);
+    });
+  }
 
   test('popup close button should be accessible', async ({ page }) => {
-    // Zoom in
-    const zoomIn = page.locator(selectors.map.zoomInButton);
-    for (let i = 0; i < 6; i++) {
-      await zoomIn.click();
-      await page.waitForTimeout(300);
-    }
-
-    const markers = page.locator(selectors.map.marker);
-    const count = await markers.count();
-    if (count === 0) {
-      test.skip();
-      return;
-    }
-
-    await markers.first().click();
-    await page.waitForTimeout(1000);
-
-    const popup = page.locator(selectors.map.popup);
-    await expect(popup).toBeVisible();
-
+    await openPopupFromVisibleMarker(page);
     const closeButton = page.locator(selectors.map.popupCloseButton);
-
-    // Close button should exist and be visible
     await expect(closeButton).toBeVisible();
-
-    // Close button should be within viewport
-    const buttonBox = await closeButton.boundingBox();
-    const viewport = page.viewportSize();
-    if (buttonBox && viewport) {
-      expect(buttonBox.x).toBeGreaterThanOrEqual(0);
-      expect(buttonBox.y).toBeGreaterThanOrEqual(0);
-      expect(buttonBox.x + buttonBox.width).toBeLessThanOrEqual(viewport.width);
-      expect(buttonBox.y + buttonBox.height).toBeLessThanOrEqual(viewport.height);
-    }
+    await expect(closeButton).toBeInViewport({ ratio: 1 });
+    // Trial click checks the actual hit target without closing the popup.
+    await closeButton.click({ trial: true });
   });
 
   test('popup should close when close button is clicked', async ({ page }) => {
-    // Zoom in
-    const zoomIn = page.locator(selectors.map.zoomInButton);
-    for (let i = 0; i < 6; i++) {
-      await zoomIn.click();
-      await page.waitForTimeout(400);
-    }
-
-    await page.waitForTimeout(800);
-
-    const markers = page.locator(selectors.map.marker);
-    const count = await markers.count();
-    if (count === 0) {
-      test.skip();
-      return;
-    }
-
-    // Try to open popup with retry logic
-    const popup = page.locator(selectors.map.popup);
-    let popupOpened = false;
-
-    for (let attempt = 0; attempt < 3 && !popupOpened; attempt++) {
-      const firstMarker = markers.first();
-      await firstMarker.waitFor({ state: 'visible', timeout: 5000 });
-      await firstMarker.scrollIntoViewIfNeeded();
-      await page.waitForTimeout(300);
-
-      // Use bounding box click for reliability
-      const box = await firstMarker.boundingBox();
-      if (box) {
-        await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-      } else {
-        await firstMarker.click({ timeout: 5000 });
-      }
-
-      await page.waitForTimeout(1000);
-
-      // Check if popup opened
-      popupOpened = await popup.isVisible().catch(() => false);
-    }
-
-    if (!popupOpened) {
-      test.skip();
-      return;
-    }
-
-    await expect(popup).toBeVisible({ timeout: 5000 });
-
-    // Click the close button - wait for it to be visible and clickable
-    const closeButton = page.locator(selectors.map.popupCloseButton);
-    await closeButton.waitFor({ state: 'visible', timeout: 5000 });
-    await page.waitForTimeout(300);
-    await closeButton.click({ force: true });
-
-    // Popup should disappear
-    await expect(popup).not.toBeVisible({ timeout: 5000 });
+    const popup = await openPopupFromVisibleMarker(page);
+    await page.locator(selectors.map.popupCloseButton).click();
+    await expect(popup).not.toBeVisible();
   });
 });
 
