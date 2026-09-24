@@ -165,6 +165,9 @@
     <link rel="stylesheet" href="https://use.typekit.net/abz4zsp.css">
     <style>
         :root {
+            --mobile-header-height: 85px;
+            --search-expanded-width: 320px;
+
             /* Lawson's Finest brand colors - extracted from website */
             --sunshine-gold: #EAC054;      /* Primary gold from "Explore" text & Beer Finder button */
             --sunshine-orange: #E87722;    /* Orange from sun logo */
@@ -1290,10 +1293,10 @@
             /* Expanded map state for mobile - fills safe area below header */
             #map.map-expanded {
                 /* Account for header (85px) + bottom safe area (home indicator on iPhone) */
-                height: calc(100vh - 85px - env(safe-area-inset-bottom, 0px));
-                height: calc(100dvh - 85px - env(safe-area-inset-bottom, 0px));
-                min-height: calc(100vh - 85px - env(safe-area-inset-bottom, 0px));
-                min-height: calc(100dvh - 85px - env(safe-area-inset-bottom, 0px));
+                height: calc(100vh - var(--mobile-header-height) - env(safe-area-inset-bottom, 0px));
+                height: calc(100dvh - var(--mobile-header-height) - env(safe-area-inset-bottom, 0px));
+                min-height: calc(100vh - var(--mobile-header-height) - env(safe-area-inset-bottom, 0px));
+                min-height: calc(100dvh - var(--mobile-header-height) - env(safe-area-inset-bottom, 0px));
                 max-height: none;
                 /* Add padding at bottom to prevent content from being under home indicator */
                 padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -1690,7 +1693,7 @@
         }
 
         .map-search-input.expanded {
-            width: 320px;
+            width: var(--search-expanded-width);
             padding: 0 16px; /* Horizontal padding only - height handles vertical */
             opacity: 1;
         }
@@ -1703,7 +1706,7 @@
             position: absolute;
             bottom: 60px; /* Float above the input */
             right: 56px; /* Align with input: 48px (button) + 8px (gap) */
-            width: 320px; /* Same width as expanded input */
+            width: var(--search-expanded-width); /* Same width as expanded input */
             max-height: 300px;
             overflow-y: auto;
             background: white;
@@ -3734,6 +3737,25 @@
         // Centralized configuration for maintainability
         // ============================================
         const APP_CONFIG = {
+            MAP_RESIZE_DELAY_MS: 350,
+            PASSWORD_FADE_MS: 300,
+            DOM_SETTLE_DELAY_MS: 100,
+            LOCATION_MARKER_DISPLAY_MS: 10000,
+            GEOLOCATION_TIMEOUT_MS: 10000,
+            METRICS_REFRESH_MS: 100,
+            CAROUSEL_TRANSITION_MS: 500,
+            CAROUSEL_DISPLAY_MS: 5000,
+            ROUTE_SPINNER_DELAY_MS: 400,
+            THANK_YOU_DISPLAY_MS: 5000,
+            SEARCH_COLLAPSE_GUARD_MS: 500,
+            TOUCH_DEBOUNCE_MS: 300,
+            API_TIMEOUT_MS: 10000,
+            POPUP_RENDER_DELAY_MS: 100,
+            SEARCH_DEBOUNCE_MS: 300,
+            ANNOUNCEMENT_DELAY_MS: 100,
+            LAYOUT_SETTLE_DELAY_MS: 500,
+            POPUP_MAX_WIDTH: 320,
+
             // Timing constants
             GEOCODING_RATE_LIMIT_MS: 1100,  // Nominatim requires 1 request/second
             FORM_RATE_LIMIT_MS: 5000,       // 5 seconds between form submissions
@@ -3848,7 +3870,7 @@
             // Tell Leaflet the container size changed
             setTimeout(() => {
                 if (window.map) window.map.invalidateSize({ animate: false });
-            }, 350); // Wait for CSS transition
+            }, APP_CONFIG.MAP_RESIZE_DELAY_MS); // Wait for CSS transition
 
             return true;
         }
@@ -4172,7 +4194,7 @@
                     mapEl.classList.remove('map-expanded');
                     setTimeout(() => {
                         if (window.map) window.map.invalidateSize({ animate: true });
-                    }, 350);
+                    }, APP_CONFIG.MAP_RESIZE_DELAY_MS);
                 }
             }
         };
@@ -4239,7 +4261,7 @@
                 setTimeout(() => {
                     passwordContent.style.display = 'none';
                     welcomeText.classList.add('visible');
-                }, 300);
+                }, APP_CONFIG.PASSWORD_FADE_MS);
 
                 setTimeout(() => {
                     completeAuthentication();
@@ -4270,7 +4292,7 @@
             });
             // Focus password input on load if not authenticated
             if (!isAuthenticated) {
-                setTimeout(() => passwordInput.focus(), 100);
+                setTimeout(() => passwordInput.focus(), APP_CONFIG.DOM_SETTLE_DELAY_MS);
             }
         }
 
@@ -6304,7 +6326,7 @@
             }
 
             const marker = L.marker([spot.lat, spot.lng], { icon: icon, category: spot.category })
-                .bindPopup(popupContent, { maxWidth: 320, closeOnClick: false, autoClose: true, autoPan: false });
+                .bindPopup(popupContent, { maxWidth: APP_CONFIG.POPUP_MAX_WIDTH, closeOnClick: false, autoClose: true, autoPan: false });
 
             // Store marker by category
             markersByCategory[spot.category].push(marker);
@@ -6344,7 +6366,7 @@
             setTimeout(function() {
                 window.isInitialLoad = false;
             }, 200);
-        }, 100);
+        }, APP_CONFIG.DOM_SETTLE_DELAY_MS);
 
         // Track last clicked cluster for repeated zoom behavior (Issue #35)
         let lastClickedCluster = null;
@@ -6627,7 +6649,7 @@
                     }
                 }, true);
             }
-        }, 100);
+        }, APP_CONFIG.DOM_SETTLE_DELAY_MS);
 
         // Fit map to show all markers with smooth animation
         const allMarkers = sunshineSpots.map(s => [s.lat, s.lng]);
@@ -6752,7 +6774,7 @@
                         setTimeout(() => {
                             map.removeLayer(userMarker);
                             map.removeLayer(pulseMarker);
-                        }, 10000);
+                        }, APP_CONFIG.LOCATION_MARKER_DISPLAY_MS);
                     }
 
                     zoomHintText.textContent = zoomHintOriginalText;
@@ -6762,7 +6784,7 @@
                     zoomHintText.textContent = zoomHintOriginalText;
                     alert('Unable to get your location. Please try zooming manually.');
                 },
-                { enableHighAccuracy: true, timeout: 10000 }
+                { enableHighAccuracy: true, timeout: APP_CONFIG.GEOLOCATION_TIMEOUT_MS }
             );
         });
 
@@ -6794,7 +6816,7 @@
                     expandMapOnMobile();
                 });
             }
-        }, 100); // Small delay to ensure Leaflet controls are rendered
+        }, APP_CONFIG.DOM_SETTLE_DELAY_MS); // Small delay to ensure Leaflet controls are rendered
 
         // Hide zoom hint on scroll/wheel zoom (Issue #49)
         const mapContainer = document.getElementById('map');
@@ -7040,7 +7062,7 @@
                     // Tell Leaflet the container size changed
                     setTimeout(() => {
                         map.invalidateSize({ animate: true });
-                    }, 350); // Wait for CSS transition
+                    }, APP_CONFIG.MAP_RESIZE_DELAY_MS); // Wait for CSS transition
                 }
             }
 
@@ -7121,7 +7143,7 @@
                             // Use setTimeout to ensure scroll happens after any DOM updates
                             setTimeout(() => {
                                 mapElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            }, 100);
+                            }, APP_CONFIG.DOM_SETTLE_DELAY_MS);
                         }
                     }
 
@@ -7364,7 +7386,7 @@
                 if (solarEl) solarEl.textContent = formatKwh(newSolar);
                 if (evMilesEl) evMilesEl.textContent = formatWholeNumber(convertKwhToEvMiles(newSolar));
                 if (homesEl) homesEl.textContent = formatWholeNumber(convertKwhToHomesPowered(newSolar));
-            }, 100);
+            }, APP_CONFIG.METRICS_REFRESH_MS);
 
             if (carouselSlides.length > 1) {
                 solarCarouselInterval = setInterval(() => {
@@ -7377,8 +7399,8 @@
                     next.classList.add('active');
                     setTimeout(() => {
                         current.classList.remove('exiting');
-                    }, 500);
-                }, 5000);
+                    }, APP_CONFIG.CAROUSEL_TRANSITION_MS);
+                }, APP_CONFIG.CAROUSEL_DISPLAY_MS);
             }
         }
 
@@ -7441,7 +7463,7 @@
                         homesEl.textContent = formatWholeNumber(convertKwhToHomesPowered(newSolar));
                     }
                     lastSolar = newSolar;
-                }, 100);
+                }, APP_CONFIG.METRICS_REFRESH_MS);
 
                 // Start carousel rotation for solar metric (Issue #15)
                 // Rotate every 5 seconds as requested
@@ -7463,8 +7485,8 @@
                         // After exit animation completes, clean up exiting class
                         setTimeout(() => {
                             current.classList.remove('exiting');
-                        }, 500); // Match CSS transition duration
-                    }, 5000); // 5 seconds per slide
+                        }, APP_CONFIG.CAROUSEL_TRANSITION_MS); // Match CSS transition duration
+                    }, APP_CONFIG.CAROUSEL_DISPLAY_MS); // 5 seconds per slide
                 }
             }, 2600);
         }
@@ -7808,7 +7830,7 @@
                         // Hide spinner after map operations complete
                         setTimeout(() => {
                             routeToggleContainer.classList.remove('loading');
-                        }, 400);
+                        }, APP_CONFIG.ROUTE_SPINNER_DELAY_MS);
                     }, 16); // One frame delay after rAF ensures paint happens first
                 });
             }
@@ -7862,7 +7884,7 @@
                     const center = combinedBounds.getCenter();
                     map.setView(center, minZoom, { animate: false });
                 }
-            }, 100);
+            }, APP_CONFIG.DOM_SETTLE_DELAY_MS);
         }
 
         // ============================================
@@ -7928,7 +7950,6 @@
 
         // Form submission rate limiting (#25) - prevent spam
         let lastFormSubmission = 0;
-        const FORM_RATE_LIMIT_MS = 5000; // 5 seconds between submissions
 
         // Handle form submission
         if (emailForm) {
@@ -7937,7 +7958,7 @@
 
                 // Rate limiting check (#25)
                 const now = Date.now();
-                if (now - lastFormSubmission < FORM_RATE_LIMIT_MS) {
+                if (now - lastFormSubmission < APP_CONFIG.FORM_RATE_LIMIT_MS) {
                     alert('Please wait a few seconds before submitting again.');
                     return;
                 }
@@ -7983,7 +8004,7 @@
                 }
                 emailForm.appendChild(successMsg);
                 // Close modal after 5 seconds
-                setTimeout(hideEmailModal, 5000);
+                setTimeout(hideEmailModal, APP_CONFIG.THANK_YOU_DISPLAY_MS);
             });
         }
 
@@ -8322,10 +8343,10 @@
                     mapEl.classList.remove('map-expanded');
                     setTimeout(() => {
                         if (window.map) window.map.invalidateSize({ animate: true });
-                    }, 350);
+                    }, APP_CONFIG.MAP_RESIZE_DELAY_MS);
                 }
             }
-            setTimeout(() => { isCollapsing = false; }, 500);
+            setTimeout(() => { isCollapsing = false; }, APP_CONFIG.SEARCH_COLLAPSE_GUARD_MS);
         }
 
         // Helper function to fully collapse and reset search
@@ -8353,11 +8374,11 @@
                     mapEl.classList.remove('map-expanded');
                     setTimeout(() => {
                         if (window.map) window.map.invalidateSize({ animate: true });
-                    }, 350);
+                    }, APP_CONFIG.MAP_RESIZE_DELAY_MS);
                 }
             }
             // Reset flag after enough time for any pending async geocode to complete
-            setTimeout(() => { isCollapsing = false; }, 500);
+            setTimeout(() => { isCollapsing = false; }, APP_CONFIG.SEARCH_COLLAPSE_GUARD_MS);
         }
 
         // Expose collapseSearch globally so other sections can use it
@@ -8418,7 +8439,7 @@
                 e.preventDefault();
                 searchTouchHandled = true;
                 toggleSearch(e);
-                setTimeout(() => { searchTouchHandled = false; }, 300);
+                setTimeout(() => { searchTouchHandled = false; }, APP_CONFIG.TOUCH_DEBOUNCE_MS);
             }, { passive: false });
             mapSearchBtn.addEventListener('click', (e) => {
                 if (searchTouchHandled) return; // Prevent double-firing on touch devices
@@ -8502,7 +8523,7 @@
                 lastGeocodingCall = Date.now();
 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                const timeoutId = setTimeout(() => controller.abort(), APP_CONFIG.API_TIMEOUT_MS); // 10 second timeout
 
                 try {
                     const response = await fetch(
@@ -8605,7 +8626,7 @@
                         if (targetMarker) {
                             // Use zoomToShowLayer which handles clusters properly
                             unifiedCluster.zoomToShowLayer(targetMarker, () => {
-                                setTimeout(() => targetMarker.openPopup(), 100);
+                                setTimeout(() => targetMarker.openPopup(), APP_CONFIG.POPUP_RENDER_DELAY_MS);
                             });
                         } else {
                             // Fallback: fly to location using viewport-aware utility
@@ -8684,7 +8705,7 @@
                     // Also search for locations (towns, cities)
                     const locationResults = await geocodeLocation(query);
                     renderSearchResults(listingResults, locationResults);
-                }, 300);
+                }, APP_CONFIG.SEARCH_DEBOUNCE_MS);
             });
 
             // Handle Enter key for immediate search or auto-select single result
@@ -8728,7 +8749,7 @@
 
                             if (targetMarker) {
                                 unifiedCluster.zoomToShowLayer(targetMarker, () => {
-                                    setTimeout(() => targetMarker.openPopup(), 100);
+                                    setTimeout(() => targetMarker.openPopup(), APP_CONFIG.POPUP_RENDER_DELAY_MS);
                                 });
                             } else {
                                 flyToWithOffset(L.latLng(spot.lat, spot.lng), 17);
@@ -8761,7 +8782,7 @@
 
                             if (targetMarker) {
                                 unifiedCluster.zoomToShowLayer(targetMarker, () => {
-                                    setTimeout(() => targetMarker.openPopup(), 100);
+                                    setTimeout(() => targetMarker.openPopup(), APP_CONFIG.POPUP_RENDER_DELAY_MS);
                                 });
                             } else {
                                 flyToWithOffset(L.latLng(spot.lat, spot.lng), 17);
@@ -9687,7 +9708,7 @@
                 scrollIndicatorState.liveRegion.textContent = '';
                 setTimeout(() => {
                     scrollIndicatorState.liveRegion.textContent = message;
-                }, 100);
+                }, APP_CONFIG.ANNOUNCEMENT_DELAY_MS);
             }
 
             // ============================================
@@ -9981,7 +10002,7 @@
                     // Notify Leaflet of size change
                     setTimeout(() => {
                         if (window.map) window.map.invalidateSize({ animate: !scrollIndicatorState.prefersReducedMotion });
-                    }, scrollIndicatorState.prefersReducedMotion ? 0 : 350);
+                    }, scrollIndicatorState.prefersReducedMotion ? 0 : APP_CONFIG.MAP_RESIZE_DELAY_MS);
                     // Scroll to route section after a short delay
                     setTimeout(() => {
                         const routeSection = document.querySelector('.route-toggle-section');
@@ -9991,7 +10012,7 @@
                         }
                         // Announce scroll action
                         announceToScreenReader('Scrolled to route section.');
-                    }, scrollIndicatorState.prefersReducedMotion ? 0 : 100);
+                    }, scrollIndicatorState.prefersReducedMotion ? 0 : APP_CONFIG.DOM_SETTLE_DELAY_MS);
                     return;
                 }
 
@@ -10043,7 +10064,7 @@
                 // Use a short timeout to allow any pending click events to be ignored
                 setTimeout(() => {
                     scrollIndicatorState.isProcessingInteraction = false;
-                }, 300);
+                }, APP_CONFIG.TOUCH_DEBOUNCE_MS);
             }
 
             // Keyboard accessibility
@@ -10087,8 +10108,8 @@
             document.addEventListener('touchmove', requestScrollUpdate, { passive: true });
 
             // Initial state after short delay to ensure page is fully rendered
-            setTimeout(updateScrollIndicator, 100);
-            setTimeout(updateScrollIndicator, 500); // Second check after layout stabilizes
+            setTimeout(updateScrollIndicator, APP_CONFIG.DOM_SETTLE_DELAY_MS);
+            setTimeout(updateScrollIndicator, APP_CONFIG.LAYOUT_SETTLE_DELAY_MS); // Second check after layout stabilizes
 
             // Periodic bounce animation to draw attention
             scrollBounceInterval = setInterval(() => {
