@@ -8,7 +8,8 @@
     "test:snow-lifecycle": "node --test tests/unit/snowfall.cjs",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
-    "serve": "serve -l 3000"
+    "serve": "serve -l 3000",
+    "test:event-lifecycle": "node --test tests/unit/event-lifecycle.cjs"
   },
   "repository": {
     "type": "git",

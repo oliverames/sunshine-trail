@@ -3834,12 +3834,46 @@
         // ============================================
         let pageIsVisible = !document.hidden;
         const animationResumers = []; // Callbacks to resume animations when page becomes visible
+        const visibleAnimationFrames = new Map();
+
+        // Keep one frame per animation, including across a quick hide/show before
+        // the browser has delivered the old frame. Null marks paused work.
+        function scheduleVisibleAnimation(callback) {
+            const pending = visibleAnimationFrames.get(callback);
+            if (pending != null) return pending;
+            if (!pageIsVisible) {
+                visibleAnimationFrames.set(callback, null);
+                return null;
+            }
+            const id = requestAnimationFrame(() => {
+                visibleAnimationFrames.delete(callback);
+                if (pageIsVisible) callback();
+                else visibleAnimationFrames.set(callback, null);
+            });
+            visibleAnimationFrames.set(callback, id);
+            return id;
+        }
+
+        function cancelVisibleAnimation(callback) {
+            const id = visibleAnimationFrames.get(callback);
+            if (id != null) cancelAnimationFrame(id);
+            visibleAnimationFrames.delete(callback);
+        }
 
         document.addEventListener('visibilitychange', function() {
+            const wasVisible = pageIsVisible;
             pageIsVisible = !document.hidden;
+            if (pageIsVisible === wasVisible) return;
             if (pageIsVisible) {
-                // Resume all registered animations
-                animationResumers.forEach(resume => resume());
+                animationResumers.forEach(resume => {
+                    if (!visibleAnimationFrames.has(resume)) resume();
+                });
+                [...visibleAnimationFrames.keys()].forEach(scheduleVisibleAnimation);
+            } else {
+                visibleAnimationFrames.forEach((id, callback) => {
+                    if (id != null) cancelAnimationFrame(id);
+                    visibleAnimationFrames.set(callback, null);
+                });
             }
         });
 
@@ -4277,7 +4311,7 @@
                 passwordSunLastAngle = getPasswordSunAngle(e, rect);
                 passwordSunLastTime = Date.now();
                 passwordSunVelocity = 0;
-                if (passwordSunAnimationFrame) cancelAnimationFrame(passwordSunAnimationFrame);
+                cancelVisibleAnimation(animatePasswordMomentum);
             }
 
             function movePasswordSunDrag(e) {
@@ -4316,7 +4350,7 @@
                 passwordSunRotation += passwordSunVelocity;
                 passwordSunVelocity *= 0.9995;
                 fidgetSunPassword.style.transform = `rotate(${passwordSunRotation}deg)`;
-                passwordSunAnimationFrame = requestAnimationFrame(animatePasswordMomentum);
+                passwordSunAnimationFrame = scheduleVisibleAnimation(animatePasswordMomentum);
             }
 
             // Mouse events (using tracked listeners for cleanup - Memory Leak Fix)
@@ -4435,7 +4469,7 @@
                     passwordIdleRotation += 0.1;
                     fidgetSunPassword.style.transform = `rotate(${passwordSunRotation + passwordIdleRotation}deg)`;
                 }
-                requestAnimationFrame(passwordIdleSpin);
+                scheduleVisibleAnimation(passwordIdleSpin);
             }
             passwordIdleSpin();
             registerVisibilityAnimation(passwordIdleSpin);
@@ -6780,8 +6814,11 @@
         let savedMapState = null;
         let popupJustOpened = false; // Prevent immediate close on mobile touch
         let popupProtectionTimeout = null; // Track timeout to prevent overlapping protection windows
+        let popupLifecycleController = null;
 
         map.on('popupopen', function(e) {
+            popupLifecycleController?.abort();
+            popupLifecycleController = new AbortController();
             // Add class to map for CSS styling (hide controls on mobile when popup open)
             document.getElementById('map').classList.add('popup-open');
 
@@ -6845,6 +6882,12 @@
                 };
                 map.once('dragstart', cancelCenteringOnDrag);
                 map.once('zoomstart', cancelCenteringOnDrag);
+                // Leaflet does not accept an AbortSignal, so bridge its paired
+                // listeners to the popup lifecycle explicitly.
+                popupLifecycleController.signal.addEventListener('abort', () => {
+                    map.off('dragstart', cancelCenteringOnDrag);
+                    map.off('zoomstart', cancelCenteringOnDrag);
+                }, { once: true });
 
                 // Function to perform the actual centering
                 const performCentering = () => {
@@ -6989,6 +7032,8 @@
         });
 
         map.on('popupclose', function(e) {
+            popupLifecycleController?.abort();
+            popupLifecycleController = null;
             // Remove popup-open class from map
             document.getElementById('map').classList.remove('popup-open');
 
@@ -7996,7 +8041,7 @@
                 lastAngleM = getAngleM(e, rect);
                 lastTimeM = Date.now();
                 velocityM = 0;
-                if (animationIdM) cancelAnimationFrame(animationIdM);
+                cancelVisibleAnimation(animateMomentumM);
             }
 
             function dragM(e) {
@@ -8034,7 +8079,7 @@
                 rotationM += velocityM;
                 velocityM *= 0.9995;
                 fidgetSunModal.style.transform = `rotate(${rotationM}deg)`;
-                animationIdM = requestAnimationFrame(animateMomentumM);
+                animationIdM = scheduleVisibleAnimation(animateMomentumM);
             }
 
             fidgetModalContainer.addEventListener('mousedown', startDragM);
@@ -8156,7 +8201,7 @@
                     idleRotationM += 0.05;
                     fidgetSunModal.style.transform = `rotate(${rotationM + idleRotationM}deg)`;
                 }
-                requestAnimationFrame(idleSpinM);
+                scheduleVisibleAnimation(idleSpinM);
             }
             idleSpinM();
             registerVisibilityAnimation(idleSpinM);
@@ -8833,7 +8878,7 @@
                 lastAngle = getAngle(e, rect);
                 lastTime = Date.now();
                 velocity = 0;
-                if (animationId) cancelAnimationFrame(animationId);
+                cancelVisibleAnimation(animateMomentum);
             }
 
             function drag(e) {
@@ -8873,7 +8918,7 @@
                 rotation += velocity;
                 velocity *= 0.9995; // Ultra-low friction - precision bearings
                 fidgetSun.style.transform = `rotate(${rotation}deg)`;
-                animationId = requestAnimationFrame(animateMomentum);
+                animationId = scheduleVisibleAnimation(animateMomentum);
             }
 
             // Mouse events - use container for larger hit area
@@ -9001,7 +9046,7 @@
                     idleRotation += 0.1;
                     fidgetSun.style.transform = `rotate(${rotation + idleRotation}deg)`;
                 }
-                requestAnimationFrame(idleSpin);
+                scheduleVisibleAnimation(idleSpin);
             }
             idleSpin();
             registerVisibilityAnimation(idleSpin);
@@ -9041,7 +9086,7 @@
                 lastAngleF = getAngleF(e, rect);
                 lastTimeF = Date.now();
                 velocityF = 0;
-                if (animationIdF) cancelAnimationFrame(animationIdF);
+                cancelVisibleAnimation(animateMomentumF);
             }
 
             function dragF(e) {
@@ -9079,7 +9124,7 @@
                 rotationF += velocityF;
                 velocityF *= 0.9995;
                 mobileFidgetSun.style.transform = `rotate(${rotationF}deg)`;
-                animationIdF = requestAnimationFrame(animateMomentumF);
+                animationIdF = scheduleVisibleAnimation(animateMomentumF);
             }
 
             fidgetMobileContainer.addEventListener('mousedown', startDragF);
@@ -9210,7 +9255,7 @@
                     idleRotationF += 0.1;
                     mobileFidgetSun.style.transform = `rotate(${rotationF + idleRotationF}deg)`;
                 }
-                requestAnimationFrame(idleSpinF);
+                scheduleVisibleAnimation(idleSpinF);
             }
             idleSpinF();
             registerVisibilityAnimation(idleSpinF);

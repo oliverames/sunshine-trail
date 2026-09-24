@@ -27,3 +27,7 @@
 **Open questions**: Local macOS/router DNS still had a stale NXDOMAIN cache immediately after the records were created. Public Cloudflare DNS was already correct; plain local resolution should recover as caches expire.
 
 ---
+
+## September 24, 2026: popup and animation lifecycle cleanup (#43)
+
+Regression fixtures reproduced retained popup drag/zoom callbacks after close and duplicated idle animation frames after a rapid tab hide/show. Popup-scoped AbortController cleanup now removes the paired Leaflet handlers. Active spinner idle and momentum loops use one tracked frame per callback, cancel pending frames while hidden, and resume without duplication. Cancelling momentum also removes paused work so a new drag can restart it. Mouse/touch behavior, the canvas snowfall renderer, CARTO branding, CSP and network settings are preserved. Unit fixtures exercise actual inline source, and real-browser tests repeat popup open/close with mouse and touch input.
