@@ -328,10 +328,17 @@ export function isTouchViewport(page: Page): boolean {
 /**
  * Waits for snowflakes to appear after cold beer hover
  */
-export async function waitForSnowflakes(page: Page, timeout: number = 3000): Promise<number> {
-  await page.waitForSelector(selectors.effects.snowflakes, { timeout });
-  const snowflakes = page.locator(selectors.effects.snowflakes);
-  return await snowflakes.count();
+export async function waitForSnowflakes(page: Page, timeout = 5000): Promise<number> {
+  const canvas = page.locator(selectors.effects.snowCanvas);
+  await expect(canvas).toBeVisible({ timeout });
+  // Public rendered pixels, not implementation-specific particle state.
+  await expect.poll(() => canvas.evaluate((node: HTMLCanvasElement) => {
+    const pixels = node.getContext('2d')!.getImageData(0, 0, node.width, node.height).data;
+    let visible = 0;
+    for (let index = 3; index < pixels.length; index += 4) if (pixels[index] > 0) visible++;
+    return visible;
+  }), { timeout }).toBeGreaterThan(0);
+  return canvas.count();
 }
 
 /**

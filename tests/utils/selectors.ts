@@ -37,7 +37,7 @@ export const selectors = {
   // ═══════════════════════════════════════════════════════════════
   effects: {
     godRays: '#god-rays-glow',
-    snowflakes: '.snowflake',
+    snowCanvas: '#snow-canvas',
     emojiBurst: '.emoji-burst',
     freezeOverlay: '#freeze-overlay',
   },

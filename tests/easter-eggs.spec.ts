@@ -93,136 +93,50 @@ test.describe('Easter Eggs', () => {
   });
 
   test.describe('Snowfall Effect', () => {
-    // Hover tests don't work reliably on touch devices
-    test('should trigger snowfall when hovering over "Cold beer" text', async ({ page }) => {
-      test.skip(isTouchViewport(page), 'Hover interactions not supported on touch devices');
-
-      const coldBeerSpan = page.locator(selectors.header.coldBeerSpan);
-      await expect(coldBeerSpan).toBeVisible();
-
-      // Perform real hover interaction
-      await coldBeerSpan.hover();
-
-      // Wait for snowflakes to appear
-      const snowflakeCount = await waitForSnowflakes(page);
-      expect(snowflakeCount).toBeGreaterThan(0);
-    });
-
-    test('should create approximately 101 snowflakes', async ({ page }) => {
-      test.skip(isTouchViewport(page), 'Hover interactions not supported on touch devices');
-
-      const coldBeerSpan = page.locator(selectors.header.coldBeerSpan);
-      await coldBeerSpan.hover();
-
-      // Wait a bit for all snowflakes to be created
-      await page.waitForTimeout(1000);
-
-      const snowflakes = page.locator(selectors.effects.snowflakes);
-      const count = await snowflakes.count();
-
-      // Should be around 101 snowflakes (allow some tolerance)
-      expect(count).toBeGreaterThanOrEqual(90);
-      expect(count).toBeLessThanOrEqual(110);
-    });
-
-    test('snowflakes should have variable animation durations', async ({ page }) => {
-      test.skip(isTouchViewport(page), 'Hover interactions not supported on touch devices');
-
-      const coldBeerSpan = page.locator(selectors.header.coldBeerSpan);
-      await coldBeerSpan.hover();
-      await page.waitForTimeout(500);
-
-      // Get animation durations of multiple snowflakes
-      const durations = await page.evaluate(() => {
-        const flakes = document.querySelectorAll('.snowflake');
-        const durs: number[] = [];
-        for (let i = 0; i < Math.min(10, flakes.length); i++) {
-          const dur = parseFloat(getComputedStyle(flakes[i]).animationDuration);
-          durs.push(dur);
-        }
-        return durs;
-      });
-
-      // Should have variation in durations (not all the same)
-      if (durations.length > 1) {
-        const uniqueDurations = new Set(durations);
-        expect(uniqueDurations.size).toBeGreaterThan(1);
-      }
-    });
-
-    test('snowflakes should fall from top to bottom', async ({ page }) => {
-      test.skip(isTouchViewport(page), 'Hover interactions not supported on touch devices');
-
-      const coldBeerSpan = page.locator(selectors.header.coldBeerSpan);
-      await coldBeerSpan.hover();
-      await page.waitForTimeout(200);
-
-      // Check that snowflakes start near the top
-      const initialPositions = await page.evaluate(() => {
-        const flakes = document.querySelectorAll('.snowflake');
-        return Array.from(flakes)
-          .slice(0, 5)
-          .map((f) => {
-            const rect = f.getBoundingClientRect();
-            return rect.top;
-          });
-      });
-
-      // Most snowflakes should start in upper half of viewport (Issue #48)
-      // Use viewport from Playwright instead of window.innerHeight
-      const viewport = page.viewportSize();
-      const halfViewport = viewport ? viewport.height / 2 : 500;
-      const avgTop = initialPositions.reduce((a, b) => a + b, 0) / initialPositions.length;
-      expect(avgTop).toBeLessThan(halfViewport);
-    });
-
-    test('snowflakes should be cleaned up after animation', async ({ page }) => {
-      test.skip(isTouchViewport(page), 'Hover interactions not supported on touch devices');
-
-      const coldBeerSpan = page.locator(selectors.header.coldBeerSpan);
-      await coldBeerSpan.hover();
-      await page.waitForTimeout(1000); // Wait longer for snowflakes to spawn
-
-      // Get initial count
-      const initialCount = await page.locator(selectors.effects.snowflakes).count();
-      expect(initialCount).toBeGreaterThan(0);
-
-      // Leave the trigger so the app stops creating new flakes before we
-      // measure animation cleanup.
+    test('hover shows one moving canvas and leaving clears it', async ({ page }) => {
+      test.skip(isTouchViewport(page), 'Desktop hover test');
+      await page.locator(selectors.header.coldBeerSpan).hover();
+      const canvas = page.locator(selectors.effects.snowCanvas);
+      await expect(canvas).toBeVisible();
+      await expect(page.locator('.snowflake, .snowflake-pooled')).toHaveCount(0);
+      await expect(canvas).toHaveCount(1);
+      await waitForSnowflakes(page);
+      const first = await canvas.evaluate((node: HTMLCanvasElement) => node.toDataURL());
+      await expect.poll(() => canvas.evaluate((node: HTMLCanvasElement) => node.toDataURL())).not.toBe(first);
       await page.mouse.move(0, 0);
+      await expect(page.locator(selectors.effects.freezeOverlay)).not.toHaveClass(/active/);
+      await expect(canvas).toBeHidden({ timeout: 5000 });
+    });
 
-      // Store initial count in window for the waitForFunction
-      await page.evaluate((count) => {
-        (window as any).__initialSnowflakeCount = count;
-      }, initialCount);
+    test('touch tap persists and close dismisses snowfall', async ({ page, isMobile }) => {
+      test.skip(!isMobile, 'Touch device test');
+      await page.locator(selectors.header.coldBeerSpan).tap();
+      await waitForSnowflakes(page);
+      await expect(page.locator('#snow-close-button')).toBeVisible();
+      await page.locator('#snow-close-button').tap();
+      await expect(page.locator('#snow-close-button')).not.toBeVisible();
+      await expect(page.locator(selectors.effects.snowCanvas)).toBeHidden({ timeout: 5000 });
+    });
 
-      // Wait for some snowflakes to be cleaned up (poll instead of fixed wait)
-      // Snowflakes have 6-10s duration, so wait up to 20s for cleanup to start
-      let cleanupDetected = false;
-      try {
-        await page.waitForFunction(
-          (selector) => {
-            const current = document.querySelectorAll(selector).length;
-            return current < (window as any).__initialSnowflakeCount;
-          },
-          selectors.effects.snowflakes,
-          { timeout: 20000, polling: 500 }
-        );
-        cleanupDetected = true;
-      } catch {
-        // Fallback: wait longer and check again
-        await page.waitForTimeout(8000);
-      }
+    test('touch hold stops on release', async ({ page, isMobile, browserName }) => {
+      test.skip(!isMobile || browserName !== 'chromium', 'Chromium touch input test');
+      const bounds = await page.locator(selectors.header.coldBeerSpan).boundingBox();
+      expect(bounds).not.toBeNull();
+      const session = await page.context().newCDPSession(page);
+      await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: bounds!.x + bounds!.width / 2, y: bounds!.y + bounds!.height / 2 }] });
+      await page.waitForTimeout(400);
+      await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      await expect(page.locator(selectors.effects.snowCanvas)).toBeHidden({ timeout: 5000 });
+      await expect(page.locator('#snow-close-button')).not.toBeVisible();
+      await session.detach();
+    });
 
-      // Snowflakes should be removed (at least some)
-      const finalCount = await page.locator(selectors.effects.snowflakes).count();
-      // If cleanup was detected by polling, assert strictly; otherwise be lenient
-      if (cleanupDetected) {
-        expect(finalCount).toBeLessThan(initialCount);
-      } else {
-        // Cleanup may still be in progress - just verify count is reasonable
-        expect(finalCount).toBeLessThanOrEqual(initialCount);
-      }
+    test('reduced motion keeps the freeze cue without animated snow', async ({ page, isMobile }) => {
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      if (isMobile) await page.locator(selectors.header.coldBeerSpan).tap();
+      else await page.locator(selectors.header.coldBeerSpan).hover();
+      await expect(page.locator(selectors.effects.freezeOverlay)).toHaveClass(/active/);
+      await expect(page.locator(selectors.effects.snowCanvas)).toBeHidden();
     });
   });
 
@@ -415,28 +329,18 @@ test.describe('Easter Eggs - Performance', () => {
     await dismissEmailModal(page);
   });
 
-  test('snowfall should not cause memory leaks', async ({ page }) => {
-    test.skip(isTouchViewport(page), 'Hover interactions not supported on touch devices');
-
-    const coldBeerSpan = page.locator(selectors.header.coldBeerSpan);
-
-    // Trigger snowfall multiple times
+  test('rapid snowfall restarts reuse one canvas', async ({ page }) => {
+    test.skip(isTouchViewport(page), 'Desktop hover test');
     for (let i = 0; i < 3; i++) {
-      await coldBeerSpan.hover();
-      await page.waitForTimeout(1000);
-      await page.locator(selectors.map.container).hover();
-      await page.waitForTimeout(500);
+      await page.locator(selectors.header.coldBeerSpan).hover();
+      await page.mouse.move(0, 0);
     }
-
-    // Wait for cleanup
-    await page.waitForTimeout(15000);
-
-    // Check snowflake count is reasonable
-    const snowflakes = page.locator(selectors.effects.snowflakes);
-    const count = await snowflakes.count();
-
-    // Should not accumulate excessively
-    expect(count).toBeLessThan(350); // 3 triggers * 101 = 303 max if no cleanup
+    await page.locator(selectors.header.coldBeerSpan).hover();
+    await waitForSnowflakes(page);
+    await expect(page.locator(selectors.effects.snowCanvas)).toHaveCount(1);
+    await expect(page.locator('.snowflake, .snowflake-pooled')).toHaveCount(0);
+    await page.mouse.move(0, 0);
+    await expect(page.locator(selectors.effects.snowCanvas)).toBeHidden({ timeout: 5000 });
   });
 
   test('emoji burst should clean up after animation', async ({ page }) => {

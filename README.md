@@ -410,7 +410,7 @@ There are a bunch of smaller decisions I made throughout building this that I th
 Since I'm pulling in brand assets, impact stories, and curated content, I wanted to make sure people couldn't just copy everything off the page. So I added some light copy protection, but I made sure it still lets users copy text they're typing into form fields, because that would be annoying otherwise.
 
 ### Making the Animations Feel Right
-The snowfall effect took some tweaking to get right. I wanted it to feel like continuous, natural snowfall rather than waves of snowflakes all falling at the same time. So each snowflake has its own random fall duration. I also had an issue where if you hovered in and out of "Cold Beer" really quickly, the animation would kind of crash and restart, that's fixed now, it handles rapid transitions smoothly.
+The snowfall effect uses one decorative canvas and a fixed pool of 250 reusable particles. It keeps the original snowflake glyphs, varied fall speeds, 50-flake opening burst, and continuous snowfall density. Animation frames stop immediately when snow is turned off or the tab is hidden. Returning to the tab resumes without catching up elapsed time. The remaining frozen image fades out through CSS, and reduced-motion preferences retain only the freeze overlay. Device tilt shares the active snowfall frame loop instead of running an idle wind loop. Desktop hover and mobile tap, hold, and close controls remain available.
 
 ### Keeping Buttons Consistent
 The yellow call-to-action buttons (Get Itinerary, Preview Signup, Our Beers) use the signature wave effect on hover. I wanted them to feel consistent with each other and with Lawson's website.

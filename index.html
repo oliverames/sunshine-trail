@@ -556,76 +556,23 @@
             transition: opacity 0.8s ease-out;
         }
 
-        /* Snowflake styles */
-        .snowflake {
+        /* One decorative canvas replaces the per-flake DOM elements. */
+        .snow-canvas {
             position: fixed;
-            top: -30px;
-            color: #fff;
-            font-size: 1.5rem;
-            opacity: 0;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
             pointer-events: none;
             z-index: 9999;
-            text-shadow: 0 0 8px rgba(200, 230, 255, 0.9), 0 0 15px rgba(173, 216, 230, 0.5);
-            /* GPU acceleration for smooth mobile performance */
-            will-change: transform, opacity;
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
+            opacity: 1;
         }
-
-        /* Snowfall animation - constant speed fall */
-        /* Wind effect is applied separately via JavaScript left position adjustment */
-        @keyframes snowfall {
-            0% {
-                transform: translateY(-20px) rotate(0deg) translateX(0);
-                opacity: 0.75;
-            }
-            25% {
-                transform: translateY(calc(27.5vh)) rotate(calc(var(--spin) * 0.25)) translateX(var(--sway1));
-            }
-            50% {
-                transform: translateY(calc(55vh)) rotate(calc(var(--spin) * 0.5)) translateX(var(--sway2));
-            }
-            75% {
-                transform: translateY(calc(82.5vh)) rotate(calc(var(--spin) * 0.75)) translateX(var(--sway3));
-            }
-            100% {
-                transform: translateY(110vh) rotate(var(--spin)) translateX(var(--sway4));
-                opacity: 0.25;
-            }
-        }
-
-        /* Snowflake melting animation for thaw */
-        @keyframes snowMelt {
-            0% {
-                opacity: 0.9;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 0.4;
-                transform: scale(0.7) translateY(5px);
-            }
-            100% {
-                opacity: 0;
-                transform: scale(0.3) translateY(15px);
-            }
-        }
-
-        .snowflake.melting {
-            animation: snowMelt 2.5s ease-out forwards !important;
-        }
-
-        .snowflake.thawing {
-            transition: opacity 2.5s ease-out;
-            opacity: 0 !important;
-            /* Disable animation and transform updates during thaw for smoother fade */
-            animation-play-state: paused !important;
-        }
-
-        /* Mobile-specific optimizations for smoother thaw */
+        .snow-canvas.thawing { opacity: 0; transition: opacity 2.5s ease-out; }
         @media (max-width: 768px) {
-            .snowflake.thawing {
-                transition: opacity 3s ease-out; /* Longer fade on mobile */
-            }
+            .snow-canvas.thawing { transition-duration: 3s; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .snow-canvas { display: none; }
+            .freeze-overlay { transition: none !important; }
         }
 
         /* Snow close button (mobile only) - matches popup close button style */
@@ -3373,6 +3320,7 @@
 
     <!-- Freeze overlay for cold beer hover effect -->
     <div class="freeze-overlay" id="freeze-overlay"></div>
+    <canvas id="snow-canvas" class="snow-canvas" aria-hidden="true" hidden></canvas>
     <button class="snow-close-button" id="snow-close-button" aria-label="Stop snow effect"></button>
 
     <!-- Mobile scroll indicator - floats above content, below effects -->
@@ -3685,6 +3633,7 @@
     </footer>
 
     <!-- Note: SRI hashes removed - unpkg content changes can invalidate hashes -->
+    <script src="snowfall.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js" crossorigin="anonymous"></script>
     <script>
@@ -9272,174 +9221,21 @@
         // ============================================
         const coldBeerElement = document.querySelector('.cold-beer');
         const freezeOverlay = document.getElementById('freeze-overlay');
-        let snowflakes = [];
-        let snowInterval = null;
+        const snowRenderer = createCanvasSnowfall(document.getElementById('snow-canvas'));
         let isSnowing = false;
 
-        // Use only text characters for snowflakes (no emoji) for consistent rendering
-        const snowflakeChars = ['❄', '❅', '❆', '✻', '✼'];
-
-        // Object pool for snowflakes to reduce DOM manipulation and GC pressure
-        const snowflakePool = [];
-        const MAX_POOL_SIZE = 100; // Keep up to 100 inactive snowflakes in pool
-
-        function getSnowflakeFromPool() {
-            if (snowflakePool.length > 0) {
-                const snowflake = snowflakePool.pop();
-                snowflake.style.display = ''; // Unhide
-                snowflake.className = 'snowflake'; // Restore class for active state
-                return snowflake;
-            }
-            // Create new element if pool is empty
-            const snowflake = document.createElement('div');
-            snowflake.className = 'snowflake';
-            document.body.appendChild(snowflake);
-            return snowflake;
-        }
-
-        function returnSnowflakeToPool(snowflake) {
-            snowflakes = snowflakes.filter(s => s !== snowflake);
-            if (snowflakePool.length < MAX_POOL_SIZE) {
-                // Reset, hide, and remove class so tests don't count pooled elements
-                snowflake.style.display = 'none';
-                snowflake.style.animation = 'none';
-                snowflake.className = 'snowflake-pooled'; // Change class so .snowflake selector doesn't match
-                snowflakePool.push(snowflake);
-            } else {
-                // Pool is full, remove the element
-                snowflake.remove();
-            }
-        }
-
-        function configureSnowflake(snowflake, fast = false, progress = null) {
-            snowflake.textContent = snowflakeChars[Math.floor(Math.random() * snowflakeChars.length)];
-            snowflake.style.left = Math.random() * 100 + 'vw';
-
-            // Bigger snowflakes with more size variation
-            const size = 1.2 + Math.random() * 1.3;
-            snowflake.style.fontSize = size + 'rem';
-
-            // Random spin amount (some spin a lot, some barely)
-            const spinDirection = Math.random() > 0.5 ? 1 : -1;
-            const spinAmount = (180 + Math.random() * 540) * spinDirection;
-            snowflake.style.setProperty('--spin', spinAmount + 'deg');
-
-            // Random sway pattern (left-right movement)
-            const swayBase = (Math.random() - 0.5) * 60;
-            snowflake.style.setProperty('--sway1', (swayBase + (Math.random() - 0.5) * 30) + 'px');
-            snowflake.style.setProperty('--sway2', (swayBase * -0.5 + (Math.random() - 0.5) * 40) + 'px');
-            snowflake.style.setProperty('--sway3', (swayBase * 0.3 + (Math.random() - 0.5) * 35) + 'px');
-            snowflake.style.setProperty('--sway4', (swayBase * -0.2 + (Math.random() - 0.5) * 25) + 'px');
-
-            // Variable fall duration for natural continuous effect
-            let duration, delay, remainingTime;
-            if (progress !== null) {
-                // Pre-filling viewport - start partway through animation
-                duration = 5 + Math.random() * 12;
-                delay = -progress * duration; // Negative delay starts animation in progress
-                remainingTime = duration * (1 - progress);
-            } else {
-                // Normal snowflake or fast initial burst
-                duration = fast ? (2 + Math.random() * 4) : (5 + Math.random() * 12);
-                delay = fast ? 0 : (Math.random() * 0.3);
-                remainingTime = duration + delay;
-            }
-
-            snowflake.style.animation = `snowfall ${duration}s linear ${delay}s forwards`;
-            return remainingTime;
-        }
-
-        function createSnowflake(fast = false) {
-            const snowflake = getSnowflakeFromPool();
-            const remainingTime = configureSnowflake(snowflake, fast);
-            snowflakes.push(snowflake);
-
-            // Return to pool after animation completes
-            setTimeout(() => {
-                returnSnowflakeToPool(snowflake);
-            }, remainingTime * 1000);
-        }
-
-        // Create a snowflake already partway through its fall (for pre-filling viewport)
-        function createSnowflakeAtProgress(progress) {
-            const snowflake = getSnowflakeFromPool();
-            const remainingTime = configureSnowflake(snowflake, false, progress);
-            snowflakes.push(snowflake);
-
-            // Return to pool after animation completes
-            setTimeout(() => {
-                returnSnowflakeToPool(snowflake);
-            }, remainingTime * 1000);
-        }
-
-        // Track cleanup timeout to prevent animation conflicts
-        let snowCleanupTimeout = null;
-
         function startSnow() {
-            // Clear any pending cleanup to prevent conflicts
-            if (snowCleanupTimeout) {
-                clearTimeout(snowCleanupTimeout);
-                snowCleanupTimeout = null;
-            }
-
-            // If already snowing, just ensure we're active
             if (isSnowing) return;
-
-            // Clean up any leftover thawing snowflakes immediately
-            snowflakes.forEach(flake => {
-                if (flake.classList.contains('thawing')) {
-                    if (flake.parentNode) flake.remove();
-                }
-            });
-            snowflakes = snowflakes.filter(s => !s.classList.contains('thawing'));
-
             isSnowing = true;
             freezeOverlay.classList.add('active');
-
-            // Create initial burst of FAST snowflakes from the top
-            // Fast snowflakes (2-6s duration) fill the header area quickly
-            // Increased to 50 for better visual density (Issue #48)
-            for (let i = 0; i < 50; i++) {
-                createSnowflake(true); // Fast snowflakes
-            }
-
-            // Start continuous creation - steady rate for natural snow effect
-            // ~2 flakes every 40ms = 50 flakes/second
-            snowInterval = setInterval(() => {
-                if (isSnowing && snowflakes.length < 250) {
-                    createSnowflake(); // Normal speed snowflakes
-                    createSnowflake();
-                }
-            }, 40);
+            snowRenderer.start();
         }
 
         function stopSnow() {
-            if (!isSnowing) return; // Prevent multiple stop calls
-
+            if (!isSnowing) return;
             isSnowing = false;
             freezeOverlay.classList.remove('active');
-
-            // Stop creating new snowflakes immediately
-            if (snowInterval) {
-                clearInterval(snowInterval);
-                snowInterval = null;
-            }
-
-            // Fade out existing snowflakes slowly (2.5s to match cold beer transition)
-            snowflakes.forEach(flake => {
-                flake.classList.add('thawing');
-            });
-
-            // Clean up after slow thaw completes
-            snowCleanupTimeout = setTimeout(() => {
-                // Only clean up thawing flakes (in case snow restarted)
-                const thawingFlakes = snowflakes.filter(s => s.classList.contains('thawing'));
-                thawingFlakes.forEach(flake => {
-                    if (flake.parentNode) flake.remove();
-                });
-                snowflakes = snowflakes.filter(s => !s.classList.contains('thawing'));
-                snowCleanupTimeout = null;
-            }, 2600);
+            snowRenderer.stop();
         }
 
         // Snow close button for mobile
@@ -9512,11 +9308,9 @@
         // ACCELEROMETER WIND EFFECT FOR SNOWFLAKES
         // Tilt device to blow wind on snowflakes
         // ============================================
-        let windOffset = 0;
-        let targetWindOffset = 0;
 
         function handleDeviceOrientation(event) {
-            if (!isSnowing || snowflakes.length === 0) return;
+            if (!isSnowing) return;
 
             // gamma is left-right tilt (-90 to 90)
             const tilt = event.gamma || 0;
@@ -9524,37 +9318,7 @@
             // Convert tilt to wind - balanced effect (not too subtle, not too extreme)
             const clampedTilt = Math.max(-50, Math.min(50, tilt));
             // Happy medium - noticeable and whimsical but not overwhelming
-            targetWindOffset = clampedTilt * 4; // Up to ~200px drift at max tilt
-        }
-
-        // Smooth wind animation loop - applies drift to snowflakes
-        function animateWind() {
-            // Smooth interpolation for natural, responsive feel
-            windOffset += (targetWindOffset - windOffset) * 0.15;
-
-            if (isSnowing && snowflakes.length > 0) {
-                snowflakes.forEach((flake) => {
-                    if (!flake.classList.contains('melting') && !flake.classList.contains('thawing')) {
-                        // Apply varying wind effect based on snowflake "weight" (size)
-                        // Smaller flakes are lighter and drift more
-                        const size = parseFloat(flake.style.fontSize) || 1.5;
-                        const weightFactor = 2.5 - size * 0.6; // Range ~0.7 to ~1.9
-
-                        // Calculate drift
-                        const windEffect = windOffset * weightFactor;
-
-                        // Store original left position (in vw) if not already stored
-                        if (flake.dataset.originalLeft === undefined) {
-                            flake.dataset.originalLeft = flake.style.left;
-                        }
-
-                        // Apply wind using calc() to combine vw base with px offset
-                        flake.style.left = `calc(${flake.dataset.originalLeft} + ${windEffect}px)`;
-                    }
-                });
-            }
-
-            requestAnimationFrame(animateWind);
+            snowRenderer.setWind(clampedTilt * 4); // Up to ~200px drift at max tilt
         }
 
         // Request permission for iOS 13+ devices
@@ -9592,7 +9356,7 @@
 
         // Handle device motion events (iOS 26+ fallback)
         function handleDeviceMotion(event) {
-            if (!isSnowing || snowflakes.length === 0) return;
+            if (!isSnowing) return;
 
             // Use accelerationIncludingGravity for tilt detection
             const accel = event.accelerationIncludingGravity;
@@ -9600,12 +9364,10 @@
                 // x-axis gives left-right tilt similar to gamma
                 const tilt = accel.x * 9; // Scale to approximate gamma range
                 const clampedTilt = Math.max(-50, Math.min(50, tilt));
-                targetWindOffset = clampedTilt * 4;
+                snowRenderer.setWind(clampedTilt * 4);
             }
         }
 
-        // Start wind animation loop
-        animateWind();
 
         // Request accelerometer on first touch of cold beer
         let accelerometerRequested = false;
@@ -10161,24 +9923,12 @@
                 clearInterval(tickerInterval);
                 tickerInterval = null;
             }
-            if (snowInterval) {
-                clearInterval(snowInterval);
-                snowInterval = null;
-            }
-            if (snowCleanupTimeout) {
-                clearTimeout(snowCleanupTimeout);
-                snowCleanupTimeout = null;
-            }
             if (emailModalTimer) {
                 clearTimeout(emailModalTimer);
                 emailModalTimer = null;
             }
 
-            // Clean up snowflakes
-            snowflakes.forEach(flake => {
-                if (flake.parentNode) flake.remove();
-            });
-            snowflakes = [];
+            snowRenderer.destroy();
 
             // Remove device orientation and motion listeners
             window.removeEventListener('deviceorientation', handleDeviceOrientation, true);

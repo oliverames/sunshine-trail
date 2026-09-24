@@ -5,6 +5,7 @@
   "description": "Independent interactive map concept connecting Vermont and North Carolina.",
   "scripts": {
     "test": "playwright test",
+    "test:snow-lifecycle": "node --test tests/unit/snowfall.cjs",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "serve": "serve -l 3000"
