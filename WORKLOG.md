@@ -1,3 +1,11 @@
+## 2026-10-23 - Override serve's compression dependency
+
+**What changed**: `6426ed8` overrides `compression` to 1.8.2 because the latest `serve` (14.2.6) still pins 1.8.1, which leaks memory when a response closes early. The lockfile also picked up patched `brace-expansion` and `fast-uri`.
+
+**Verification**: Both Node unit suites pass, `serve` returned a gzip-encoded page through the override, and CI passed, including the Playwright suite. Playwright browsers aren't installed on this Mac, so the browser tests ran only in CI.
+
+---
+
 ## 2026-10-07 - GitHub Issue Review Closeout
 
 **What changed**: Reviewed all 3 open issues against source at `26e88b3b8d09` and their complete issue history. No issue qualified for closure.
