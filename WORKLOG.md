@@ -1,3 +1,13 @@
+## 2026-10-23 - Security review: SRI and unused images
+
+**What changed**: The two Leaflet scripts and three Leaflet stylesheets from unpkg now carry `integrity` hashes, so a changed CDN file is refused instead of run. The Leaflet hashes match the ones Leaflet publishes, and the MarkerCluster hashes match the same files on jsDelivr. Five images that nothing references were removed: `b-corp-logo.webp` and `french-broad-river-headwaters.jpg` are byte-identical copies of files the page uses, and `marker-retailer.png`, `sunshine-trail-logo.svg` and `place-headers/blue-ridge-parkway.jpg` are named nowhere in the repository.
+
+**Verification**: Both Node unit suites pass, and every asset path in `index.html` still resolves. CI run 40023774761 passed the Playwright suite on phone, tablet and desktop with the hashes in place, and GitHub Pages deployed the commit.
+
+**Left off at**: The presentation password gate stays as documented. `gitleaks/gitleaks-action@v3` and the other actions in `ci.yml` use tags rather than commit SHAs; the workflow token is read-only.
+
+---
+
 ## 2026-10-23 - Override serve's compression dependency
 
 **What changed**: `6426ed8` overrides `compression` to 1.8.2 because the latest `serve` (14.2.6) still pins 1.8.1, which leaks memory when a response closes early. The lockfile also picked up patched `brace-expansion` and `fast-uri`.
